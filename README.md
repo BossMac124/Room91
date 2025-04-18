@@ -36,6 +36,7 @@
    'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정
    
    'pip install -r requirements.txt ' 명령어 실행
+
 9. 'python crawl.py'을 실행
 
 10. MongoDBCompass에서 접속할 때 url을 'mongodb://localhost:27018/housing?authSource=admin' 으로 접속한 후 
@@ -52,6 +53,7 @@
    
    db.directions.createIndex( { destination: "2dsphere" })' 
    명령어 실행
+
 13. 프로젝트로 넘어가서 BuDongSanApplication 실행
 
 14. 주소창에 http://localhost:8080/index.html에 접속 -> 추후 변경예정
