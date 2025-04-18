@@ -30,3 +30,4 @@
 8. 프로젝트로 넘어가서 BuDongSanApplication 실행
 9. 주소창에 http://localhost:8080/index.html에 접속 -> 추후 변경예정
    
+## 실행 결과
