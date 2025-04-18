@@ -24,8 +24,9 @@
    생성된 이미지 확인
 5. docker-compose.yml 파일 실행 후 docker Desktop에서 budongsan 멀티컨테이너 실행
 6. Python 폴더 들어가서 터미널로 이동
+   'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정
    'pip install -r requirements.txt ' 명령어 실행
-7. 파이썬 파일을 실행
+7. 'python crawl.py'을 실행
 8. MongoDBCompass에서 house 컬렉션에서  OpenMongoDB shell에 접속
    'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
 9. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
