@@ -54,8 +54,8 @@
    db.directions.createIndex( { destination: "2dsphere" })' 
    명령어 실행
 
-13. 프로젝트로 넘어가서 BuDongSanApplication 실행
+11. 프로젝트로 넘어가서 BuDongSanApplication 실행
 
-14. 주소창에 http://localhost:8080/index.html에 접속 -> 추후 변경예정
+12. 주소창에 http://localhost:8080/index.html에 접속 -> 추후 변경예정
    
 ## 실행 결과
