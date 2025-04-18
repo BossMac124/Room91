@@ -19,12 +19,14 @@
 2. MongoDBCompass, docker Desktop 설치
 3. 프로젝트 복제후 빌드 실행
 4. 터미널에서 
+
    'cd BuDongSan 
 
    docker build -t housing-image:latest .'
    생성된 이미지 확인
 6. docker-compose.yml 파일 실행 후 docker Desktop에서 budongsan 멀티컨테이너 실행
 7. Python 폴더 들어가서 터미널로 이동
+
    'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정
    
    'pip install -r requirements.txt ' 명령어 실행
@@ -33,6 +35,7 @@
 
 'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
 12. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
+   
    'db.directions.createIndex( { origin: "2dsphere" })
    
    db.directions.createIndex( { destination: "2dsphere" })' 
