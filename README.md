@@ -20,7 +20,7 @@
 3. 프로젝트 복제후 빌드 실행
 4. 터미널에서 
    'cd BuDongSan 
-   docker build -t housing-image:1.0 .'
+   docker build -t housing-image:latest .'
    생성된 이미지 확인
 5. docker-compose.yml 파일 실행 후 docker Desktop에서 budongsan 멀티컨테이너 실행
 6. Python 폴더 들어가서 터미널로 이동
@@ -30,8 +30,8 @@
 8. MongoDBCompass에서 house 컬렉션에서  OpenMongoDB shell에 접속
    'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
 9. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
-   db.directions.createIndex( { origin: "2dsphere" })
-   db.directions.createIndex( { destination: "2dsphere" }) 
+   'db.directions.createIndex( { origin: "2dsphere" })
+   db.directions.createIndex( { destination: "2dsphere" })' 
    명령어 실행
 10. 프로젝트로 넘어가서 BuDongSanApplication 실행
 11. 주소창에 http://localhost:8080/index.html에 접속 -> 추후 변경예정
