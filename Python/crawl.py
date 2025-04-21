@@ -4,7 +4,7 @@ from datetime import datetime
 import pymongo
 from pymongo import MongoClient
 import gridfs
-import pandas as pd
+import ast
 
 # (1) 공통 쿠키와 헤더
 cookies = {
@@ -366,42 +366,57 @@ with pd.ExcelWriter(xlsx_filename) as writer:
 print(f"Excel 파일이 성공적으로 저장되었습니다: {xlsx_filename}")
 
 
-
-# (1) MongoDB에 연결
+# (1) MongoDB 연결
 client = pymongo.MongoClient("mongodb://root:1234@localhost:27018/housing?authSource=admin")
-db = client["housing"]  # 사용할 데이터베이스명 지정
+db = client["housing"]
 
-# house 컬렉션 삭제
+# (2) house 컬렉션 초기화
 db.drop_collection("house")
-
 collection = db["house"]
 
-# 엑셀 파일을 읽고 시트 목록 확인
-sheets = pd.ExcelFile(xlsx_filename ).sheet_names
+# (4) 시트별 저장
+sheets = pd.ExcelFile(xlsx_filename).sheet_names
 print(f"엑셀 파일 시트 목록: {sheets}")
 
-# 시트별로 데이터를 읽고 저장
+# (5) 저장 컬럼 정의
+desired_columns = [
+    "region", "articleName", "tradeTypeCode", "tradeTypeName", "buildingName",
+    "floorInfo", "area1", "area2", "latitude", "longitude", "direction",
+    "articleConfirmYmd", "rentPrc", "tagList", "articleFeatureDesc",
+    "dealOrWarrantPrc", "elevatorCount", "sameAddrCnt", "sameAddrMinPrc",
+    "realtorName", "cpid", "cpName", "cpPcArticleUrl"
+]
+
+# (6) 시트별로 데이터 읽고 MongoDB에 저장
 for sheet in sheets:
-    # 시트 이름에 따라 구 이름을 추출하거나, 해당 시트에서 구 데이터를 추출
     df = pd.read_excel(xlsx_filename, sheet_name=sheet, engine="openpyxl")
 
-    # 원하는 컬럼만 선택
-    desired_columns = [
-        "region", "articleName", "tradeTypeCode", "tradeTypeName", "buildingName",
-        "floorInfo", "area1", "area2", "latitude", "longitude", "direction",
-        "articleConfirmYmd", "rentPrc", "tagList", "articleFeatureDesc",
-        "dealOrWarrantPrc",
-        "elevatorCount", "sameAddrCnt", "sameAddrMinPrc",
-        "realtorName",
-        "cpid", "cpName", "cpPcArticleUrl"
-    ]
-
-    # 필요한 컬럼만 추출
+    # 필요한 컬럼만 선택
     df = df[desired_columns]
 
-    # 각 시트별로 MongoDB에 삽입
+    # 문서 저장
     for _, row in df.iterrows():
-        document = row.to_dict()  # 행을 딕셔너리로 변환
-        collection.insert_one(document)  # MongoDB에 삽입
+        document = row.to_dict()
 
-print("엑셀 데이터가 MongoDB에 성공적으로 저장되었습니다.")
+        # ✅ tagList 문자열 → 리스트 변환
+        tag_list = document.get("tagList")
+        if isinstance(tag_list, str):
+            try:
+                parsed_list = ast.literal_eval(tag_list)
+                if isinstance(parsed_list, list):
+                    document["tagList"] = parsed_list
+            except Exception:
+                document["tagList"] = []
+
+        # ✅ location (GeoJSON) 추가
+        lon, lat = document.get("longitude"), document.get("latitude")
+        if lon and lat:
+            document["location"] = {
+                "type": "Point",
+                "coordinates": [lon, lat]
+            }
+
+        # 저장
+        collection.insert_one(document)
+
+print("엑셀 데이터를 MongoDB에 location 및 tagList 포함하여 성공적으로 저장했습니다.")
