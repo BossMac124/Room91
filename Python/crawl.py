@@ -1,10 +1,6 @@
-import requests
 import pandas as pd
-from datetime import datetime
 import pymongo
-from pymongo import MongoClient
-import gridfs
-import pandas as pd
+import requests
 
 # (1) 공통 쿠키와 헤더
 cookies = {
