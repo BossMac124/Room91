@@ -35,11 +35,13 @@
 
    'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정
    
-   'pip install -r requirements.txt ' 명령어 실행
+   Window 전용) 'pip install -r requirements.txt ' 명령어 실행
+   MAC 전용) 'pip3 install -r requirements.txt ' 명령어 실행
 
-9. 'python crawl.py'을 실행
+9. Window 전용) 'python crawl.py' 을
+   MAC 전용) 'python3 crawl.py' 을 실행
 
-10. MongoDBCompass에서 접속할 때 url을 'mongodb://localhost:27018/housing?authSource=admin' 으로 접속한 후 
+10. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속한 후 
 
     housing 데이터베이스 만들고 house 컬렉션 생성
 
