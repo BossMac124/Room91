@@ -36,28 +36,30 @@
    'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정
    
    Window 전용) 'pip install -r requirements.txt ' 명령어 실행
+
    MAC 전용) 'pip3 install -r requirements.txt ' 명령어 실행
 
-9. Window 전용) 'python crawl.py' 을
+8. Window 전용) 'python crawl.py' 을
+
    MAC 전용) 'python3 crawl.py' 을 실행
 
-10. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속한 후 
+9. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속한 후 
 
     housing 데이터베이스 만들고 house 컬렉션 생성
 
-11. house 컬렉션에서  OpenMongoDB shell에 접속
+10. house 컬렉션에서  OpenMongoDB shell에 접속
 
     'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
 
-12. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
+11. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
    
    'db.directions.createIndex( { origin: "2dsphere" })
    
    db.directions.createIndex( { destination: "2dsphere" })' 
    명령어 실행
 
-11. 프로젝트로 넘어가서 BuDongSanApplication 실행
+12. 프로젝트로 넘어가서 BuDongSanApplication 실행
 
-12. 주소창에 http://localhost:8080/index.html에 접속 -> 추후 변경예정
+13. 주소창에 http://localhost:8080/index.html에 접속 -> 추후 변경예정
    
 ## 실행 결과
