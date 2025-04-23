@@ -64,7 +64,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/server.conf:/etc/nginx/conf.d/default.conf
+      - ./BuDongSan/nginx/server.conf:/etc/nginx/conf.d/default.conf:ro
       - ./static:/var/www/html
     depends_on:
       - spring-app
