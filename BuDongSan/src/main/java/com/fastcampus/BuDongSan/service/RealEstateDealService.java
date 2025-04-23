@@ -14,9 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RealEstateDealService {
 
-    @Autowired
-    private RealEstateDealRepository dealRepository;
 
+    private final RealEstateDealRepository dealRepository;
+
+    // 시/군/구 중복없이 조회
     public List<String> getAllDistricts() {
         return dealRepository.findDistinctDistricts();
     }
@@ -25,9 +26,9 @@ public class RealEstateDealService {
         List<RealEstateDeal> deals;
 
         if (district != null && !district.isEmpty()) {
-            deals = dealRepository.findByDistrict(district);
+            deals = dealRepository.findByDistrict(district);    // 특정 지역으로 필터링
         } else {
-            deals = dealRepository.findAll();
+            deals = dealRepository.findAll();   // 지역이 없으면 모든 데이터 조회
         }
 
         return deals.stream()
