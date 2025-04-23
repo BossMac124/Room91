@@ -1,5 +1,7 @@
 package com.fastcampus.BuDongSan.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
@@ -13,7 +15,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "house")  // MongoDB 용
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Document(collection = "OneRoom")  // MongoDB 용
 @ToString
 public class House {
 

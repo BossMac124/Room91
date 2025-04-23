@@ -2,6 +2,7 @@ package com.fastcampus.BuDongSan.service;
 
 import com.fastcampus.BuDongSan.Entity.Direction;
 import com.fastcampus.BuDongSan.Entity.House;
+import com.fastcampus.BuDongSan.Entity.TwoRoom;
 import com.fastcampus.BuDongSan.repository.mongo.MongoDirectionRepository;
 import com.fastcampus.BuDongSan.repository.mongo.MongoOneRoomRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,10 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,35 +42,67 @@ public class HouseService {
 
     private static final String GOOGLE_API_KEY = "AIzaSyBf2v6wfnEQfY5LRRrOJX_3nL0D3K2gWn4";
 
-    // 매물 검색
-    public Optional<House> getHouse(String region, String articleName) {
-        return mongoOneRoomRepository.findByRegionAndArticleName(region, articleName);
-    }
+    // 원룸 매물 필터 조회, reids 저장및 조회
+    public List<House> findByLocationWithFilters(Point point,
+                                                         Distance distance,
+                                                         List<String> tradeTypeCodes,
+                                                         Integer rentPrcMin,
+                                                         Integer rentPrcMax,
+                                                         Integer dealPrcMin,
+                                                         Integer dealPrcMax) throws JsonProcessingException {
 
-    public List<House> findByLocationNearWithCache(Point point, Distance distance) throws JsonProcessingException {
-        String key = String.format("houses:%.5f:%.5f:%.0f",
-                point.getX(), point.getY(), distance.getValue());
+        // 캐시 키를 조건별로 생성
+        String cacheKey = buildCacheKey(point, distance, tradeTypeCodes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
 
-        // 1. Redis에서 조회 시도
-        String cached = redisTemplate.opsForValue().get(key);
+        // 1. Redis 캐시 확인
+        String cached = redisTemplate.opsForValue().get(cacheKey);
         if (cached != null) {
-            System.out.println("[CACHE HIT] 매물 리스트 Redis에서 가져옴");
-            House[] housesArray = objectMapper.readValue(cached, House[].class);
-            return Arrays.asList(housesArray);
+            System.out.println("[CACHE HIT]");
+            House[] cachedArr = objectMapper.readValue(cached, House[].class);
+
+            // 캐시 결과에서도 필터 적용
+            return Arrays.stream(cachedArr)
+                    .filter(h -> isTradeTypeMatched(h, tradeTypeCodes))         // 임대유형 필터
+                    .filter(h -> isRentInRange(h, rentPrcMin, rentPrcMax))     // 월세 필터
+                    .filter(h -> isDepositInRange(h, dealPrcMin, dealPrcMax))  // 보증금 필터
+                    .collect(Collectors.toList());
         }
 
-        // 2. MongoDB에서 조회
-        List<House> houses = mongoOneRoomRepository.findByLocationNear(point, distance);
+        // 2. MongoDB에서 위치 기반으로만 먼저 조회
+        Query query = new Query();
+        query.addCriteria(Criteria.where("location").nearSphere(point).maxDistance(distance.getNormalizedValue()));
+        List<House> mongoResults = mongoTemplate.find(query, House.class, "OneRoom");
 
-        // 3. Redis에 캐시 저장 (12시간 TTL)
-        if (!houses.isEmpty()) {
-            String json = objectMapper.writeValueAsString(houses);
-            redisTemplate.opsForValue().set(key, json, Duration.ofHours(12));
-            System.out.println("[CACHE SAVE] 매물 리스트 Redis에 저장 완료");
+        // 3. 나머지 필터 조건은 Java Stream에서 적용
+        List<House> filtered = mongoResults.stream()
+                .filter(h -> isTradeTypeMatched(h, tradeTypeCodes))
+                .filter(h -> isRentInRange(h, rentPrcMin, rentPrcMax))
+                .filter(h -> isDepositInRange(h, dealPrcMin, dealPrcMax))
+                .collect(Collectors.toList());
+
+        // 4. 캐시에 저장
+        if (!filtered.isEmpty()) {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(filtered), Duration.ofHours(12));
         }
 
-        return houses;
+        return filtered;
     }
+
+    private String buildCacheKey(Point point, Distance distance,
+                                 List<String> tradeTypeCodes,
+                                 Integer rentPrcMin, Integer rentPrcMax,
+                                 Integer dealPrcMin, Integer dealPrcMax) {
+        return String.format("house:%f:%f:%f:%s:%s:%s:%s:%s",
+                point.getX(), point.getY(), distance.getValue(),
+                tradeTypeCodes != null ? String.join("-", tradeTypeCodes) : "ALL",
+                rentPrcMin != null ? rentPrcMin : "N",
+                rentPrcMax != null ? rentPrcMax : "N",
+                dealPrcMin != null ? dealPrcMin : "N",
+                dealPrcMax != null ? dealPrcMax : "N");
+    }
+
+
+
 
     // 구글 길찾기 API 호출
     public JsonNode getDirections(double originLat, double originLng, double destLat, double destLng) throws IOException {
@@ -224,5 +254,51 @@ public class HouseService {
                 * Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+
+    // 임대유형이 일치하는지 확인 (null이면 전체 허용)
+    private boolean isTradeTypeMatched(House h, List<String> tradeTypes) {
+        return tradeTypes == null || tradeTypes.isEmpty() || tradeTypes.contains(h.getTradeTypeCode());
+    }
+
+    // 월세 필터 적용 (null 허용)
+    private boolean isRentInRange(House h, Integer min, Integer max) {
+        Integer rent = parseRentToInt(h.getRentPrc()); // 문자열 혹은 정수로 저장되었을 수 있으므로 변환
+        if (rent == null) return false;
+        if (min != null && rent < min) return false;
+        if (max != null && rent > max) return false;
+        return true;
+    }
+
+    // 보증금 필터 적용 (null 허용)
+    private boolean isDepositInRange(House h, Integer min, Integer max) {
+        Integer deposit = parseDepositToManwon(h.getDealOrWarrantPrc()); // 문자열 파싱
+        if (deposit == null) return false;
+        if (min != null && deposit < min) return false;
+        if (max != null && deposit > max) return false;
+        return true;
+    }
+
+    // 보증금 문자열 ("8,000") → 정수(8000, 만원 단위)
+    private Integer parseDepositToManwon(String str) {
+        try {
+            if (str == null) return null;
+            return Integer.parseInt(str.replaceAll(",", "").trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    // 월세 값이 숫자인지 안전하게 파싱 (null-safe)
+    private Integer parseRentToInt(Object rentPrc) {
+        if (rentPrc == null) return null;
+
+        if (rentPrc instanceof Integer) return (Integer) rentPrc; // 정수형이면 그대로 반환
+
+        try {
+            return Integer.parseInt(rentPrc.toString().replaceAll(",", "").trim()); // 문자열이면 정수 변환
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
