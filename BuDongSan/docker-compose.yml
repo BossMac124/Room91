@@ -39,6 +39,20 @@ services:
     networks:
       - Housing-network
 
+  postgres:
+      image: postgres:latest
+      container_name: Housing-postgres
+      environment:
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: 1234
+        POSTGRES_DB: housing
+      ports:
+        - "5432:5432"
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      networks:
+        - Housing-network
+
   spring-app:
     image: housing-image:latest
     container_name: Housing-app
@@ -53,6 +67,7 @@ services:
       - mysql
       - redis
       - mongo
+      - postgres
     networks:
       - Housing-network
 
@@ -77,3 +92,4 @@ volumes:
   mysql_data:
   redis_data:
   mongo_data:  # MongoDB 볼륨 추가
+  postgres_data:  # Postgres 전용 볼륨 추가
