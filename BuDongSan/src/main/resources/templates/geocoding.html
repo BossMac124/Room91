@@ -150,10 +150,8 @@
                 }
 
                 const firstDeal = data[0];
-                if (firstDeal.jiBun) {
-                    const fullAddress = `${district} ${neighborhood} ${firstDeal.jiBun}`;
-                    searchAddress(fullAddress);
-                }
+                const fullAddress = `${district} ${neighborhood}`; // 시군구와 법정동으로 주소 생성
+                searchAddress(fullAddress);
 
                 data.forEach(deal => {
                     const dealBox = document.createElement("div");
