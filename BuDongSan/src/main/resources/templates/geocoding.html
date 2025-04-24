@@ -2,104 +2,73 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>통합 지도 검색</title>
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d6d23793f0ca98625a72a1157e4c9fe7&libraries=services"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>재개발 지역 조회</title>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
     <style>
-        #map {
-            width: 100%;
-            height: 600px;
-            margin-top: 20px;
-        }
+        /* 지도 크기 설정 */
+        #map { width: 100%; height: 500px; }
+        .left-panel { width: 300px; float: left; }
     </style>
 </head>
 <body>
-<h2>📍 주소 또는 키워드로 검색</h2>
-<input type="text" id="input" placeholder="주소나 키워드를 입력하세요">
-<button onclick="search()">검색</button>
 
-<div id="result" style="margin-top: 10px;"></div>
-<div id="map"></div>
+<div class="left-panel">
+    <!-- 시군구 선택 -->
+    <select id="citySelect" onchange="onCityChange()">
+        <option value="">시군구 선택</option>
+    </select>
 
+    <!-- 법정동 선택 -->
+    <select id="neighborhoodSelect">
+        <option value="">법정동 선택</option>
+    </select>
+
+    <!-- 데이터 출력 부분 -->
+    <div id="dataOutput">
+        <!-- 데이터는 여기서 보여짐 -->
+    </div>
+</div>
+
+<!-- 시군구 목록 가져오기 -->
 <script>
-    let map;
-    let geocoder;
-    let marker; // 주소 검색 마커
-    let placeMarkers = []; // 키워드 검색 마커들
-
-    function initMap() {
-        const container = document.getElementById('map');
-        const options = {
-            center: new kakao.maps.LatLng(37.5665, 126.9780),
-            level: 3
-        };
-        map = new kakao.maps.Map(container, options);
-        geocoder = new kakao.maps.services.Geocoder();
-    }
-
-    function search() {
-        const input = document.getElementById("input").value.trim();
-        const resultDiv = document.getElementById("result");
-
-        if (!input) {
-            alert("검색어를 입력하세요!");
-            return;
-        }
-
-        // 1. 주소 검색 먼저 시도
-        geocoder.addressSearch(input, function (result, status) {
-            if (status === kakao.maps.services.Status.OK) {
-                const lat = result[0].y;
-                const lng = result[0].x;
-
-                resultDiv.innerHTML = `<p>📍 주소로 검색됨<br>위도: ${lat}, 경도: ${lng}</p>`;
-                const moveLatLng = new kakao.maps.LatLng(lat, lng);
-                map.setCenter(moveLatLng);
-
-                // 기존 마커 제거
-                if (marker) marker.setMap(null);
-                placeMarkers.forEach(m => m.setMap(null));
-                placeMarkers = [];
-
-                // 새 마커 추가
-                marker = new kakao.maps.Marker({
-                    map: map,
-                    position: moveLatLng,
-                    title: input
+    window.onload = function () {
+        fetch('/api/deals/district') // 백엔드에서 시군구 데이터 가져옴
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('citySelect');
+                data.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    select.appendChild(option);
                 });
-
-            } else {
-                // 2. 주소 검색 실패 → 키워드 검색으로 fallback
-                const ps = new kakao.maps.services.Places();
-
-                // 기존 마커 제거
-                if (marker) marker.setMap(null);
-                placeMarkers.forEach(m => m.setMap(null));
-                placeMarkers = [];
-
-                ps.keywordSearch(input, function (data, status) {
-                    if (status === kakao.maps.services.Status.OK) {
-                        const bounds = new kakao.maps.LatLngBounds();
-                        data.forEach(place => {
-                            const position = new kakao.maps.LatLng(place.y, place.x);
-                            const keywordMarker = new kakao.maps.Marker({
-                                map: map,
-                                position: position,
-                                title: place.place_name
-                            });
-                            placeMarkers.push(keywordMarker);
-                            bounds.extend(position);
-                        });
-                        map.setBounds(bounds);
-                        resultDiv.innerHTML = `🔍 <b>${input}</b> 키워드로 ${data.length}개 결과 표시됨`;
-                    } else {
-                        resultDiv.innerHTML = "❌ 검색 결과가 없습니다.";
-                    }
-                });
-            }
-        });
-    }
-
-    window.onload = initMap;
+            })
+            .catch(error => console.log('시군구 데이터 가져오기 실패', error));
+    };
 </script>
+
+<!-- 시군구 선택 시 법정동 목록 가져오기 -->
+<script>
+    function onCityChange() {
+        const district = document.getElementById("citySelect").value;
+        if (!district) return;
+
+        fetch(`/api/deals/district/${district}/neighborhood`)
+            .then(res => res.json())
+            .then(data => {
+                const neighborhoodSelect = document.getElementById("neighborhoodSelect");
+                neighborhoodSelect.innerHTML = '<option value="">법정동 선택</option>';
+                data.forEach(neighborhood => {
+                    const option = document.createElement('option');
+                    option.value = neighborhood;
+                    option.textContent = neighborhood;
+                    neighborhoodSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.log('법정동 데이터 가져오기 실패', error));
+    }
+</script>
+
 </body>
 </html>

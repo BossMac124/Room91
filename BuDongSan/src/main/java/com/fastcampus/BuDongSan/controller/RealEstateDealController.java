@@ -22,7 +22,7 @@ public class RealEstateDealController {
     private KakaoMapService kakaoMapService;
 
     // 검색한 시군구 데이터 전체 조회
-    @GetMapping("/district")
+    @GetMapping()
     public List<RealEstateDealResponse> getDealsByDistrict(@RequestParam String district) {
         return realEstateDealService.getDealsByDistrict(district);
     }
@@ -40,5 +40,18 @@ public class RealEstateDealController {
                     .body("해당 주소를 찾을 수 없습니다.");
         }
         return ResponseEntity.ok(geo);
+    }
+
+    // 시군구 리스트 가져오기
+    @GetMapping("/district")
+    public ResponseEntity<List<String>> getDistricts() {
+        List<String> districts = realEstateDealService.getAllDistricts();
+        return ResponseEntity.ok(districts);
+    }
+
+    // 선택한 시군구에 대한 법정동 리스트 가져오기
+    @GetMapping("/district/{district}/neighborhood")
+    public List<String> getNeighborhood(@PathVariable String district) {
+        return realEstateDealService.getNeighborhoodByDistrict(district);
     }
 }

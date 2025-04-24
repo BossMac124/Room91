@@ -4,7 +4,6 @@ import com.fastcampus.BuDongSan.Entity.RealEstateDeal;
 import com.fastcampus.BuDongSan.dto.RealEstateDealResponse;
 import com.fastcampus.BuDongSan.repository.postgre.RealEstateDealRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -20,6 +19,11 @@ public class RealEstateDealService {
     // 시/군/구 중복없이 조회
     public List<String> getAllDistricts() {
         return dealRepository.findDistinctDistricts();
+    }
+
+    // 검색한 시군구에 해당하는 법정동 중복없이 조회
+    public List<String> getNeighborhoodByDistrict(String district) {
+        return dealRepository.findNeighborhoodByDistrict(district);
     }
 
     public List<RealEstateDealResponse> getDealsByDistrict(String district) {
