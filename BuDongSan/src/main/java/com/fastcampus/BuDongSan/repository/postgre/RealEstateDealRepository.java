@@ -18,6 +18,9 @@ public interface RealEstateDealRepository extends JpaRepository<RealEstateDeal, 
     @Query("SELECT DISTINCT r.neighborhood FROM RealEstateDeal r WHERE r.district = :district")
     List<String> findNeighborhoodByDistrict(String district);
 
+    // 선택한 시군구, 법정동에 대한 거래 내역 조회
+    List<RealEstateDeal> findByDistrictAndNeighborhood(String district, String neighborhood);
+
     // 검색한 시/군/구에 대한 데이터 조회
     List<RealEstateDeal> findByDistrict(String district);
 }

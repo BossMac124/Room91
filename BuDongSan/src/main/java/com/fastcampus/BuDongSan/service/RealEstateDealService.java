@@ -16,14 +16,24 @@ public class RealEstateDealService {
 
     private final RealEstateDealRepository dealRepository;
 
-    // 시/군/구 중복없이 조회
+    // 시/군/구 중복 없이 조회
     public List<String> getAllDistricts() {
         return dealRepository.findDistinctDistricts();
     }
 
-    // 검색한 시군구에 해당하는 법정동 중복없이 조회
+    // 검색한 시/군/구에 해당 하는 법정동 중복 없이 조회
     public List<String> getNeighborhoodByDistrict(String district) {
         return dealRepository.findNeighborhoodByDistrict(district);
+    }
+
+    // 검색한 법정 동에 대한 거래 내역 중복 없이 조회
+    public List<RealEstateDealResponse> getDealsByDistrictAndNeighborhood(String district, String neighborhood) {
+        List<RealEstateDeal> deals = dealRepository.findByDistrictAndNeighborhood(district, neighborhood);
+
+        return deals.stream()
+                .map(RealEstateDealResponse::convertToDto)
+                .sorted(Comparator.comparing(RealEstateDealResponse::getDealDate).reversed())
+                .toList();
     }
 
     public List<RealEstateDealResponse> getDealsByDistrict(String district) {

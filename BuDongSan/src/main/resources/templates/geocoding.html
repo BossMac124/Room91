@@ -20,7 +20,7 @@
     </select>
 
     <!-- 법정동 선택 -->
-    <select id="neighborhoodSelect">
+    <select id="neighborhoodSelect" onchange="onNeighborhoodChange()">
         <option value="">법정동 선택</option>
     </select>
 
@@ -69,6 +69,65 @@
             .catch(error => console.log('법정동 데이터 가져오기 실패', error));
     }
 </script>
+
+<script>
+    // 거래 금액 치환하기
+    function formatDealAmount(amount) {
+        if (!amount) return "정보 없음";
+
+        // 쉼표 제거 → 숫자 → 1000 곱함 → 다시 쉼표 포맷 후 원 붙임
+        const numeric = parseInt(amount.replace(/,/g, ''));
+        if (isNaN(numeric)) return "정보 없음";
+
+        const realAmount = numeric * 1000;
+        return realAmount.toLocaleString('ko-KR') + '원';
+    }
+    function onNeighborhoodChange() {
+        const district = document.getElementById("citySelect").value;
+        const neighborhood = document.getElementById("neighborhoodSelect").value;
+        if (!district || !neighborhood) return;
+
+        fetch(`/api/deals/district/${district}/neighborhood/${neighborhood}`)
+            .then(res => res.json())
+            .then(data => {
+                const outputDiv = document.getElementById("dataOutput");
+                outputDiv.innerHTML = "";
+
+                if (data.length === 0) {
+                    outputDiv.innerHTML = "<p>거래 내역이 없습니다.</p>";
+                    return;
+                }
+
+                data.forEach(deal => {
+                    const dealBox = document.createElement("div");
+                    dealBox.style.border = "1px solid #ccc";
+                    dealBox.style.padding = "10px";
+                    dealBox.style.marginBottom = "10px";
+                    dealBox.innerHTML = `
+                    <strong>${deal.aptName || "정보 없음"}</strong><br>
+                    날짜: ${deal.dealYear ?? "정보 없음"}-${deal.dealMonth ?? "정보 없음"}-${deal.dealDay ?? "정보 없음"}<br>
+                    거래금액: ${formatDealAmount(deal.dealAmount)}<br>
+                    시군구: ${deal.district || "정보 없음"}<br>
+                    법정동: ${deal.neighborhood || "정보 없음"}<br>
+                    주택유형: ${deal.houseType || "정보 없음"}<br>
+                    지번: ${deal.jiBun || "정보 없음"}<br>
+                    층수: ${deal.floor ?? "정보 없음"}<br>
+                    전용면적: ${deal.excluUseAr ?? "정보 없음"} ㎡<br>
+                    대지면적: ${deal.plottageArea ?? "정보 없음"} ㎡<br>
+                    거래면적: ${deal.dealArea ?? "정보 없음"} ㎡<br>
+                    지목: ${deal.jimok || "정보 없음"}<br>
+                    용도지역: ${deal.landUse || "정보 없음"}<br>
+                    지분유형: ${deal.shareDealingType || "정보 없음"}<br>
+                    거래구분: ${deal.dealingGbn || "정보 없음"}<br>
+                    자료구분: ${deal.dataType || "정보 없음"}<br>
+                `;
+                    outputDiv.appendChild(dealBox);
+                });
+            })
+            .catch(err => console.error("거래 내역 로딩 실패", err));
+    }
+</script>
+
 
 </body>
 </html>

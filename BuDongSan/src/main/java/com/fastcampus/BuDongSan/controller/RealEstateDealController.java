@@ -54,4 +54,12 @@ public class RealEstateDealController {
     public List<String> getNeighborhood(@PathVariable String district) {
         return realEstateDealService.getNeighborhoodByDistrict(district);
     }
+
+    // 선택한 시군구, 법정동에 대한 거래내역 리스트 가져오기
+    @GetMapping("/district/{district}/neighborhood/{neighborhood}")
+    public List<RealEstateDealResponse> getDealsByDistrictAndNeighborhood(
+            @PathVariable String district,
+            @PathVariable String neighborhood) {
+        return realEstateDealService.getDealsByDistrictAndNeighborhood(district, neighborhood);
+    }
 }
