@@ -4,36 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>재개발 지역 조회</title>
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d6d23793f0ca98625a72a1157e4c9fe7&libraries=services"></script>
     <style>
-        /* 지도 크기 설정 */
-        #map { width: 100%; height: 500px; }
-        .left-panel { width: 300px; float: left; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-panel {
+            width: 400px;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        #map {
+            flex: 1;
+            height: 100%;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        #dataOutput {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div class="left-panel">
-    <!-- 시군구 선택 -->
-    <select id="citySelect" onchange="onCityChange()">
-        <option value="">시군구 선택</option>
-    </select>
+<div class="container">
+    <!-- 왼쪽 패널 -->
+    <div class="left-panel">
+        <h2>📍 재개발 지역 조회</h2>
 
-    <!-- 법정동 선택 -->
-    <select id="neighborhoodSelect" onchange="onNeighborhoodChange()">
-        <option value="">법정동 선택</option>
-    </select>
+        <!-- 시군구 선택 -->
+        <select id="citySelect" onchange="onCityChange()">
+            <option value="">시군구 선택</option>
+        </select>
 
-    <!-- 데이터 출력 부분 -->
-    <div id="dataOutput">
-        <!-- 데이터는 여기서 보여짐 -->
+        <!-- 법정동 선택 -->
+        <select id="neighborhoodSelect" onchange="onNeighborhoodChange()">
+            <option value="">법정동 선택</option>
+        </select>
+
+        <!-- 데이터 출력 -->
+        <div id="dataOutput">
+            <!-- 거래 데이터 표시 영역 -->
+        </div>
     </div>
+
+    <!-- 오른쪽 지도 -->
+    <div id="map"></div>
 </div>
 
-<!-- 시군구 목록 가져오기 -->
+<!-- 스크립트: 시군구 데이터 로딩 -->
 <script>
     window.onload = function () {
-        fetch('/api/deals/district') // 백엔드에서 시군구 데이터 가져옴
+        fetch('/api/deals/district')
             .then(response => response.json())
             .then(data => {
                 const select = document.getElementById('citySelect');
@@ -43,12 +80,14 @@
                     option.textContent = district;
                     select.appendChild(option);
                 });
+
+                initMap(); // 맵 초기화도 여기서 호출
             })
             .catch(error => console.log('시군구 데이터 가져오기 실패', error));
     };
 </script>
 
-<!-- 시군구 선택 시 법정동 목록 가져오기 -->
+<!-- 스크립트: 법정동 데이터 로딩 -->
 <script>
     function onCityChange() {
         const district = document.getElementById("citySelect").value;
@@ -70,18 +109,30 @@
     }
 </script>
 
+<!-- 스크립트: 거래 내역 조회 및 맵 표시 -->
 <script>
-    // 거래 금액 치환하기
+    let map;
+    let geocoder;
+    let marker;
+
+    function initMap() {
+        const container = document.getElementById('map');
+        const options = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780),
+            level: 3
+        };
+        map = new kakao.maps.Map(container, options);
+        geocoder = new kakao.maps.services.Geocoder();
+    }
+
     function formatDealAmount(amount) {
         if (!amount) return "정보 없음";
-
-        // 쉼표 제거 → 숫자 → 1000 곱함 → 다시 쉼표 포맷 후 원 붙임
         const numeric = parseInt(amount.replace(/,/g, ''));
         if (isNaN(numeric)) return "정보 없음";
-
         const realAmount = numeric * 1000;
         return realAmount.toLocaleString('ko-KR') + '원';
     }
+
     function onNeighborhoodChange() {
         const district = document.getElementById("citySelect").value;
         const neighborhood = document.getElementById("neighborhoodSelect").value;
@@ -98,36 +149,60 @@
                     return;
                 }
 
+                const firstDeal = data[0];
+                if (firstDeal.jiBun) {
+                    const fullAddress = `${district} ${neighborhood} ${firstDeal.jiBun}`;
+                    searchAddress(fullAddress);
+                }
+
                 data.forEach(deal => {
                     const dealBox = document.createElement("div");
                     dealBox.style.border = "1px solid #ccc";
                     dealBox.style.padding = "10px";
                     dealBox.style.marginBottom = "10px";
                     dealBox.innerHTML = `
-                    <strong>${deal.aptName || "정보 없음"}</strong><br>
-                    날짜: ${deal.dealYear ?? "정보 없음"}-${deal.dealMonth ?? "정보 없음"}-${deal.dealDay ?? "정보 없음"}<br>
-                    거래금액: ${formatDealAmount(deal.dealAmount)}<br>
-                    시군구: ${deal.district || "정보 없음"}<br>
-                    법정동: ${deal.neighborhood || "정보 없음"}<br>
-                    주택유형: ${deal.houseType || "정보 없음"}<br>
-                    지번: ${deal.jiBun || "정보 없음"}<br>
-                    층수: ${deal.floor ?? "정보 없음"}<br>
-                    전용면적: ${deal.excluUseAr ?? "정보 없음"} ㎡<br>
-                    대지면적: ${deal.plottageArea ?? "정보 없음"} ㎡<br>
-                    거래면적: ${deal.dealArea ?? "정보 없음"} ㎡<br>
-                    지목: ${deal.jimok || "정보 없음"}<br>
-                    용도지역: ${deal.landUse || "정보 없음"}<br>
-                    지분유형: ${deal.shareDealingType || "정보 없음"}<br>
-                    거래구분: ${deal.dealingGbn || "정보 없음"}<br>
-                    자료구분: ${deal.dataType || "정보 없음"}<br>
-                `;
+                        <strong>${deal.aptName || "정보 없음"}</strong><br>
+                        날짜: ${deal.dealYear ?? "정보 없음"}-${deal.dealMonth ?? "정보 없음"}-${deal.dealDay ?? "정보 없음"}<br>
+                        거래금액: ${formatDealAmount(deal.dealAmount)}<br>
+                        시군구: ${deal.district || "정보 없음"}<br>
+                        법정동: ${deal.neighborhood || "정보 없음"}<br>
+                        주택유형: ${deal.houseType || "정보 없음"}<br>
+                        지번: ${deal.jiBun || "정보 없음"}<br>
+                        층수: ${deal.floor ?? "정보 없음"}<br>
+                        전용면적: ${deal.excluUseAr ?? "정보 없음"} ㎡<br>
+                        대지면적: ${deal.plottageArea ?? "정보 없음"} ㎡<br>
+                        거래면적: ${deal.dealArea ?? "정보 없음"} ㎡<br>
+                        지목: ${deal.jimok || "정보 없음"}<br>
+                        용도지역: ${deal.landUse || "정보 없음"}<br>
+                        지분유형: ${deal.shareDealingType || "정보 없음"}<br>
+                        거래구분: ${deal.dealingGbn || "정보 없음"}<br>
+                        자료구분: ${deal.dataType || "정보 없음"}<br>
+                    `;
                     outputDiv.appendChild(dealBox);
                 });
             })
             .catch(err => console.error("거래 내역 로딩 실패", err));
     }
-</script>
 
+    function searchAddress(address) {
+        geocoder.addressSearch(address, function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                const lat = result[0].y;
+                const lng = result[0].x;
+                const moveLatLng = new kakao.maps.LatLng(lat, lng);
+
+                map.setCenter(moveLatLng);
+
+                if (marker) marker.setMap(null);
+                marker = new kakao.maps.Marker({
+                    map: map,
+                    position: moveLatLng,
+                    title: address
+                });
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

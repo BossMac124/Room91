@@ -5,6 +5,7 @@ import com.fastcampus.BuDongSan.dto.RealEstateDealResponse;
 import com.fastcampus.BuDongSan.service.KakaoMapService;
 import com.fastcampus.BuDongSan.service.RealEstateDealService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,14 @@ public class RealEstateDealController {
 
     @Autowired
     private KakaoMapService kakaoMapService;
+
+    @Value("${kakao.rest-api-key}")
+    private String kakaoApiKey;
+
+    @GetMapping("/key")
+    public String getKakaoApiKey() {
+        return kakaoApiKey;
+    }
 
     // 검색한 시군구 데이터 전체 조회
     @GetMapping()
