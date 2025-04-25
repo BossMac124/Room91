@@ -30,17 +30,13 @@ public class KakaoMapService {
             // 카카오 주소 검색 API URL
             String url = "https://dapi.kakao.com/v2/local/search/address.json?query=" + encodedAddress;
 
-            /**
-             * 헤더 + RestTemplate 요청
-             * 카카오 API는 Authorization 헤더에 KakaoAK {API_KEY} 방식으로 인증
-              */
+            // 헤더 + RestTemplate 요청
+            // 카카오 API는 Authorization 헤더에 KakaoAK {API_KEY} 방식으로 인증
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "KakaoAK " + kakaoMapConfig.getRestApiKey());
 
-            /**
-             * RestTemplate을 써서 HTTP 요청을 전송함
-             * GET 방식으로 요청하고, 응답을 문자열 형태로 받음
-             */
+            // RestTemplate을 써서 HTTP 요청을 전송함
+            //GET 방식으로 요청하고, 응답을 문자열 형태로 받음
             HttpEntity<String> entity = new HttpEntity<>(headers);
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
