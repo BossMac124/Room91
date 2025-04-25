@@ -119,17 +119,14 @@
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(37.5665, 126.9780),
-            level: 3
+            level: 5
         };
         map = new kakao.maps.Map(container, options);
         geocoder = new kakao.maps.services.Geocoder();
     }
 
     function formatDealAmount(amount) {
-        if (!amount) return "정보 없음";
-        const numeric = parseInt(amount.replace(/,/g, ''));
-        if (isNaN(numeric)) return "정보 없음";
-        const realAmount = numeric * 1000;
+        const realAmount = amount * 10000;
         return realAmount.toLocaleString('ko-KR') + '원';
     }
 
@@ -138,17 +135,37 @@
         const neighborhood = document.getElementById("neighborhoodSelect").value;
         if (!district || !neighborhood) return;
 
+        const outputDiv = document.getElementById("dataOutput");
+        outputDiv.innerHTML = ""; // 기존 내용 삭제
+
+        // 📊 통계 데이터 조회
+        fetch(`/api/deals/district/${district}/neighborhood/${neighborhood}/stats`)
+            .then(res => res.json())
+            .then(stats => {
+                const statsBox = document.createElement("div");
+                statsBox.style.border = "2px solid #007bff";
+                statsBox.style.backgroundColor = "#f0f8ff";
+                statsBox.style.padding = "10px";
+                statsBox.style.marginBottom = "10px";
+                statsBox.innerHTML = `
+                <strong>📊 거래 금액 통계</strong><br>
+                최소금액: ${stats.min.toLocaleString('ko-KR')}원<br>
+                최대금액: ${stats.max.toLocaleString('ko-KR')}원<br>
+                평균금액: ${Math.round(stats.avg).toLocaleString('ko-KR')}원
+            `;
+                outputDiv.appendChild(statsBox);
+            })
+            .catch(err => console.error("통계 데이터 로딩 실패", err));
+
         fetch(`/api/deals/district/${district}/neighborhood/${neighborhood}`)
             .then(res => res.json())
             .then(data => {
-                const outputDiv = document.getElementById("dataOutput");
-                outputDiv.innerHTML = "";
-
                 if (data.length === 0) {
                     outputDiv.innerHTML = "<p>거래 내역이 없습니다.</p>";
                     return;
                 }
 
+                // 거래 내역 표시
                 const firstDeal = data[0];
                 const fullAddress = `${district} ${neighborhood}`; // 시군구와 법정동으로 주소 생성
                 searchAddress(fullAddress);
@@ -158,24 +175,57 @@
                     dealBox.style.border = "1px solid #ccc";
                     dealBox.style.padding = "10px";
                     dealBox.style.marginBottom = "10px";
-                    dealBox.innerHTML = `
-                        <strong>${deal.aptName || "정보 없음"}</strong><br>
-                        날짜: ${deal.dealYear ?? "정보 없음"}-${deal.dealMonth ?? "정보 없음"}-${deal.dealDay ?? "정보 없음"}<br>
+                    if (deal.dataType == "아파트") {
+                        dealBox.innerHTML = `
+                        <strong>${deal.aptName}</strong><br>
+                        날짜: ${deal.dealYear}-${deal.dealMonth}-${deal.dealDay}<br>
                         거래금액: ${formatDealAmount(deal.dealAmount)}<br>
-                        시군구: ${deal.district || "정보 없음"}<br>
-                        법정동: ${deal.neighborhood || "정보 없음"}<br>
-                        주택유형: ${deal.houseType || "정보 없음"}<br>
-                        지번: ${deal.jiBun || "정보 없음"}<br>
-                        층수: ${deal.floor ?? "정보 없음"}<br>
-                        전용면적: ${deal.excluUseAr ?? "정보 없음"} ㎡<br>
-                        대지면적: ${deal.plottageArea ?? "정보 없음"} ㎡<br>
-                        거래면적: ${deal.dealArea ?? "정보 없음"} ㎡<br>
-                        지목: ${deal.jimok || "정보 없음"}<br>
-                        용도지역: ${deal.landUse || "정보 없음"}<br>
-                        지분유형: ${deal.shareDealingType || "정보 없음"}<br>
-                        거래구분: ${deal.dealingGbn || "정보 없음"}<br>
-                        자료구분: ${deal.dataType || "정보 없음"}<br>
+                        시군구: ${deal.district}<br>
+                        법정동: ${deal.neighborhood}<br>
+                        지번: ${deal.jibun}<br>
+                        층수: ${deal.floor}<br>
+                        전용면적: ${deal.excluUseAr} ㎡<br>
+                        자료구분: ${deal.dataType}<br>
                     `;
+                    } else if (deal.dataType == "단독") {
+                        dealBox.innerHTML = `
+                        <strong>${deal.houseType}</strong><br>
+                        날짜: ${deal.dealYear}-${deal.dealMonth}-${deal.dealDay}<br>
+                        거래금액: ${formatDealAmount(deal.dealAmount)}<br>
+                        시군구: ${deal.district}<br>
+                        법정동: ${deal.neighborhood}<br>
+                        주택유형: ${deal.houseType}<br>
+                        지번: ${deal.jibun}<br>
+                        대지면적: ${deal.plottageArea} ㎡<br>
+                        자료구분: ${deal.dataType}<br>
+                    `;
+                    } else if (deal.dataType == "연립") {
+                        dealBox.innerHTML = `
+                        <strong>${deal.houseType}</strong><br>
+                        날짜: ${deal.dealYear}-${deal.dealMonth}-${deal.dealDay}<br>
+                        거래금액: ${formatDealAmount(deal.dealAmount)}<br>
+                        시군구: ${deal.district}<br>
+                        법정동: ${deal.neighborhood}<br>
+                        지번: ${deal.jibun}<br>
+                        층수: ${deal.floor}<br>
+                        전용면적: ${deal.excluUseAr} ㎡<br>
+                        자료구분: ${deal.dataType}<br>
+                    `;
+                    } else {
+                        dealBox.innerHTML = `
+                        <strong>${deal.dataType}</strong><br>
+                        날짜: ${deal.dealYear}-${deal.dealMonth}-${deal.dealDay}<br>
+                        거래금액: ${formatDealAmount(deal.dealAmount)}<br>
+                        시군구: ${deal.district}<br>
+                        법정동: ${deal.neighborhood}<br>
+                        지번: ${deal.jibun}<br>
+                        거래면적: ${deal.dealArea} ㎡<br>
+                        지목: ${deal.jimok}<br>
+                        용도지역: ${deal.landUse}<br>
+                        지분유형: ${deal.shareDealingType}<br>
+                        거래구분: ${deal.dealingGbn}<br>
+                    `;
+                    }
                     outputDiv.appendChild(dealBox);
                 });
             })
