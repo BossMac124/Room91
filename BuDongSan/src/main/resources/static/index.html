@@ -124,12 +124,42 @@
     }
 
     /* ---------- 클러스터 클릭 ---------- */
-    kakao.maps.event.addListener(clusterer,'clusterclick',c=>{
-        const houses=c.getMarkers().map(m=>m.houseData);
+    let selectedClusterOverlay = null;  // 클러스터 오버레이 전역 선언
+
+    kakao.maps.event.addListener(clusterer, 'clusterclick', c => {
+        const houses = c.getMarkers().map(m => m.houseData);
         renderHouseList(houses);
-        const cen=c.getCenter(); destLat=cen.getLat(); destLng=cen.getLng();
+
+        const cen = c.getCenter();
+        destLat = cen.getLat();
+        destLng = cen.getLng();
         closeDetailPanel();
-        document.getElementById('directionResult').innerText='여기에 길찾기 결과가 표시됩니다.';
+        document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
+
+        // 이전에 표시된 오버레이 제거
+        if (selectedClusterOverlay) {
+            selectedClusterOverlay.setMap(null);
+        }
+
+        // 선택된 클러스터 위치에 주황색 원 오버레이 표시
+        selectedClusterOverlay = new kakao.maps.CustomOverlay({
+            position: cen,
+            yAnchor: 0.5,
+            zIndex: 10,
+            content: `
+            <div style="width:50px;height:50px;
+                        background:orange;
+                        border-radius:25px;
+                        color:white;
+                        font-weight:bold;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                ${c.getSize()}
+            </div>`
+        });
+        selectedClusterOverlay.setMap(map);
     });
 
     /* ---------- 길찾기 ---------- */
