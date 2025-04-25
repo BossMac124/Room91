@@ -1,6 +1,7 @@
 package com.fastcampus.BuDongSan.service;
 
 import com.fastcampus.BuDongSan.Entity.RealEstateDeal;
+import com.fastcampus.BuDongSan.dto.PriceStatsDto;
 import com.fastcampus.BuDongSan.dto.RealEstateDealResponse;
 import com.fastcampus.BuDongSan.repository.postgre.RealEstateDealRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,17 @@ public class RealEstateDealService {
 
 
     private final RealEstateDealRepository dealRepository;
+
+    // 최소, 최대, 평균 거래금액 조회
+    public PriceStatsDto getPriceStatsByNeighborhood(String district, String neighborhood) {
+        List<Object[]> resultList = dealRepository.findPriceStatsByNeighborhood(district, neighborhood);
+        Object[] result = resultList.get(0); // 첫 번째 row
+        return new PriceStatsDto(
+                ((Number) result[0]).longValue() * 10000,
+                ((Number) result[1]).longValue() * 10000,
+                ((Double) result[2]).longValue() * 10000        // 평균은 Double로 나올 수 있어서 형변환 필요
+        );
+    }
 
     // 시/군/구 중복 없이 조회
     public List<String> getAllDistricts() {

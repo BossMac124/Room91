@@ -1,6 +1,7 @@
 package com.fastcampus.BuDongSan.controller;
 
 import com.fastcampus.BuDongSan.Entity.GeoLocation;
+import com.fastcampus.BuDongSan.dto.PriceStatsDto;
 import com.fastcampus.BuDongSan.dto.RealEstateDealResponse;
 import com.fastcampus.BuDongSan.service.KakaoMapService;
 import com.fastcampus.BuDongSan.service.RealEstateDealService;
@@ -70,5 +71,13 @@ public class RealEstateDealController {
             @PathVariable String district,
             @PathVariable String neighborhood) {
         return realEstateDealService.getDealsByDistrictAndNeighborhood(district, neighborhood);
+    }
+
+    // 최소, 최대, 평균 거래 금액 데이터 가져오기
+    @GetMapping("/district/{district}/neighborhood/{neighborhood}/stats")
+    public ResponseEntity<PriceStatsDto> getPriceStats(@PathVariable String district,
+                                                       @PathVariable String neighborhood) {
+        PriceStatsDto stats = realEstateDealService.getPriceStatsByNeighborhood(district, neighborhood);
+        return ResponseEntity.ok(stats);
     }
 }

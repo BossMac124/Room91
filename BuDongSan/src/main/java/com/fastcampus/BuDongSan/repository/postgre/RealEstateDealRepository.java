@@ -10,6 +10,10 @@ import java.util.List;
 @Repository
 public interface RealEstateDealRepository extends JpaRepository<RealEstateDeal, Long> {
 
+    // 최소, 최대, 평균 거래 금액을 조회
+    @Query("SELECT MIN(r.dealAmount), MAX(r.dealAmount), AVG(r.dealAmount) FROM RealEstateDeal r WHERE r.district = :district AND r.neighborhood = :neighborhood")
+    List<Object[]> findPriceStatsByNeighborhood(String district, String neighborhood);
+
     // 중복 없이 시/군/구 이름 조회
     @Query("SELECT DISTINCT r.district FROM RealEstateDeal r")
     List<String> findDistinctDistricts();
