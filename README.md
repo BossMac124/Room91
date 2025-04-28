@@ -49,10 +49,10 @@
 
 11. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
    
-   'db.directions.createIndex( { origin: "2dsphere" })
-   
-   db.directions.createIndex( { destination: "2dsphere" })' 
-   명령어 실행하여 인덱스 생성
+      'db.directions.createIndex( { origin: "2dsphere" })
+      
+      db.directions.createIndex( { destination: "2dsphere" })' 
+      명령어 실행하여 인덱스 생성
 
 12. 프로젝트로 넘어가서 BuDongSanApplication 실행
 
