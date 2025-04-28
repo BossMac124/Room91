@@ -22,10 +22,10 @@ public class RealEstateDeal {
     private int dealDay;                // 일
     private String district;            // 시군구
     private String neighborhood;        // 법정동
-    private String dealAmount;          // 거래 금액
+    private long dealAmount;            // 거래 금액
     private String houseType;           // 주택 유형(아파트, 토지 매매, 연립 다세대, 단독 다가구)
     private String aptName;             // 이름
-    private String jiBun;               // 지번
+    private String jibun;               // 지번
     private Integer floor;              // 층
     private Double excluUseAr;          // 전용 면적
     private Double plottageArea;        // 대지 면적

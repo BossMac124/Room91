@@ -107,6 +107,7 @@ def get_real_single_family_home_deals(law_code, deal_ymd, api_key):
     page_size = 100
     page_start = 1
     all_deals = []
+    seen_deals = set()  # 중복 거래를 추적할 set
 
     while True:
         params = {
@@ -129,6 +130,7 @@ def get_real_single_family_home_deals(law_code, deal_ymd, api_key):
                     break
 
                 for item in items:
+                    # 거래 데이터를 추출
                     deal_data = {
                         'deal_year': item.findtext('dealYear'),
                         'deal_month': item.findtext('dealMonth'),
@@ -139,7 +141,14 @@ def get_real_single_family_home_deals(law_code, deal_ymd, api_key):
                         'jibun': item.findtext('jibun'),
                         'plottage_area': item.findtext('plottageAr')
                     }
-                    all_deals.append(deal_data)
+
+                    # 거래의 고유성을 결정할 식별자 (중복 판단 기준)
+                    deal_identifier = (deal_data['deal_year'], deal_data['deal_month'], deal_data['deal_day'], deal_data['umdNm'], deal_data['jibun'])
+
+                    # 중복된 거래인지 확인
+                    if deal_identifier not in seen_deals:
+                        all_deals.append(deal_data)  # 중복이 아니면 리스트에 추가
+                        seen_deals.add(deal_identifier)  # 중복 처리된 거래로 등록
 
                 print(f"단독 다가구 페이지 {page_start} 처리 완료, 현재까지 {len(all_deals)}개 데이터 수집됨")
                 page_start += 1  # 다음 페이지 요청
@@ -220,6 +229,7 @@ def get_villa_deals(law_code, deal_ymd, api_key):
     page_size = 100
     page_start = 1
     all_deals = []
+    seen_deals = set()  # 중복 거래를 추적할 set
 
     session = requests.Session()
     session.mount("https://", TLSAdapter())
@@ -249,6 +259,7 @@ def get_villa_deals(law_code, deal_ymd, api_key):
                     break
 
                 for item in items:
+                    # 거래 데이터를 추출
                     deal_data = {
                         'deal_year': item.findtext('dealYear'),
                         'deal_month': item.findtext('dealMonth'),
@@ -259,9 +270,15 @@ def get_villa_deals(law_code, deal_ymd, api_key):
                         'jibun': item.findtext('jibun'),
                         'floor': item.findtext('floor'),
                         'exclu_use_ar': item.findtext('excluUseAr')
-                        # 필요에 따라 추가 항목 추출 가능
                     }
-                    all_deals.append(deal_data)
+
+                    # 거래의 고유성을 결정할 식별자 (중복 판단 기준)
+                    deal_identifier = (deal_data['deal_year'], deal_data['deal_month'], deal_data['deal_day'], deal_data['umdNm'], deal_data['jibun'])
+
+                    # 중복된 거래인지 확인
+                    if deal_identifier not in seen_deals:
+                        all_deals.append(deal_data)  # 중복이 아니면 리스트에 추가
+                        seen_deals.add(deal_identifier)  # 중복 처리된 거래로 등록
 
                 print(f"연립 다세대 페이지 {page_start} 처리 완료, 현재까지 {len(all_deals)}개 데이터 수집됨")
                 page_start += 1  # 다음 페이지 요청
@@ -350,6 +367,10 @@ def filter_real_deals(real_estate_deals, unique_neighborhoods):
 # 공통 INSERT 함수
 def insert_real_estate_data(cursor, conn, deal_list, data_type):
     for item in deal_list:
+        # 거래금액에서 콤마 제거 후 long 타입으로 변환
+        deal_amount = item.get('deal_amount').replace(',', '')  # 콤마 제거
+        deal_amount = int(deal_amount)  # 숫자로 변환
+
         cursor.execute("""
             INSERT INTO real_estate_deals (
                 deal_year, deal_month, deal_day, district, neighborhood,
@@ -364,7 +385,7 @@ def insert_real_estate_data(cursor, conn, deal_list, data_type):
             item.get('deal_day'),
             item.get('district'),
             item.get('umdNm'),
-            item.get('deal_amount'),
+            deal_amount,  # 변환된 거래금액을 전달
             item.get('house_type'),
             item.get('apt_name'),
             item.get('jibun'),
@@ -380,6 +401,7 @@ def insert_real_estate_data(cursor, conn, deal_list, data_type):
         ))
 
     conn.commit()
+
 
 
 # 서울특별시 모든 구 리스트
