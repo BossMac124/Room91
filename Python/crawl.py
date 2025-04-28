@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 import pymongo
-from pymongo import MongoClient
+from pymongo import MongoClient, GEOSPHERE
 import gridfs
 import ast
 
@@ -377,6 +377,8 @@ one_room_collection = db["OneRoom"]
 db.drop_collection("TwoRoom")
 two_room_collection = db["TwoRoom"]
 
+one_room_collection.create_index([("location", GEOSPHERE)])
+two_room_collection.create_index([("location", GEOSPHERE)])
 
 # (4) 시트 목록 확인
 sheets = pd.ExcelFile(xlsx_filename).sheet_names
@@ -395,6 +397,14 @@ desired_columns = [
 for sheet in sheets:
     df = pd.read_excel(xlsx_filename, sheet_name=sheet, engine="openpyxl")
     df = df[desired_columns]
+
+    # ——————————————————————————————————————————
+    # (A) rentPrc, elevatorCount 컬럼의 NaN 을 0 으로 채우기
+    df.fillna({
+        "rentPrc": 0,
+        "elevatorCount": 0
+    }, inplace=True)
+    # ——————————————————————————————————————————
 
     for _, row in df.iterrows():
         document = row.to_dict()
@@ -417,8 +427,10 @@ for sheet in sheets:
                 "coordinates": [lon, lat]
             }
 
+        # 이제 rentPrc, elevatorCount 는 NaN 이 없고 0 으로 채워져 있습니다.
+
         # ✅ 조건에 따라 컬렉션 분기 저장
-        if document.get("realEstateTypeName") == "원룸" or document.get("realEstateTypeName") == "오피스텔":
+        if document.get("realEstateTypeName") in ("원룸", "오피스텔"):
             one_room_collection.insert_one(document)
         else:
             two_room_collection.insert_one(document)
