@@ -279,14 +279,43 @@ public class HouseService {
         return true;
     }
 
-    // 보증금 문자열 ("8,000") → 정수(8000, 만원 단위)
+    // 보증금 문자열 ("1억 2,000", "8,000" 등) → 만원 단위 정수
     private Integer parseDepositToManwon(String str) {
-        try {
-            if (str == null) return null;
-            return Integer.parseInt(str.replaceAll(",", "").trim());
-        } catch (NumberFormatException e) {
-            return null;
+        if (str == null || str.isBlank()) return null;
+
+        // 1) 공백과 콤마 제거
+        String s = str.replaceAll("\\s+", "").replaceAll(",", "");
+
+        int totalManwon = 0;
+
+        // 2) '억' 단위 처리
+        int idxEok = s.indexOf("억");
+        if (idxEok != -1) {
+            String eokPart = s.substring(0, idxEok);
+            try {
+                totalManwon += Integer.parseInt(eokPart) * 10000;
+            } catch (NumberFormatException e) {
+                return null;  // 파싱 실패 시 null 반환
+            }
+            s = s.substring(idxEok + 1);  // '억' 다음 부분만 남김
         }
+
+        // 3) 나머지 (만 단위) 처리
+        if (!s.isEmpty()) {
+            // 끝에 "만"이 붙어 있을 수도 있으니 제거
+            if (s.endsWith("만")) {
+                s = s.substring(0, s.length() - 1);
+            }
+            if (!s.isEmpty()) {
+                try {
+                    totalManwon += Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+        }
+
+        return totalManwon;
     }
 
     // 월세 값이 숫자인지 안전하게 파싱 (null-safe)
