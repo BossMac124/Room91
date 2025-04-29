@@ -22,9 +22,9 @@ public class RealEstateDealService {
         List<Object[]> resultList = dealRepository.findPriceStatsByNeighborhood(district, neighborhood);
         Object[] result = resultList.get(0); // 첫 번째 row
         return new PriceStatsDto(
-                ((Number) result[0]).longValue() * 10000,
-                ((Number) result[1]).longValue() * 10000,
-                ((Double) result[2]).longValue() * 10000        // 평균은 Double로 나올 수 있어서 형변환 필요
+                ((Number) result[0]).longValue(),
+                ((Number) result[1]).longValue(),
+                ((Double) result[2]).longValue()       // 평균은 Double로 나올 수 있어서 형변환 필요
         );
     }
 
