@@ -3,9 +3,9 @@ spring:
     name: BuDongSan
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: budongsan
-    password: 4223
+    url: jdbc:postgresql://localhost:5432/housing
+    username: postgres
+    password: 1234
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
