@@ -11,9 +11,9 @@ REAL_TRANSACTION_KEY = "c9SfMeQ61ARlLbsN9lIWjaUmHDXw4UN0Xu2BjXhyqN0xHJM/oNEQBh5z
 
 # PostgreSQL 연결 정보
 conn = psycopg2.connect(
-    dbname="postgres",
-    user="budongsan",
-    password="4223",
+    dbname="housing",
+    user="postgres",
+    password="1234",
     host="localhost",  # 또는 "127.0.0.1"
     port="5432"
 )
