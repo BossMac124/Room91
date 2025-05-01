@@ -3,8 +3,8 @@ spring:
     name: BuDongSan
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/budongsan
-    username: root
+    url: jdbc:postgresql://localhost:5432/housing
+    username: postgres
     password: 1234
 
   jpa:
