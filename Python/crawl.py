@@ -1,10 +1,10 @@
+import requests
 import pandas as pd
+from datetime import datetime
 import pymongo
-
-from pymongo import MongoClient
+from pymongo import MongoClient, GEOSPHERE
 import gridfs
 import ast
-
 
 # (1) 공통 쿠키와 헤더
 cookies = {
@@ -751,31 +751,42 @@ print(f"Excel 파일이 성공적으로 저장되었습니다: {xlsx_filename}")
 client = pymongo.MongoClient("mongodb://root:1234@localhost:27018/housing?authSource=admin")
 db = client["housing"]
 
-# (2) house 컬렉션 초기화
-db.drop_collection("house")
-collection = db["house"]
+# (2) OneRoom, TwoRoom 컬렉션 초기화
+db.drop_collection("OneRoom")
+one_room_collection = db["OneRoom"]
 
-# (4) 시트별 저장
+db.drop_collection("TwoRoom")
+two_room_collection = db["TwoRoom"]
+
+one_room_collection.create_index([("location", GEOSPHERE)])
+two_room_collection.create_index([("location", GEOSPHERE)])
+
+# (4) 시트 목록 확인
 sheets = pd.ExcelFile(xlsx_filename).sheet_names
 print(f"엑셀 파일 시트 목록: {sheets}")
 
-# (5) 저장 컬럼 정의
+# (5) 저장할 컬럼 정의
 desired_columns = [
     "region", "articleName", "tradeTypeCode", "tradeTypeName", "buildingName",
     "floorInfo", "area1", "area2", "latitude", "longitude", "direction",
     "articleConfirmYmd", "rentPrc", "tagList", "articleFeatureDesc",
     "dealOrWarrantPrc", "elevatorCount", "sameAddrCnt", "sameAddrMinPrc",
-    "realtorName", "cpid", "cpName", "cpPcArticleUrl"
+    "realtorName", "cpid", "cpName", "cpPcArticleUrl", "realEstateTypeName"
 ]
 
-# (6) 시트별로 데이터 읽고 MongoDB에 저장
+# (6) 시트별로 데이터 읽고 MongoDB에 조건 분기 저장
 for sheet in sheets:
     df = pd.read_excel(xlsx_filename, sheet_name=sheet, engine="openpyxl")
-
-    # 필요한 컬럼만 선택
     df = df[desired_columns]
 
-    # 문서 저장
+    # ——————————————————————————————————————————
+    # (A) rentPrc, elevatorCount 컬럼의 NaN 을 0 으로 채우기
+    df.fillna({
+        "rentPrc": 0,
+        "elevatorCount": 0
+    }, inplace=True)
+    # ——————————————————————————————————————————
+
     for _, row in df.iterrows():
         document = row.to_dict()
 
@@ -797,7 +808,12 @@ for sheet in sheets:
                 "coordinates": [lon, lat]
             }
 
-        # 저장
-        collection.insert_one(document)
+        # 이제 rentPrc, elevatorCount 는 NaN 이 없고 0 으로 채워져 있습니다.
 
-print("엑셀 데이터를 MongoDB에 location 및 tagList 포함하여 성공적으로 저장했습니다.")
+        # ✅ 조건에 따라 컬렉션 분기 저장
+        if document.get("realEstateTypeName") in ("원룸", "오피스텔"):
+            one_room_collection.insert_one(document)
+        else:
+            two_room_collection.insert_one(document)
+
+print("엑셀 데이터를 MongoDB에 조건에 따라 OneRoom, TwoRoom으로 분리 저장했습니다.")

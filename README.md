@@ -50,6 +50,8 @@
 10. house 컬렉션에서 OpenMongoDB shell에 접속
 
     'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
+=======
+    housing 데이터베이스 만들기
 
 11. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
 
@@ -70,6 +72,11 @@
 13. Window : 'python crawl.py' 을
 
     Mac : 'python3 crawl.py' 을 실행
+=======
+      'db.directions.createIndex( { origin: "2dsphere" })
+      
+      db.directions.createIndex( { destination: "2dsphere" })' 
+      명령어 실행하여 인덱스 생성
 
 14. PostgreSQL 설치
 

@@ -12,7 +12,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - Housing-network
-
   redis:
     image: redis:latest
     container_name: Housing-redis
@@ -23,9 +22,6 @@ services:
     networks:
       - Housing-network
 
-  # --------------------
-  # MongoDB 추가
-  # --------------------
   mongo:
     image: mongo:latest
     container_name: Housing-mongo
@@ -40,20 +36,35 @@ services:
     networks:
       - Housing-network
 
+  postgres:
+    image: postgres:latest
+    container_name: Housing-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: housing
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - Housing-network
+
   spring-app:
     image: housing-image:latest
     container_name: Housing-app
-    ports:
-      - "8088:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://Housing-postgres:5432/housing
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_DATA_MONGODB_URI: mongodb://root:1234@Housing-mongo:27017/housing?authSource=admin
+    ports:
+      - "8088:8080"
     depends_on:
       - postgresql
       - redis
       - mongo
+      - postgres
     networks:
       - Housing-network
 
@@ -63,12 +74,13 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/server.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/server.conf:/etc/nginx/conf.d/default.conf:ro
       - ./static:/var/www/html
     depends_on:
       - spring-app
     networks:
       - Housing-network
+
 
 networks:
   Housing-network:
@@ -77,4 +89,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
-  mongo_data:  # MongoDB 볼륨 추가
+  mongo_data:
+  postgres_data:
