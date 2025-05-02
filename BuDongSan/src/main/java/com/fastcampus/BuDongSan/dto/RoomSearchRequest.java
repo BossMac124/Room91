@@ -10,7 +10,7 @@ import lombok.Setter;
 public class RoomSearchRequest {
     private double lng;  // 경도
     private double lat;  // 위도
-    private double radius = 3;  // 기본 반경 3km
+    private final double radius = 3;  // 기본 반경 3km
     private String tradeType;  // "전세", "월세", "단기임대"
     private Double minDeposit;  // 보증금 최소값
     private Double maxDeposit;  // 보증금 최대값
