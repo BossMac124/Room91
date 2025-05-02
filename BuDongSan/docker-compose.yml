@@ -1,4 +1,17 @@
 services:
+  postgresql:
+    image: postgres
+    container_name: Housing-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: housing
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - Housing-network
   redis:
     image: redis:latest
     container_name: Housing-redis
@@ -48,6 +61,7 @@ services:
     ports:
       - "8088:8080"
     depends_on:
+      - postgresql
       - redis
       - mongo
       - postgres
@@ -73,6 +87,7 @@ networks:
     name: Housing-network
 
 volumes:
+  postgres_data:
   redis_data:
   mongo_data:
   postgres_data:

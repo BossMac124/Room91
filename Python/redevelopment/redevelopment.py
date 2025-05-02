@@ -11,9 +11,9 @@ REAL_TRANSACTION_KEY = "c9SfMeQ61ARlLbsN9lIWjaUmHDXw4UN0Xu2BjXhyqN0xHJM/oNEQBh5z
 
 # PostgreSQL 연결 정보
 conn = psycopg2.connect(
-    dbname="postgres",
-    user="budongsan",
-    password="4223",
+    dbname="housing",
+    user="postgres",
+    password="1234",
     host="localhost",  # 또는 "127.0.0.1"
     port="5432"
 )
@@ -24,22 +24,22 @@ cursor.execute("DELETE FROM real_estate_deals")
 conn.commit()
 print("기존 데이터 삭제 완료 ✅")
 
-# 날짜 계산 로직
+# 날짜 계산 로직 - 최근 3개월 구하기
 today = datetime.now()
+recent_3_months = []
 
-# 이전 달 계산 (1월이면 작년 12월로 변경)
-if today.month == 1:
-    prev_month = 12
-    prev_year = today.year - 1
-else:
-    prev_month = today.month - 1
-    prev_year = today.year
-
+for i in range(1, 4):  # 1, 2, 3개월 전
+    month = today.month - i
+    year = today.year
+    if month <= 0:
+        month += 12
+        year -= 1
+    deal_day = f"{year}{month:02d}"
+    recent_3_months.append(deal_day)
 
 # 중복되지 않는 동을 저장할 리스트
 unique_neighborhoods = []
 unique_law_dong_codes = []
-deal_day = f"{prev_year}{prev_month:02d}"
 
 count = 0
 
@@ -151,63 +151,6 @@ def get_real_single_family_home_deals(law_code, deal_ymd, api_key):
                         seen_deals.add(deal_identifier)  # 중복 처리된 거래로 등록
 
                 print(f"단독 다가구 페이지 {page_start} 처리 완료, 현재까지 {len(all_deals)}개 데이터 수집됨")
-                page_start += 1  # 다음 페이지 요청
-
-            except ET.ParseError:
-                print("XML 파싱 에러 발생")
-                print(response.text)  # 응답 내용 출력
-                return []
-        else:
-            print(f"API 요청 실패: {response.status_code}")
-            print(response.text)  # 응답 내용 출력
-            break
-
-    return all_deals
-
-# 아파트 매매 실거래가 api
-def get_apt_deals(law_code, deal_ymd, api_key):
-    """아파트 실거래 데이터를 가져오는 함수"""
-    url = "http://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade"
-
-    page_size = 100
-    page_start = 1
-    all_deals = []
-
-    while True:
-        params = {
-            "LAWD_CD": law_code,
-            "DEAL_YMD": deal_ymd,
-            "serviceKey": api_key,
-            "pageNo": page_start,
-            "numOfRows": page_size,
-            "type": "xml"
-        }
-
-        response = requests.get(url, params=params)
-
-        if response.status_code == 200:
-            try:
-                root = ET.fromstring(response.text)
-                items = root.findall('.//item')
-
-                if not items:  # 더 이상 데이터가 없으면 종료
-                    break
-
-                for item in items:
-                    deal_data = {
-                        'deal_year': item.findtext('dealYear'),
-                        'deal_month': item.findtext('dealMonth'),
-                        'deal_day': item.findtext('dealDay'),
-                        'umdNm': item.findtext('umdNm'),
-                        'apt_name': item.findtext('aptNm'),
-                        'deal_amount': item.findtext('dealAmount'),
-                        'jibun': item.findtext('jibun'),
-                        'floor': item.findtext('floor'),
-                        'exclu_use_ar': item.findtext('excluUseAr')
-                    }
-                    all_deals.append(deal_data)
-
-                print(f"아파트 페이지 {page_start} 처리 완료, 현재까지 {len(all_deals)}개 데이터 수집됨")
                 page_start += 1  # 다음 페이지 요청
 
             except ET.ParseError:
@@ -413,111 +356,64 @@ seoul_gu_list = [
 for seoul in seoul_gu_list:
     redevelopment_info = get_redevelopment_info(seoul)
 
-    filtered_single_deals = []
-    filtered_apt_deals = []
-    filtered_multi_generational_deals = []
-    filtered_land_sale_deals = []
-    unique_law_dong_codes = []
-    unique_neighborhoods = []
+    for deal_day in recent_3_months:
+        print(f"\n📦 {deal_day} | {seoul} 데이터 수집 중...")
 
-    # 결과 출력
-    for item in redevelopment_info:
-        print(item)
+        filtered_single_deals = []
+        filtered_apt_deals = []
+        filtered_multi_generational_deals = []
+        filtered_land_sale_deals = []
+        unique_law_dong_codes = []
+        unique_neighborhoods = []
 
-    # redevelopment_info에서 동을 하나씩 확인하여 중복되지 않으면 unique_neighborhoods 리스트에 추가
-    for item in redevelopment_info:
-        neighborhood = item['neighborhood']
-        if neighborhood not in unique_neighborhoods:
-            unique_neighborhoods.append(neighborhood)
+        # unique 정보 추출
+        for item in redevelopment_info:
+            neighborhood = item['neighborhood']
+            if neighborhood not in unique_neighborhoods:
+                unique_neighborhoods.append(neighborhood)
 
-    # 법정동코드를 하나씩 확인하여 중복되지 않으면 unique_law_dong_codes 리스트에 추가
-    for item in redevelopment_info:
-        law_dong_code = item['law_dong_code']
+        for item in redevelopment_info:
+            law_dong_code = item['law_dong_code']
+            if law_dong_code and law_dong_code != '':
+                code_prefix = int(law_dong_code[:5])
+                if code_prefix not in unique_law_dong_codes:
+                    unique_law_dong_codes.append(code_prefix)
 
-        if law_dong_code and law_dong_code != '':  # law_dong_code가 None이나 빈 문자열이 아닌 경우
-            # 앞자리 5자리만 추출
-            law_dong_code_prefix = law_dong_code[:5]
+        if not unique_law_dong_codes:
+            print("❌ 법정동코드 없음 - 스킵")
+            continue
 
-            # 숫자형으로 변환하여 중복되지 않으면 unique_law_dong_codes에 추가
-            if int(law_dong_code_prefix) not in unique_law_dong_codes:
-                unique_law_dong_codes.append(int(law_dong_code_prefix))  # int로 변환하여 추가
-
-
-    # 중복되지 않는 동 리스트 출력
-    # print(unique_neighborhoods)
-
-    # 해당 구의 법정동 코드
-    # print(unique_law_dong_codes)
-
-    # 단독 다가구 api를 이용한 재개발 정보
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
+        # API 요청 및 필터링
         real_single_family_deals = get_real_single_family_home_deals(unique_law_dong_codes[0], deal_day, REAL_TRANSACTION_KEY)
-
-
-    # 아파트 api를 이용한 재개발 정보
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
-        real_apt_deals = get_apt_deals(unique_law_dong_codes[0], deal_day, REAL_TRANSACTION_KEY)
-
-    # 연립 다세대 api를 이용한 재개발 정보
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
         real_multi_generational_deals = get_villa_deals(unique_law_dong_codes[0], deal_day, REAL_TRANSACTION_KEY)
-
-    # 토지 매매 api이용한 재개발 정보
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
         real_land_sale_deals = get_land_sale_deals(unique_law_dong_codes[0], deal_day, REAL_TRANSACTION_KEY)
 
-    # 출력 테스트
-    # print(real_apt_deals)
-
-    # 필터링 실행 (단독 다가구)
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
         filtered_single_deals = filter_real_deals(real_single_family_deals, unique_neighborhoods)
-
-    # 필터링 실행 (아파트)
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
-        filtered_apt_deals = filter_real_deals(real_apt_deals, unique_neighborhoods)
-
-    # 필터링 실행 (연립 다세대)
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
         filtered_multi_generational_deals = filter_real_deals(real_multi_generational_deals, unique_neighborhoods)
-
-    # 필터링 실행 (토지 매매)
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
         filtered_land_sale_deals = filter_real_deals(real_land_sale_deals, unique_neighborhoods)
 
-    if not unique_law_dong_codes or unique_law_dong_codes[0] is None:
-        print("해당 데이터가 없습니다.")
-
-    if unique_law_dong_codes and unique_law_dong_codes[0] is not None:
-
+        # DB 저장 및 출력
         # 단독 다가구 리스트 출력
         for item in filtered_single_deals:
-            count +=1
-            item["district"] = f"{seoul}"
+            count += 1
+            item["district"] = seoul
             print(item)
-
-        # 아파트 리스트 출력
-        for item in filtered_apt_deals:
-            count +=1
-            item["district"] = f"{seoul}"
-            print(item)
+        insert_real_estate_data(cursor, conn, filtered_single_deals, "단독")
 
         # 연립 다세대 리스트 출력
         for item in filtered_multi_generational_deals:
-            count +=1
-            item["district"] = f"{seoul}"
+            count += 1
+            item["district"] = seoul
             print(item)
+        insert_real_estate_data(cursor, conn, filtered_multi_generational_deals, "연립")
 
         # 토지 매매 리스트 출력
         for item in filtered_land_sale_deals:
-            count +=1
-            item["district"] = f"{seoul}"
+            count += 1
+            item["district"] = seoul
             print(item)
-
-        insert_real_estate_data(cursor, conn, filtered_single_deals, "단독")
-        insert_real_estate_data(cursor, conn, filtered_apt_deals, "아파트")
-        insert_real_estate_data(cursor, conn, filtered_multi_generational_deals, "연립")
         insert_real_estate_data(cursor, conn, filtered_land_sale_deals, "토지")
+
 cursor.close()
 conn.close()
 print(f"조회된 서울시 재개발 총 데이터 갯수: {count}개" )
