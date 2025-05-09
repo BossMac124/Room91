@@ -33,7 +33,7 @@
 
 6. MongoDB 설치 후 27017 -> 27018 포트로 변경
 
-7. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing' 으로 접속한 후
+7. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속한 후
 
    admin 쉘로 들어가서 아래 내용 입력
 
