@@ -33,27 +33,17 @@
 
 6. MongoDB 설치 후 27017 -> 27018 포트로 변경
 
-7. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속한 후
+7. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속합니다.
 
-   admin 쉘로 들어가서 아래 내용 입력
+8. housing 데이터베이스 만들고 house 컬렉션 생성
 
-   db.createUser({
-   user: "root",
-   pwd: "1234",
-   roles: [{ role: "root", db: "admin" }]
-   })
-
-8. DB 접속 해제 후 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 재접속
-
-9. housing 데이터베이스 만들고 house 컬렉션 생성
-
-10. house 컬렉션에서 OpenMongoDB shell에 접속
+9. house 컬렉션에서 OpenMongoDB shell에 접속
 
     'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
 =======
     housing 데이터베이스 만들기
 
-11. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
+10. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
 
       'db.directions.createIndex( { origin: "2dsphere" })
 
@@ -61,7 +51,7 @@
 
     명령어 실행
 
-12. Python 폴더 들어가서 터미널로 이동
+11. Python 폴더 들어가서 터미널로 이동
 
     'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정
    
