@@ -175,15 +175,21 @@
         const q = document.getElementById('addressInput').value.trim();
         if (!q) { alert('검색어를 입력하세요.'); return; }
 
-        const types = Array.from(document.querySelectorAll('input[name="tradeType"]:checked'))
-            .map(c => c.value);
-        if (types.length === 0) { alert('임대 유형을 선택하세요.'); return; }
+        const types = Array.from(
+            document.querySelectorAll('input[name="tradeType"]:checked')
+        ).map(c => c.value);
+        if (!types.length) { alert('임대 유형을 선택하세요.'); return; }
 
-        if (/\d/.test(q)) {
-            geocoder.addressSearch(q, handleResult);
-        } else {
-            ps.keywordSearch(q, handleResult);
-        }
+        // 1) 주소 검색 우선
+        geocoder.addressSearch(q, (res, stat) => {
+            if (stat === kakao.maps.services.Status.OK) {
+                // 동/도로명 검색 결과 있으면 바로 처리
+                handleResult(res, stat);
+            } else {
+                // 주소 검색 실패(존재하지 않거나 POI일 때) → 키워드 검색
+                ps.keywordSearch(q, handleResult);
+            }
+        });
         // const addr = document.getElementById('addressInput').value.trim();
         // if (!addr) { alert('주소를 입력하세요.'); return; }
         // const types = Array.from(document.querySelectorAll('input[name="tradeType"]:checked')).map(c=>c.value);
@@ -209,6 +215,13 @@
         //         .then(r=>r.json()).then(renderSearchResult).catch(e=>{ console.error(e); alert('검색 중 오류'); });
         // });
     };
+
+    // 검색창에 Enter키 이벤트
+    document.getElementById('addressInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('searchButton').click();
+        }
+    });
 
     // 검색 결과 렌더링
     function renderSearchResult(data) {
