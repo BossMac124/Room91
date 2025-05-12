@@ -68,19 +68,20 @@
     <td th:text="${deal.dealAmount}"></td>
     <td th:text="${deal.houseType}"></td>
     <td th:text="${deal.aptName}"></td>
-    <td th:text="${deal.jiBun}"></td>
+    <td th:text="${deal.jibun}"></td>
     <td th:text="${deal.floor}"></td>
     <td th:text="${deal.excluUseAr}"></td>
     <td th:text="${deal.plottageArea}"></td>
     <td th:text="${deal.dealArea}"></td>
-    <td th:switch="${deal.jimok}">
-      <span th:case="'대'">대 (주택)</span>
-      <span th:case="'전'">전 (밭)</span>
-      <span th:case="'답'">답 (논)</span>
-      <span th:case="'임야'">임야 (산)</span>
-      <span th:case="'공장용지'">공장용지 (공장 부지)</span>
-      <span th:case="*"
-            th:text="${deal.jimok}">기타</span>
+    <td>
+  <span th:switch="${deal.jimok}">
+    <span th:case="'대'">대 (주택)</span>
+    <span th:case="'전'">전 (밭)</span>
+    <span th:case="'답'">답 (논)</span>
+    <span th:case="'임야'">임야 (산)</span>
+    <span th:case="'공장용지'">공장용지 (공장 부지)</span>
+    <span th:case="*" th:text="${deal.jimok}">기타</span>
+  </span>
     </td>
     <td th:text="${deal.landUse}"></td>
     <td th:text="${deal.shareDealingType}"></td>

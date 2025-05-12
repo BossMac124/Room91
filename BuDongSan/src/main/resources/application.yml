@@ -3,8 +3,8 @@ spring:
     name: BuDongSan
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: root
+    url: jdbc:postgresql://localhost:5432/housing
+    username: postgres
     password: 1234
 
   jpa:
@@ -23,3 +23,6 @@ spring:
 
 server:
   port: 8080
+
+kakao:
+  rest-api-key: d21c83b1e788c64c8f6d15ac5f7223fc
