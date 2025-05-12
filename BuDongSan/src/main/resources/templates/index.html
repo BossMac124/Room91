@@ -132,6 +132,8 @@
     const pathname = window.location.pathname;
     if (pathname === "/") document.getElementById("oneBtn").classList.add("active");
     if (pathname === "/two") document.getElementById("twoBtn").classList.add("active");
+    let routeLine = null;      // 폴리라인 객체
+    let destMarker = null;     // 도착지 마커
 
     // 전세만 선택 시 월세 필터 비활성화
     function updateRentFilterStatus() {
@@ -334,10 +336,52 @@
     document.getElementById('directionBtn').onclick = () => {
         if (!searchedLat||!searchedLng) { alert('주소 검색 먼저'); return; }
         if (!destLat||!destLng) { alert('목적지 선택 필요'); return; }
+
+        // ① 이전 선·마커 제거
+        if (routeLine) {
+            routeLine.setMap(null);
+            routeLine = null;
+        }
+        if (destMarker) {
+            destMarker.setMap(null);
+            destMarker = null;
+        }
+
+        // ② 출발지→도착지 폴리라인 그리기
+        const path = [
+            new kakao.maps.LatLng(searchedLat, searchedLng),
+            new kakao.maps.LatLng(destLat, destLng)
+        ];
+        routeLine = new kakao.maps.Polyline({
+            path: path,
+            strokeWeight: 4,
+            strokeColor: '#007aff',
+            strokeOpacity: 0.8,
+            strokeStyle: 'solid'
+        });
+        routeLine.setMap(map);
+
+        // ③ 도착지 마커 추가
+        destMarker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(destLat, destLng),
+            map: map
+        });
+
+        // ④ 정보 표시(거리·시간 텍스트)
         fetch(`/house/direction?originLat=${searchedLat}&originLng=${searchedLng}&destLat=${destLat}&destLng=${destLng}`)
-            .then(r=>r.json())
-            .then(d => { document.getElementById('directionResult').innerHTML = `<h3>길찾기 결과</h3><p>거리: ${d.distance}</p><p>시간: ${d.duration}</p>`; })
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('directionResult').innerHTML =
+                    `<h3>길찾기 결과</h3>
+             <p>거리: ${d.distance}</p>
+             <p>시간: ${d.duration}</p>`;
+            })
             .catch(_=>alert('길찾기 오류'));
+
+        // fetch(`/house/direction?originLat=${searchedLat}&originLng=${searchedLng}&destLat=${destLat}&destLng=${destLng}`)
+        //     .then(r=>r.json())
+        //     .then(d => { document.getElementById('directionResult').innerHTML = `<h3>길찾기 결과</h3><p>거리: ${d.distance}</p><p>시간: ${d.duration}</p>`; })
+        //     .catch(_=>alert('길찾기 오류'));
     };
 
     // 매물 목록 렌더링
