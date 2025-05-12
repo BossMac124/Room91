@@ -353,11 +353,11 @@
             new kakao.maps.LatLng(destLat, destLng)
         ];
         routeLine = new kakao.maps.Polyline({
-            path: path,
-            strokeWeight: 4,
-            strokeColor: '#007aff',
-            strokeOpacity: 0.8,
-            strokeStyle: 'solid'
+            path: path,                // 기존 경로 그대로
+            strokeWeight: 4,           // 선 굵기
+            strokeColor: '#888',       // 회색 계열
+            strokeOpacity: 0.8,        // 불투명도
+            strokeStyle: 'dash'        // 점선 스타일 ('solid', 'dash', 'dot', 'longdash', 'shortdash', 등)
         });
         routeLine.setMap(map);
 
