@@ -104,32 +104,110 @@
     const map = new kakao.maps.Map(document.getElementById('map'), { center: new kakao.maps.LatLng(37.5665,126.9780), level:5 });
     const clusterer = new kakao.maps.MarkerClusterer({ map, averageCenter:true, minLevel:2, minClusterSize:1 });
 
-    // 매물 검색
-    document.getElementById('searchButton').onclick = () => {
-        const addr = document.getElementById('addressInput').value.trim();
-        if (!addr) { alert('주소를 입력하세요.'); return; }
-        const types = Array.from(document.querySelectorAll('input[name="tradeType"]:checked')).map(c=>c.value);
-        if (types.length===0) { alert('임대 유형을 선택하세요.'); return; }
-        const rMin = document.getElementById('rentPrcMin').value.trim(), rMax = document.getElementById('rentPrcMax').value.trim();
-        const dMin = document.getElementById('dealPrcMin').value.trim(), dMax = document.getElementById('dealPrcMax').value.trim();
-        const rentPrcMin = rMin===''?0:parseInt(rMin), rentPrcMax = rMax===''?999999999:parseInt(rMax);
-        const dealPrcMin = dMin===''?0:parseInt(dMin), dealPrcMax = dMax===''?999999999:parseInt(dMax);
-        new kakao.maps.services.Geocoder().addressSearch(addr, (res, stat) => {
-            if (stat!==kakao.maps.services.Status.OK) { alert('주소 검색 실패'); return; }
-            const lng = parseFloat(res[0].x), lat = parseFloat(res[0].y);
-            searchedLat=lat; searchedLng=lng; destLat=destLng=null;
-            map.setCenter(new kakao.maps.LatLng(lat,lng));
-            if (addressMarker) addressMarker.setMap(null);
-            if (companyLabel) companyLabel.setMap(null);
-            addressMarker = new kakao.maps.Marker({ position:new kakao.maps.LatLng(lat,lng), map });
-            companyLabel = new kakao.maps.CustomOverlay({ position:addressMarker.getPosition(), yAnchor:1.4,
-                content: '<div style="padding:4px 8px;background:#0066ff;color:#fff;border-radius:4px;white-space:nowrap">회사 위치</div>'
-            }); companyLabel.setMap(map);
-            const urlPath = pathname==='/'?'/house':'/house/two';
-            const params = [`lng=${lng}`,`lat=${lat}`,`radius=3`, ...types.map(t=>`tradeTypeCodes=${t}`), `rentPrcMin=${rentPrcMin}`, `rentPrcMax=${rentPrcMax}`, `dealPrcMin=${dealPrcMin}`, `dealPrcMax=${dealPrcMax}`].join('&');
-            fetch(`${urlPath}?${params}`)
-                .then(r=>r.json()).then(renderSearchResult).catch(e=>{ console.error(e); alert('검색 중 오류'); });
+    // 키워드 검색
+    const ps = new kakao.maps.services.Places();    // 장소 검색용 서비스
+    const geocoder = new kakao.maps.services.Geocoder();    // 주소 검색용 서비스
+
+    // 검색 결과 공통 처리
+    function handleResult(res, status) {
+        if (status !== kakao.maps.services.Status.OK) {
+            alert('검색 결과가 없습니다.');
+            return;
+        }
+        const lng = parseFloat(res[0].x),
+            lat = parseFloat(res[0].y);
+        setCenterAndSearch(lat, lng);
+    }
+
+    function setCenterAndSearch(lat, lng) {
+        // 1) 전역 위도·경도 저장
+        searchedLat = lat;
+        searchedLng = lng;
+        destLat = destLng = null;
+
+        // 2) 지도 중심 이동
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+
+        // 3) 기존 회사 위치 마커/레이블 제거
+        if (addressMarker) addressMarker.setMap(null);
+        if (companyLabel) companyLabel.setMap(null);
+
+        // 4) 회사 위치 마커 표시
+        addressMarker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(lat, lng),
+            map
         });
+        companyLabel = new kakao.maps.CustomOverlay({
+            position: addressMarker.getPosition(),
+            yAnchor: 1.4,
+            content: '<div style="padding:4px 8px; background:#0066ff; color:#fff; border-radius:4px; white-space:nowrap">회사 위치</div>'
+        });
+        companyLabel.setMap(map);
+
+        // 5) 필터·가격 정보 다시 읽기
+        const types = Array.from(
+            document.querySelectorAll('input[name="tradeType"]:checked')
+        ).map(c => c.value);
+        const rMin = parseInt(document.getElementById('rentPrcMin').value) || 0;
+        const rMax = parseInt(document.getElementById('rentPrcMax').value) || 999999999;
+        const dMin = parseInt(document.getElementById('dealPrcMin').value) || 0;
+        const dMax = parseInt(document.getElementById('dealPrcMax').value) || 999999999;
+
+        // 6) 매물 조회 API 호출
+        const urlPath = pathname === '/' ? '/house' : '/house/two';
+        const params = [
+            `lng=${lng}`,
+            `lat=${lat}`,
+            `radius=3`,
+            ...types.map(t => `tradeTypeCodes=${t}`),
+            `rentPrcMin=${rMin}`, `rentPrcMax=${rMax}`,
+            `dealPrcMin=${dMin}`, `dealPrcMax=${dMax}`
+        ].join('&');
+
+        fetch(`${urlPath}?${params}`)
+            .then(res => res.json())
+            .then(renderSearchResult)
+            .catch(() => alert('매물 조회 중 오류'));
+    }
+
+    // 매물 검색 (주소, 키워드 분기)
+    document.getElementById('searchButton').onclick = () => {
+        const q = document.getElementById('addressInput').value.trim();
+        if (!q) { alert('검색어를 입력하세요.'); return; }
+
+        const types = Array.from(document.querySelectorAll('input[name="tradeType"]:checked'))
+            .map(c => c.value);
+        if (types.length === 0) { alert('임대 유형을 선택하세요.'); return; }
+
+        if (/\d/.test(q)) {
+            geocoder.addressSearch(q, handleResult);
+        } else {
+            ps.keywordSearch(q, handleResult);
+        }
+        // const addr = document.getElementById('addressInput').value.trim();
+        // if (!addr) { alert('주소를 입력하세요.'); return; }
+        // const types = Array.from(document.querySelectorAll('input[name="tradeType"]:checked')).map(c=>c.value);
+        // if (types.length===0) { alert('임대 유형을 선택하세요.'); return; }
+        // const rMin = document.getElementById('rentPrcMin').value.trim(), rMax = document.getElementById('rentPrcMax').value.trim();
+        // const dMin = document.getElementById('dealPrcMin').value.trim(), dMax = document.getElementById('dealPrcMax').value.trim();
+        // const rentPrcMin = rMin===''?0:parseInt(rMin), rentPrcMax = rMax===''?999999999:parseInt(rMax);
+        // const dealPrcMin = dMin===''?0:parseInt(dMin), dealPrcMax = dMax===''?999999999:parseInt(dMax);
+        // new kakao.maps.services.Geocoder().addressSearch(addr, (res, stat) => {
+        //     if (stat!==kakao.maps.services.Status.OK) { alert('주소 검색 실패'); return; }
+        //     const lng = parseFloat(res[0].x), lat = parseFloat(res[0].y);
+        //     searchedLat=lat; searchedLng=lng; destLat=destLng=null;
+        //     map.setCenter(new kakao.maps.LatLng(lat,lng));
+        //     if (addressMarker) addressMarker.setMap(null);
+        //     if (companyLabel) companyLabel.setMap(null);
+        //     addressMarker = new kakao.maps.Marker({ position:new kakao.maps.LatLng(lat,lng), map });
+        //     companyLabel = new kakao.maps.CustomOverlay({ position:addressMarker.getPosition(), yAnchor:1.4,
+        //         content: '<div style="padding:4px 8px;background:#0066ff;color:#fff;border-radius:4px;white-space:nowrap">회사 위치</div>'
+        //     }); companyLabel.setMap(map);
+        //     const urlPath = pathname==='/'?'/house':'/house/two';
+        //     const params = [`lng=${lng}`,`lat=${lat}`,`radius=3`, ...types.map(t=>`tradeTypeCodes=${t}`), `rentPrcMin=${rentPrcMin}`, `rentPrcMax=${rentPrcMax}`, `dealPrcMin=${dealPrcMin}`, `dealPrcMax=${dealPrcMax}`].join('&');
+        //     fetch(`${urlPath}?${params}`)
+        //         .then(r=>r.json()).then(renderSearchResult).catch(e=>{ console.error(e); alert('검색 중 오류'); });
+        // });
     };
 
     // 검색 결과 렌더링
@@ -144,14 +222,18 @@
             kakao.maps.event.addListener(m,'mouseout',()=>iw.close());
             return m;
         }); clusterer.addMarkers(markers);
-        renderHouseList(data); closeDetailPanel(); document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
+        renderHouseList(data); closeDetailPanel();
+        document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
     }
 
     // 클러스터 클릭
     kakao.maps.event.addListener(clusterer,'clusterclick', c => {
         const arr = c.getMarkers().map(m => m.houseData);
         renderHouseList(arr);
-        const cen = c.getCenter(); destLat = cen.getLat(); destLng = cen.getLng(); closeDetailPanel();
+        const cen = c.getCenter();
+        destLat = cen.getLat();
+        destLng = cen.getLng();
+        closeDetailPanel();
         document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
     });
 
@@ -169,14 +251,27 @@
     function renderHouseList(arr) {
         const list = document.getElementById('houseListContent');
         if (!arr.length) { list.innerHTML = '<p>매물 없음</p>'; return; }
-        list.innerHTML = arr.map((h,i) => `<div class="house-item" data-idx="${i}"><div class="house-title">${h.buildingName||'-'}</div><div class="house-info">방타입:${h.articleName||'-'}<br/>월세:${h.rentPrc||'-'}<br/>보증금:${h.dealOrWarrantPrc||'-'}<br/>방향:${h.direction||'-'}</div></div>`).join('');
-        list.querySelectorAll('.house-item').forEach((el,i) => el.onclick = () => openDetailPanel(arr[i]));
+        list.innerHTML = arr.map((h, i) =>
+            `<div class="house-item" data-idx="${i}">
+                <div class="house-title">${h.buildingName||'-'}</div>
+                <div class="house-info">
+                    방타입: ${h.articleName||'-'}<br/>
+                    월세: ${h.rentPrc||'-'}<br/>
+                    보증금: ${h.dealOrWarrantPrc||'-'}<br/>
+                    방향: ${h.direction||'-'}
+                </div>
+            </div>`
+        ).join('');
+        list.querySelectorAll('.house-item').forEach((el, i) =>
+            el.onclick = () => openDetailPanel(arr[i])
+        );
     }
 
     // 상세조회 - 전체 필드
     const detailPanel = document.getElementById('houseDetail');
     const detailContent = document.getElementById('detailContent');
     document.getElementById('closeDetailBtn').onclick = closeDetailPanel;
+
     function openDetailPanel(h) {
         if (!h) return;
         const fields = [
