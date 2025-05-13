@@ -3,8 +3,11 @@ package com.fastcampus.BuDongSan.service;
 import com.fastcampus.BuDongSan.Entity.Direction;
 import com.fastcampus.BuDongSan.Entity.House;
 import com.fastcampus.BuDongSan.Entity.TwoRoom;
+import com.fastcampus.BuDongSan.dto.DirectionResponseDto;
+import com.fastcampus.BuDongSan.dto.LatLngDto;
 import com.fastcampus.BuDongSan.repository.mongo.MongoDirectionRepository;
 import com.fastcampus.BuDongSan.repository.mongo.MongoOneRoomRepository;
+import com.fastcampus.BuDongSan.util.PolylineUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -329,5 +332,27 @@ public class HouseService {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    public DirectionResponseDto getOrFetchDirectionDto(
+            double originLat, double originLng,
+            double destLat, double destLng) throws IOException {
+
+        // ① Redis/MongoDB/Google API 호출 로직 실행 → JsonNode 반환
+        JsonNode resultNode = getOrFetchDirection(originLat, originLng, destLat, destLng);
+
+        // ② JsonNode → Direction 엔티티로 변환
+        Direction direction = objectMapper.treeToValue(resultNode, Direction.class);
+
+        // ③ 엔티티에서 필요한 값 뽑기
+        String encoded = direction.getPolyline();
+        String dist    = direction.getDistance();
+        String dur     = direction.getDuration();
+
+        // ④ 디코드된 좌표 리스트 생성
+        List<LatLngDto> coords = PolylineUtils.decode(encoded);
+
+        // ⑤ DTO로 묶어서 반환
+        return new DirectionResponseDto(dist, dur, encoded, coords);
     }
 }

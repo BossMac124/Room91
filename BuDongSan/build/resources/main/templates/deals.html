@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>재개발 지역 거래 목록</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+    th {
+      background-color: #f5f5f5;
+    }
+    .selected-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<h2>📊 재개발 지역 거래 목록</h2>
+
+<div>
+  <span>📍 시/군/구 선택:</span>
+  <form method="get" action="/deals" style="display: inline;">
+    <th:block th:each="d : ${districts}">
+      <button type="submit" name="district"
+              th:value="${d}" th:text="${d}"
+              th:classappend="${d == selectedDistrict} ? 'selected-btn' : ''"
+              style="margin: 2px;">
+      </button>
+    </th:block>
+  </form>
+</div>
+
+<table>
+  <thead>
+  <tr>
+    <th>거래일자</th>
+    <th>시/군/구</th>
+    <th>법정동</th>
+    <th>거래금액(천원)</th>
+    <th>주택유형</th>
+    <th>건물명</th>
+    <th>지번</th>
+    <th>층</th>
+    <th>전용면적(m²)</th>
+    <th>대지면적(m²)</th>
+    <th>거래면적(m²)</th>
+    <th>지목</th>
+    <th>용도지역</th>
+    <th>지분거래유형</th>
+    <th>거래구분</th>
+    <th>데이터유형</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="deal : ${deals}">
+    <td th:text="${#temporals.format(deal.dealDate, 'yyyy-MM-dd')}"></td>
+    <td th:text="${deal.district}"></td>
+    <td th:text="${deal.neighborhood}"></td>
+    <td th:text="${deal.dealAmount}"></td>
+    <td th:text="${deal.houseType}"></td>
+    <td th:text="${deal.aptName}"></td>
+    <td th:text="${deal.jibun}"></td>
+    <td th:text="${deal.floor}"></td>
+    <td th:text="${deal.excluUseAr}"></td>
+    <td th:text="${deal.plottageArea}"></td>
+    <td th:text="${deal.dealArea}"></td>
+    <td>
+  <span th:switch="${deal.jimok}">
+    <span th:case="'대'">대 (주택)</span>
+    <span th:case="'전'">전 (밭)</span>
+    <span th:case="'답'">답 (논)</span>
+    <span th:case="'임야'">임야 (산)</span>
+    <span th:case="'공장용지'">공장용지 (공장 부지)</span>
+    <span th:case="*" th:text="${deal.jimok}">기타</span>
+  </span>
+    </td>
+    <td th:text="${deal.landUse}"></td>
+    <td th:text="${deal.shareDealingType}"></td>
+    <td th:text="${deal.dealingGbn}"></td>
+    <td th:text="${deal.dataType}"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

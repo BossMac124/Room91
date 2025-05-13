@@ -68,6 +68,32 @@
         #autocompleteList li:hover {
             background: #f0f0f0;
         }
+
+        /* 말풍선 컨테이너 */
+        .dest-bubble {
+            display: inline-block;
+            position: relative;
+            padding: 6px 12px;
+            background: #FF746C;         /* 배경색 */
+            color: #fff;                 /* 글자색 */
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 12px;         /* 둥근 모서리 */
+            white-space: nowrap;
+        }
+
+        /* 말풍선 아래 삼각형(꼬리) */
+        .dest-bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;                /* 말풍선 아래에 배치 */
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0 6px; /* 위쪽이 삼각형 */
+            border-style: solid;
+            border-color: #FF746C transparent transparent transparent;
+        }
+
     </style>
 </head>
 <body>
@@ -148,11 +174,43 @@
     document.querySelectorAll('input[name="tradeType"]').forEach(el=>el.addEventListener('change', updateRentFilterStatus));
     updateRentFilterStatus();
 
-    // 카카오 맵 초기화
+    // ① 카카오 맵 초기화
     let searchedLat, searchedLng, destLat, destLng;
     let addressMarker, companyLabel;
-    const map = new kakao.maps.Map(document.getElementById('map'), { center: new kakao.maps.LatLng(37.5665,126.9780), level:5 });
+    const map = new kakao.maps.Map(
+        document.getElementById('map'),
+        { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 5 }
+    );
+
+    // ② 클러스터링 초기화 코드
     const clusterer = new kakao.maps.MarkerClusterer({ map, averageCenter:true, minLevel:2, minClusterSize:1 });
+
+    // ③ decodePolyline 함수 정의
+    function decodePolyline(encoded) {
+        const path = [];
+        let index = 0, lat = 0, lng = 0;
+
+        while (index < encoded.length) {
+            let b, shift = 0, result = 0;
+            do {
+                b = encoded.charCodeAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+            shift = 0; result = 0;
+            do {
+                b = encoded.charCodeAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+            path.push(new kakao.maps.LatLng(lat * 1e-5, lng * 1e-5));
+        }
+        return path;
+    }
 
     // 키워드 검색
     const ps = new kakao.maps.services.Places();    // 장소 검색용 서비스
@@ -361,22 +419,45 @@
         });
         routeLine.setMap(map);
 
-        // ③ 도착지 마커 추가
-        destMarker = new kakao.maps.Marker({
+        // ③ 도착지 말풍선(CustomOverlay) 추가
+        const bubbleContent = '<div class="dest-bubble">도착</div>';
+        destMarker = new kakao.maps.CustomOverlay({
+            map: map,
             position: new kakao.maps.LatLng(destLat, destLng),
-            map: map
+            content: bubbleContent,
+            yAnchor: 1
         });
+        destMarker.setZIndex(999); // 최상단에 표시
 
-        // ④ 정보 표시(거리·시간 텍스트)
+        // ④ 거리·시간 정보 표시
         fetch(`/house/direction?originLat=${searchedLat}&originLng=${searchedLng}&destLat=${destLat}&destLng=${destLng}`)
-            .then(r => r.json())
-            .then(d => {
+            .then(res => res.json())
+            .then(data => {
+                // 1) 기존 경로 제거
+                if (routeLine) routeLine.setMap(null);
+
+                // 2) Kakao LatLng 객체 리스트로 변환
+                const kakaoPath = data.pathCoords.map(p =>
+                    new kakao.maps.LatLng(p.lat, p.lng)
+                );
+
+                // 3) 실제 도로 경로선 그리기
+                routeLine = new kakao.maps.Polyline({
+                    path: kakaoPath,
+                    strokeWeight: 4,
+                    strokeColor: '#007aff',
+                    strokeOpacity: 0.8,
+                    strokeStyle: 'solid'
+                });
+                routeLine.setMap(map);
+
+                // 4) 거리·시간 및 “도착” 말풍선 표시 로직 기존 그대로
                 document.getElementById('directionResult').innerHTML =
                     `<h3>길찾기 결과</h3>
-             <p>거리: ${d.distance}</p>
-             <p>시간: ${d.duration}</p>`;
+                     <p>거리: ${data.distance}</p>
+                     <p>시간: ${data.duration}</p>`;
             })
-            .catch(_=>alert('길찾기 오류'));
+            .catch(_ => alert('길찾기 오류'));
 
         // fetch(`/house/direction?originLat=${searchedLat}&originLng=${searchedLng}&destLat=${destLat}&destLng=${destLng}`)
         //     .then(r=>r.json())
