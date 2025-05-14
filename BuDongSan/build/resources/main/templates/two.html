@@ -37,6 +37,31 @@
         #mapWrapper { flex: 1; position: relative }
         #map { width: 100%; height: 100% }
         #searchForm { position: absolute; top: 10px; left: 10px; z-index: 2; background: #fff; padding: 10px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,.3) }
+
+        /* 말풍선 컨테이너 */
+        .dest-bubble {
+            display: inline-block;
+            position: relative;
+            padding: 6px 12px;
+            background: #FF746C;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        /* 말풍선 아래 삼각형(꼬리) */
+        .dest-bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;                /* 말풍선 아래에 배치 */
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0 6px; /* 위쪽이 삼각형 */
+            border-style: solid;
+            border-color: #FF746C transparent transparent transparent;
+        }
     </style>
 </head>
 <body>
@@ -91,82 +116,125 @@
 </div>
 
 <script>
+    // 전역변수
     let searchedLat = null, searchedLng = null;
     let destLat = null, destLng = null;
     let addressMarker = null, companyLabel = null;
+    let straightLine = null;   // 출발 ↔ 도착을 잇는 직선(점선)
+    let routeLine    = null;   // 실제 도로 경로선(실선)
+    let destMarker   = null;   // 도착지 말풍선
 
+    // ─── 지도 초기화 ───
     const map = new kakao.maps.Map(document.getElementById('map'), {
         center: new kakao.maps.LatLng(37.5665, 126.9780), level: 5
     });
-
     const clusterer = new kakao.maps.MarkerClusterer({
-        map, averageCenter: true, minLevel: 2, minClusterSize: 1, calculator: [1]
+        map, averageCenter:true, minLevel:2, minClusterSize:1
     });
 
+    // ─── 서비스 객체 ───
+    const ps = new kakao.maps.services.Places();
+    const geocoder = new kakao.maps.services.Geocoder();
+    const input = document.getElementById('addressInput');
+
+    // ─── decodePolyline 함수 ───
+    function decodePolyline(encoded) {
+        const path = [];
+        let index = 0, lat = 0, lng = 0;
+        while (index < encoded.length) {
+            let b, shift = 0, result = 0;
+            do {
+                b = encoded.charCodeAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+                } while (b >= 0x20);
+            lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+                shift = 0; result = 0;
+            do {
+                b = encoded.charCodeAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+            path.push(new kakao.maps.LatLng(lat * 1e-5, lng * 1e-5));
+        }
+        return path;
+    }
+
+    // ─── 공통 결과 처리 ───
+    function handleResult(res, status) {
+        if(status!==kakao.maps.services.Status.OK){
+            return alert('검색 결과가 없습니다.');
+        }
+        const lng = parseFloat(res[0].x), lat = parseFloat(res[0].y);
+        setCenterAndSearch(lat, lng);
+    }
+
+    function setCenterAndSearch(lat, lng) {
+        // 초기화
+        if(routeLine){ routeLine.setMap(null); routeLine=null; }
+        if(straightLine){ straightLine.setMap(null); straightLine=null; }
+        if(destMarker){ destMarker.setMap(null); destMarker=null; }
+        document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
+
+        // 저장·이동
+        searchedLat=lat; searchedLng=lng; destLat=destLng=null;
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+
+        // 회사 위치
+        if(addressMarker) addressMarker.setMap(null);
+        if(companyLabel ) companyLabel.setMap(null);
+        addressMarker = new kakao.maps.Marker({ position:new kakao.maps.LatLng(lat,lng), map });
+        companyLabel = new kakao.maps.CustomOverlay({
+            position: addressMarker.getPosition(),
+            yAnchor: 1.4,
+            content: '<div style="padding:4px 8px;background:#0066ff;color:#fff;border-radius:4px;">회사 위치</div>'
+        });
+        companyLabel.setMap(map);
+
+        // 매물 조회
+        const types = Array.from(document.querySelectorAll('input[name="tradeType"]:checked')).map(c=>c.value);
+        const rMin = parseInt(document.getElementById('rentPrcMin').value)||0;
+        const rMax = parseInt(document.getElementById('rentPrcMax').value)||999999999;
+        const dMin = parseInt(document.getElementById('dealPrcMin').value)||0;
+        const dMax = parseInt(document.getElementById('dealPrcMax').value)||999999999;
+        const params = [
+            `lng=${lng}`, `lat=${lat}`, `radius=3`,
+            ...types.map(t=>`tradeTypeCodes=${t}`),
+            `rentPrcMin=${rMin}`, `rentPrcMax=${rMax}`,
+            `dealPrcMin=${dMin}`, `dealPrcMax=${dMax}`
+        ].join('&');
+        fetch(`/house/two?${params}`)
+            .then(r=>r.json())
+            .then(renderSearchResult)
+            .catch(()=>alert('매물 조회 중 오류'));
+    }
+
+    // ─── 검색 버튼 & Enter 키 ───
     document.getElementById('searchButton').onclick = () => {
-        const addr = document.getElementById('addressInput').value.trim();
-        if (!addr) {
-            alert("주소를 입력하세요.");
-            return;
-        }
-
-        const selectedTypes = Array.from(document.querySelectorAll('input[name="tradeType"]:checked'))
-            .map(cb => cb.value);
-        if (selectedTypes.length === 0) {
-            alert("임대 유형을 하나 이상 선택하세요.");
-            return;
-        }
-
-        const rentMin = document.getElementById('rentPrcMin').value.trim();
-        const rentMax = document.getElementById('rentPrcMax').value.trim();
-        const dealMin = document.getElementById('dealPrcMin').value.trim();
-        const dealMax = document.getElementById('dealPrcMax').value.trim();
-
-        const rentPrcMin = rentMin === "" ? 0 : parseInt(rentMin);
-        const rentPrcMax = rentMax === "" ? 999999999 : parseInt(rentMax);
-        const dealPrcMin = dealMin === "" ? 0 : parseInt(dealMin);
-        const dealPrcMax = dealMax === "" ? 999999999 : parseInt(dealMax);
-
-        new kakao.maps.services.Geocoder().addressSearch(addr, (res, stat) => {
-            if (stat !== kakao.maps.services.Status.OK) {
-                alert("주소 검색 결과가 없습니다.");
-                return;
-            }
-
-            const lng = parseFloat(res[0].x), lat = parseFloat(res[0].y);
-            searchedLat = lat; searchedLng = lng; destLat = destLng = null;
-            map.setCenter(new kakao.maps.LatLng(lat, lng));
-
-            if (addressMarker) addressMarker.setMap(null);
-            if (companyLabel) companyLabel.setMap(null);
-
-            addressMarker = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(lat, lng),
-                map
-            });
-
-            companyLabel = new kakao.maps.CustomOverlay({
-                position: addressMarker.getPosition(), yAnchor: 1.4,
-                content: `<div style="padding:4px 8px;background:#0066ff;color:#fff;
-                          border-radius:4px;font-size:13px;white-space:nowrap">회사 위치</div>`
-            });
-            companyLabel.setMap(map);
-
-            // ✅ 투룸 API 사용
-            const typeParams = selectedTypes.map(t => `tradeTypeCodes=${t}`).join('&');
-            const priceParams = `rentPrcMin=${rentPrcMin}&rentPrcMax=${rentPrcMax}&dealPrcMin=${dealPrcMin}&dealPrcMax=${dealPrcMax}`;
-            const fullURL = `/house/two?lng=${lng}&lat=${lat}&radius=3&${typeParams}&${priceParams}`;
-
-            fetch(fullURL)
-                .then(r => r.json())
-                .then(renderSearchResult)
-                .catch(e => {
-                    console.error(e);
-                    alert("서버 호출 에러가 발생했습니다.");
+        const q = input.value.trim();
+        if(!q) return alert('주소 또는 키워드를 입력하세요.');
+        geocoder.addressSearch(q, (res, stat) => {
+            if(stat===kakao.maps.services.Status.OK){
+                handleResult(res, stat);
+            } else {
+                ps.keywordSearch(q, (data, status2) => {
+                    if(status2===kakao.maps.services.Status.OK){
+                        handleResult(data.map(p=>({x:p.x,y:p.y})), status2);
+                    } else {
+                        alert('검색 결과가 없습니다.');
+                    }
                 });
+            }
         });
     };
+    input.addEventListener('keydown', e => {
+        if(e.key==='Enter') document.getElementById('searchButton').click();
+    });
 
+    // ─── 매물 렌더링 ───
     function renderSearchResult(data) {
         clusterer.clear();
         const markers = data.map(h => {
@@ -186,14 +254,23 @@
         document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
     }
 
+    // 클러스터 클릭
     kakao.maps.event.addListener(clusterer, 'clusterclick', c => {
-        const houses = c.getMarkers().map(m => m.houseData);
-        renderHouseList(houses);
-        const cen = c.getCenter(); destLat = cen.getLat(); destLng = cen.getLng();
-        closeDetailPanel();
+        // 1) 매물 목록만 갱신
+        const arr = c.getMarkers().map(m => m.houseData);
+        renderHouseList(arr);
+
+        // 2) destLat/destLng 업데이트
+        const cen = c.getCenter();
+        destLat = cen.getLat();
+        destLng = cen.getLng();
+
+        // 3) 지도만 이동 (기존 경로/말풍선은 유지)
+        map.setCenter(cen);
         document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
     });
 
+    // 길찾기
     document.getElementById('directionBtn').onclick = () => {
         if (!searchedLat || !searchedLng) {
             alert("먼저 주소 검색을 해주세요!");
@@ -203,36 +280,85 @@
             alert("목적지(매물)가 선택되지 않았습니다.");
             return;
         }
+
+        // (A) 직선 점선 그리기
+        if (straightLine) {
+            straightLine.setMap(null);
+            straightLine = null;
+        }
+        straightLine = new kakao.maps.Polyline({
+            path: [
+                new kakao.maps.LatLng(searchedLat, searchedLng),
+                new kakao.maps.LatLng(destLat, destLng)
+            ],
+            strokeWeight: 4,
+            strokeColor: '#888',
+            strokeOpacity: 0.8,
+            strokeStyle: 'dash'
+        });
+        straightLine.setMap(map);
+
+        // (B) 도착 말풍선 표시
+        if (destMarker) {
+            destMarker.setMap(null);
+            destMarker = null;
+        }
+        destMarker = new kakao.maps.CustomOverlay({
+            map,
+            position: new kakao.maps.LatLng(destLat, destLng),
+            content: '<div class="dest-bubble">도착</div>',
+            yAnchor: 1
+        });
+        destMarker.setZIndex(999);
+
+        // (C) 실제 도로 경로 API + 파란 실선
         fetch(`/house/direction?originLat=${searchedLat}&originLng=${searchedLng}&destLat=${destLat}&destLng=${destLng}`)
             .then(r => r.json())
             .then(d => {
+                // 기존 실제 경로선 제거
+                if (routeLine) {
+                    routeLine.setMap(null);
+                    routeLine = null;
+                }
+                // polyline 디코딩 후 그리기
+                const kakaoPath = decodePolyline(d.polyline);
+                routeLine = new kakao.maps.Polyline({
+                    path: kakaoPath,
+                    strokeWeight: 4,
+                    strokeColor: '#007aff',
+                    strokeOpacity: 0.8,
+                    strokeStyle: 'solid'
+                });
+                routeLine.setMap(map);
+
+                // 결과 텍스트
                 document.getElementById('directionResult').innerHTML =
-                    `<h3>길찾기 결과 (도보 + 대중교통)</h3><p><b>이동거리:</b> ${d.distance}</p>
-                     <p><b>소요시간:</b> ${d.duration}</p>`;
-            })
-            .catch(e => {
-                console.error(e);
-                alert("길찾기 API 호출 중 에러가 발생했습니다.");
-            });
+                    `<h3>길찾기 결과 (도보 + 대중교통)</h3>
+                <p><b>이동거리:</b> ${d.distance}</p>
+                <p><b>소요시간:</b> ${d.duration}</p>`;
+            }).catch(e => {console.error(e);
+            alert("길찾기 API 호출 중 에러가 발생했습니다.");
+        });
     };
 
+    // 리스트 & 상세
     function renderHouseList(arr) {
         const list = document.getElementById('houseListContent');
-        if (!arr.length) {
-            list.innerHTML = '<p>매물이 없습니다.</p>';
-            return;
-        }
-        list.innerHTML = arr.map((h, i) => `
-    <div class="house-item" data-idx="${i}">
-      <div class="house-title">${h.buildingName || '건물명 미기재'}</div>
-      <div class="house-info">
-        방타입:${h.articleName || '-'}<br/>월세:${h.rentPrc || '-'}<br/>
-        보증금:${h.dealOrWarrantPrc || '-'}<br/>방향:${h.direction || '-'}</div>
-    </div>`).join('');
-        list.querySelectorAll('.house-item').forEach((el, i) => el.onclick = () => openDetailPanel(arr[i]));
+        if(!arr.length) return list.innerHTML='<p>매물이 없습니다.</p>';
+        list.innerHTML = arr.map((h,i)=>`
+            <div class="house-item" data-idx="${i}">
+                <div class="house-title">${h.buildingName||'-'}</div>
+                <div class="house-info">
+                    방타입:${h.articleName||'-'}<br/>
+                    월세:${h.rentPrc||'-'}<br/>
+                    보증금:${h.dealOrWarrantPrc||'-'}<br/>
+                    방향:${h.direction||'-'}
+                </div>
+            </div>
+        `).join('');
+        list.querySelectorAll('.house-item').forEach((el,i)=>el.onclick=()=>openDetailPanel(arr[i]));
     }
-
-    const detailPanel = document.getElementById('houseDetail');
+    const detailPanel   = document.getElementById('houseDetail');
     const detailContent = document.getElementById('detailContent');
     document.getElementById('closeDetailBtn').onclick = closeDetailPanel;
 
@@ -273,6 +399,72 @@
     function closeDetailPanel() {
         detailPanel.style.display = 'none';
     }
+
+    // document.getElementById('searchButton').onclick = () => {
+    //     const addr = document.getElementById('addressInput').value.trim();
+    //     if (!addr) {
+    //         alert("주소를 입력하세요.");
+    //         return;
+    //     }
+    //
+    //     const selectedTypes = Array.from(document.querySelectorAll('input[name="tradeType"]:checked'))
+    //         .map(cb => cb.value);
+    //     if (selectedTypes.length === 0) {
+    //         alert("임대 유형을 하나 이상 선택하세요.");
+    //         return;
+    //     }
+    //
+    //     const rentMin = document.getElementById('rentPrcMin').value.trim();
+    //     const rentMax = document.getElementById('rentPrcMax').value.trim();
+    //     const dealMin = document.getElementById('dealPrcMin').value.trim();
+    //     const dealMax = document.getElementById('dealPrcMax').value.trim();
+    //
+    //     const rentPrcMin = rentMin === "" ? 0 : parseInt(rentMin);
+    //     const rentPrcMax = rentMax === "" ? 999999999 : parseInt(rentMax);
+    //     const dealPrcMin = dealMin === "" ? 0 : parseInt(dealMin);
+    //     const dealPrcMax = dealMax === "" ? 999999999 : parseInt(dealMax);
+    //
+    //     new kakao.maps.services.Geocoder().addressSearch(addr, (res, stat) => {
+    //         if (stat !== kakao.maps.services.Status.OK) {
+    //             alert("주소 검색 결과가 없습니다.");
+    //             return;
+    //         }
+    //
+    //         const lng = parseFloat(res[0].x), lat = parseFloat(res[0].y);
+    //         searchedLat = lat; searchedLng = lng; destLat = destLng = null;
+    //         map.setCenter(new kakao.maps.LatLng(lat, lng));
+    //
+    //         if (addressMarker) addressMarker.setMap(null);
+    //         if (companyLabel) companyLabel.setMap(null);
+    //
+    //         addressMarker = new kakao.maps.Marker({
+    //             position: new kakao.maps.LatLng(lat, lng),
+    //             map
+    //         });
+    //
+    //         companyLabel = new kakao.maps.CustomOverlay({
+    //             position: addressMarker.getPosition(), yAnchor: 1.4,
+    //             content: `<div style="padding:4px 8px;background:#0066ff;color:#fff;
+    //                       border-radius:4px;font-size:13px;white-space:nowrap">회사 위치</div>`
+    //         });
+    //         companyLabel.setMap(map);
+    //
+    //         // ✅ 투룸 API 사용
+    //         const typeParams = selectedTypes.map(t => `tradeTypeCodes=${t}`).join('&');
+    //         const priceParams = `rentPrcMin=${rentPrcMin}&rentPrcMax=${rentPrcMax}&dealPrcMin=${dealPrcMin}&dealPrcMax=${dealPrcMax}`;
+    //         const fullURL = `/house/two?lng=${lng}&lat=${lat}&radius=3&${typeParams}&${priceParams}`;
+    //
+    //         fetch(fullURL)
+    //             .then(r => r.json())
+    //             .then(renderSearchResult)
+    //             .catch(e => {
+    //                 console.error(e);
+    //                 alert("서버 호출 에러가 발생했습니다.");
+    //             });
+    //     });
+    // };
+
+
 </script>
 </body>
 </html>
