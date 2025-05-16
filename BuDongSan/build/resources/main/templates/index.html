@@ -193,8 +193,61 @@
         document.getElementById('map'),
         { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 5 }
     );
+
+    const pastelStyles = [
+        {
+            width: '40px',
+            height: '40px',
+            background: 'rgba(191, 239, 255, 0.7)',  // #BFEFFF → rgba(191,239,255,0.7)
+            color: '#333',
+            textAlign: 'center',
+            lineHeight: '40px',
+            borderRadius: '50%',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+            fontWeight: 'bold'
+        },
+        {
+            width: '50px',
+            height: '50px',
+            background: 'rgba(182, 252, 213, 0.7)',  // #B6FCD5
+            color: '#333',
+            textAlign: 'center',
+            lineHeight: '50px',
+            borderRadius: '50%',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+            fontWeight: 'bold'
+        },
+        {
+            width: '60px',
+            height: '60px',
+            background: 'rgba(255, 209, 179, 0.7)',  // #FFD1B3
+            color: '#333',
+            textAlign: 'center',
+            lineHeight: '60px',
+            borderRadius: '50%',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+            fontWeight: 'bold'
+        },
+        {
+            width: '70px',
+            height: '70px',
+            background: 'rgba(195, 177, 225, 0.7)',  // #C3B1E1
+            color: '#fff',
+            textAlign: 'center',
+            lineHeight: '70px',
+            borderRadius: '50%',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+            fontWeight: 'bold'
+        }
+    ];
+    // 커스텀 오버레이 방식의 클러스터러
     const clusterer = new kakao.maps.MarkerClusterer({
-        map, averageCenter: true, minLevel: 2, minClusterSize: 1
+        map,
+        averageCenter: true,
+        minLevel: 2,
+        minClusterSize: 1,
+        disableClickZoom: true,
+        styles: pastelStyles
     });
 
     // ③ decodePolyline 함수 정의
