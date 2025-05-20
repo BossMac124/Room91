@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 
 function Notice() {
-    const [notices, setNotices] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [pageInfo, setPageInfo] = useState({
-        number: 0,
-        totalPages: 0,
-        first: true,
-        last: false
+    const [notices, setNotices] = useState([]);     // 공지사항 목록을 담는 배열
+    const [loading, setLoading] = useState(true); // 데이터를 불러오는 중인지 여부 확인(로딩중)
+    const [pageInfo, setPageInfo] = useState({       // 페이지 관련 정보 저장
+        number: 0,          // 현재 페이지
+        totalPages: 0,      // 전체 페이지
+        first: true,        // 첫 페이지
+        last: false         // 마지막 페이지
     });
     const [openIndex, setOpenIndex] = useState(null); // 열려 있는 인덱스 상태
 
+    // 공지사항 가져오기
     const getNotice = async (page = 0) => {
         setLoading(true);
         try {
@@ -30,10 +31,12 @@ function Notice() {
         }
     };
 
+    // 초기 렌더링 시 공지사항 첫 페이지 불러오기
     useEffect(() => {
         getNotice(0);
     }, []);
 
+    // 공지 사항 토글 함수
     const toggleContent = (index) => {
         setOpenIndex(prevIndex => (prevIndex === index ? null : index));
     };
