@@ -1,7 +1,6 @@
 package com.fastcampus.BuDongSan.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,4 +32,6 @@ public class Faq {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+
 }
