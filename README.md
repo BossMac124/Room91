@@ -50,8 +50,6 @@
 10. house 컬렉션에서 OpenMongoDB shell에 접속
 
     'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
-=======
-    housing 데이터베이스 만들기
 
 11. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
 

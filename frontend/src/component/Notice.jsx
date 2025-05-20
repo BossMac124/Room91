@@ -9,6 +9,7 @@ function Notice() {
         first: true,
         last: false
     });
+    const [openIndex, setOpenIndex] = useState(null); // 열려 있는 인덱스 상태
 
     const getNotice = async (page = 0) => {
         setLoading(true);
@@ -33,17 +34,29 @@ function Notice() {
         getNotice(0);
     }, []);
 
+    const toggleContent = (index) => {
+        setOpenIndex(prevIndex => (prevIndex === index ? null : index));
+    };
+
     return (
         <div>
             {loading ? (
                 <p>로딩중...</p>
             ) : (
                 <>
-                    {notices.map((notice) => (
-                        <div key={notice.id} className="notice">
-                            <p>{notice.id}</p>
-                            <p>{notice.title}</p>
-                            <p>{notice.content}</p>
+                    {notices.map((notice, index) => (
+                        <div key={notice.id} className="notice" style={{ marginBottom: '1rem' }}>
+                            <div
+                                onClick={() => toggleContent(index)}
+                                style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.2rem' }}
+                            >
+                                {notice.title}
+                            </div>
+                            {openIndex === index && (
+                                <div style={{ padding: '0.5rem 1rem', backgroundColor: '#f9f9f9' }}>
+                                    {notice.content}
+                                </div>
+                            )}
                         </div>
                     ))}
 

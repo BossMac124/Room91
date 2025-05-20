@@ -5,6 +5,7 @@ import pymongo
 from pymongo import MongoClient, GEOSPHERE
 import gridfs
 import ast
+import openpyxl
 
 # (1) 공통 쿠키와 헤더
 cookies = {
