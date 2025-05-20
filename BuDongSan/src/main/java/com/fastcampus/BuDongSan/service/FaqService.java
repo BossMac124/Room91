@@ -4,13 +4,13 @@ import com.fastcampus.BuDongSan.Entity.Faq;
 import com.fastcampus.BuDongSan.dto.FaqDto;
 import com.fastcampus.BuDongSan.repository.postgre.FaqRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +46,7 @@ public class FaqService {
     }
 
     // ReadList
+    @Transactional(readOnly = true)
     public Page<FaqDto> getFaqList(int page, int size) {
         // 1. 페이저블 생성
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -61,7 +62,8 @@ public class FaqService {
                 ));
     }
 
-    // Read
+    // ReadDetail
+    @Transactional(readOnly = true)
     public FaqDto getFaqDetail(Long id) {
         return faqRepository.findById(id)
                 .map(entity -> {
@@ -102,7 +104,7 @@ public class FaqService {
         );
     }
 
-    // id 개별삭제
+    // delete One
     public void deleteFaq(Long id) {
         // 1. id 조회하기
         Faq faq = faqRepository.findById(id)
@@ -112,7 +114,7 @@ public class FaqService {
         faqRepository.delete(faq);
     }
 
-    // 전체 삭제
+    // deleteAll
     public void deleteAllFaq() {
         faqRepository.deleteAll();
     }
