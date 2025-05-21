@@ -13,6 +13,11 @@ function Notice() {
     const [searchKeyword, setSearchKeyword] = useState(""); // 검색어
     const [searchType, setSearchType] = useState("title"); // 검색 타입
     const [isSearching, setIsSearching] = useState(false); // 검색 중 여부
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            handleSearch(0); // 🔍 엔터 키 누르면 검색 실행
+        }
+    };
 
     // 공지사항 불러오기
     const getNotice = async (page = 0) => {
@@ -85,6 +90,7 @@ function Notice() {
                             type="text"
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
+                            onKeyDown={handleKeyDown} // 엔터키 누르면 검색
                             placeholder="검색어 입력"
                             style={{ marginRight: '0.5rem' }}
                         />
