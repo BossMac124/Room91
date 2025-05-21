@@ -52,4 +52,28 @@ public class NoticeService {
     public void deleteNotice(Long id) {
         noticeRepository.deleteById(id);
     }
+
+    // 키워드 검색(제목, 내용, 제목 + 내용)
+    public Page<NoticeDto> searchNotices(String keyword, String type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Notice> notices;
+
+        switch (type) {
+            case "title":
+                notices = noticeRepository.findByTitleContaining(keyword, pageable);
+                break;
+            case "content":
+                notices = noticeRepository.findByContentContaining(keyword, pageable);
+                break;
+            case "title_content":
+                notices = noticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+                break;
+            default:
+                throw new IllegalArgumentException("잘못된 검색 타입입니다.");
+        }
+
+        return notices.map(NoticeDto::fromEntity);
+    }
+
 }

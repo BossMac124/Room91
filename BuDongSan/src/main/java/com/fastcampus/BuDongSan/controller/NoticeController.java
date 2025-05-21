@@ -44,4 +44,14 @@ public class NoticeController {
     public void deleteNotice(@PathVariable Long id) {
         noticeService.deleteNotice(id);
     }
+
+    @GetMapping("/search")
+    public Page<NoticeDto> searchNotices(
+            @RequestParam String keyword,
+            @RequestParam String type, // title, content, title_content
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return noticeService.searchNotices(keyword, type, page, size);
+    }
 }
