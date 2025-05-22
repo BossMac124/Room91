@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +17,10 @@ public class NoticeDto {
 
     // RequestDto (요청)
     public static NoticeDto fromEntity(Notice notice) {
-        return new NoticeDto(notice.getId(), notice.getTitle(), notice.getContent());
+        return new NoticeDto(
+                notice.getId(),
+                notice.getTitle(),
+                notice.getContent());
     }
 
     // ResponseDto (응답)
