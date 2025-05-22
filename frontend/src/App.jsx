@@ -7,7 +7,7 @@ function App() {
   return (
       <BrowserRouter>
           <Routes>
-              <Route path="/api/notice" element={<Notice />} />
+              <Route path="notice" element={<Notice />} />
               <Route path="/notice/create" element={<NoticeCreate />} />
           </Routes>
       </BrowserRouter>
