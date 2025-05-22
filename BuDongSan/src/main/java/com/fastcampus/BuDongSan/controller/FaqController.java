@@ -10,13 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/faq")
+@RequestMapping("/api/faq")
 @RequiredArgsConstructor
 public class FaqController {
 
     private final FaqService faqService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<FaqDto> addFaq(@RequestBody FaqDto faqDto) {
         FaqDto createFaq = faqService.createFaq(faqDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createFaq);
