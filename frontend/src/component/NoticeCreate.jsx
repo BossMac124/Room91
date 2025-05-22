@@ -12,7 +12,7 @@ function NoticeCreate() {
         try {
             await axios.post('/api/notice', { title, content });
             alert('공지사항이 등록되었습니다.');
-            navigate('/api/notice'); // 공지 목록 페이지로 이동
+            navigate('/notice'); // 공지 목록 페이지로 이동
         } catch (err) {
             console.error(err);
             alert('등록에 실패했습니다.');
