@@ -1,25 +1,24 @@
 import { useEffect, useState } from "react";
+import {Link} from "react-router-dom";
 
 function Notice() {
-    const [notices, setNotices] = useState([]); // 공지사항 목록
-    const [loading, setLoading] = useState(true); // 로딩 상태
+    const [notices, setNotices] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [pageInfo, setPageInfo] = useState({
         number: 0,
         totalPages: 0,
         first: true,
         last: false
     });
-    const [openIndex, setOpenIndex] = useState(null); // 열려있는 공지 index
-    const [searchKeyword, setSearchKeyword] = useState(""); // 검색어
-    const [searchType, setSearchType] = useState("title"); // 검색 타입
-    const [isSearching, setIsSearching] = useState(false); // 검색 중 여부
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter") {
-            handleSearch(0); // 🔍 엔터 키 누르면 검색 실행
-        }
-    };
 
-    // 공지사항 불러오기
+    const [openIndex, setOpenIndex] = useState(null);
+    const [editingIndex, setEditingIndex] = useState(null);
+    const [editedTitle, setEditedTitle] = useState("");
+    const [editedContent, setEditedContent] = useState("");
+
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [searchType, setSearchType] = useState("title");
+
     const getNotice = async (page = 0) => {
         setLoading(true);
         try {
@@ -39,12 +38,18 @@ function Notice() {
         }
     };
 
-    // 검색 실행
-    const handleSearch = async (page = 0) => {
+    useEffect(() => {
+        getNotice(0);
+    }, []);
+
+    const toggleContent = (index) => {
+        setOpenIndex(prev => (prev === index ? null : index));
+    };
+
+    const handleSearch = async () => {
         setLoading(true);
-        setIsSearching(true);
         try {
-            const res = await fetch(`http://localhost:8080/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=${page}`);
+            const res = await fetch(`http://localhost:8080/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`);
             const json = await res.json();
             setNotices(json.content);
             setPageInfo({
@@ -60,22 +65,57 @@ function Notice() {
         }
     };
 
-    // 검색어 없을 경우 전체 조회로 복귀
-    useEffect(() => {
-        if (searchKeyword.trim() === "") {
-            setIsSearching(false);
-            getNotice(0);
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            handleSearch();
         }
-    }, [searchKeyword]);
+    };
 
-    // 첫 렌더링 시 공지 불러오기
-    useEffect(() => {
-        getNotice(0);
-    }, []);
+    const startEditing = (index) => {
+        setEditingIndex(index);
+        setEditedTitle(notices[index].title);
+        setEditedContent(notices[index].content);
+    };
 
-    // 공지 토글
-    const toggleContent = (index) => {
-        setOpenIndex(prevIndex => (prevIndex === index ? null : index));
+    const cancelEditing = () => {
+        setEditingIndex(null);
+        setEditedTitle("");
+        setEditedContent("");
+    };
+
+    const saveEditing = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:8080/api/notice/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: editedTitle,
+                    content: editedContent
+                })
+            });
+            if (!res.ok) throw new Error("수정 실패");
+
+            await getNotice(pageInfo.number);
+            cancelEditing();
+        } catch (e) {
+            console.error(e);
+            alert("수정에 실패했습니다.");
+        }
+    };
+
+    const deleteNotice = async (id) => {
+        if (!window.confirm("정말 삭제할까요?")) return;
+        try {
+            const res = await fetch(`http://localhost:8080/api/notice/${id}`, {
+                method: "DELETE"
+            });
+            if (!res.ok) throw new Error("삭제 실패");
+
+            await getNotice(pageInfo.number);
+        } catch (e) {
+            console.error(e);
+            alert("삭제에 실패했습니다.");
+        }
     };
 
     return (
@@ -84,54 +124,74 @@ function Notice() {
                 <p>로딩중...</p>
             ) : (
                 <>
-                    {/* 🔍 검색 UI */}
+                    <div style={{ marginBottom: '1rem' }}>
+                        <Link to="/notice/create">
+                            <button>공지사항 작성</button>
+                        </Link>
+                    </div>
+
                     <div style={{ marginBottom: '1rem' }}>
                         <input
                             type="text"
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
-                            onKeyDown={handleKeyDown} // 엔터키 누르면 검색
+                            onKeyDown={handleKeyDown}
                             placeholder="검색어 입력"
                             style={{ marginRight: '0.5rem' }}
                         />
-                        <select
-                            value={searchType}
-                            onChange={(e) => setSearchType(e.target.value)}
-                            style={{ marginRight: '0.5rem' }}
-                        >
+                        <select value={searchType} onChange={(e) => setSearchType(e.target.value)} style={{ marginRight: '0.5rem' }}>
                             <option value="title">제목</option>
                             <option value="content">내용</option>
                             <option value="title_content">제목+내용</option>
                         </select>
-                        <button onClick={() => handleSearch(0)}>검색</button>
+                        <button onClick={handleSearch}>검색</button>
                     </div>
 
-                    {/* 📋 공지 목록 */}
                     {notices.map((notice, index) => (
-                        <div key={notice.id} className="notice" style={{ marginBottom: '1rem' }}>
-                            <div
-                                onClick={() => toggleContent(index)}
-                                style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.2rem' }}
-                            >
-                                {notice.title}
-                            </div>
-                            {openIndex === index && (
-                                <div style={{ padding: '0.5rem 1rem', backgroundColor: '#f9f9f9' }}>
-                                    {notice.content}
-                                </div>
+                        <div key={notice.id} className="notice" style={{ marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '1rem' }}>
+                            {editingIndex === index ? (
+                                <>
+                                    <input
+                                        type="text"
+                                        value={editedTitle}
+                                        onChange={(e) => setEditedTitle(e.target.value)}
+                                        style={{ display: 'block', marginBottom: '0.5rem', width: '100%' }}
+                                    />
+                                    <textarea
+                                        value={editedContent}
+                                        onChange={(e) => setEditedContent(e.target.value)}
+                                        style={{ display: 'block', width: '100%', height: '100px' }}
+                                    />
+                                    <button onClick={() => saveEditing(notice.id)} style={{ marginRight: '0.5rem' }}>저장</button>
+                                    <button onClick={cancelEditing}>취소</button>
+                                </>
+                            ) : (
+                                <>
+                                    <div
+                                        onClick={() => toggleContent(index)}
+                                        style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.3rem' }}
+                                    >
+                                        {notice.title}
+                                    </div>
+                                    {openIndex === index && (
+                                        <div style={{ padding: '0.5rem 1rem', backgroundColor: '#f9f9f9' }}>
+                                            {notice.content}
+                                        </div>
+                                    )}
+                                    <div style={{ marginTop: '0.5rem' }}>
+                                        <button onClick={() => startEditing(index)} style={{ marginRight: '0.5rem' }}>수정</button>
+                                        <button onClick={() => deleteNotice(notice.id)}>삭제</button>
+                                    </div>
+                                </>
                             )}
                         </div>
                     ))}
 
-                    {/* 📄 페이지네이션 */}
-                    <div className="pagination">
+                    <div className="pagination" style={{ marginTop: '1rem' }}>
                         <button
-                            onClick={() =>
-                                isSearching
-                                    ? handleSearch(pageInfo.number - 1)
-                                    : getNotice(pageInfo.number - 1)
-                            }
+                            onClick={() => getNotice(pageInfo.number - 1)}
                             disabled={pageInfo.first}
+                            style={{ marginRight: '1rem' }}
                         >
                             이전
                         </button>
@@ -139,12 +199,9 @@ function Notice() {
                             {pageInfo.number + 1} / {pageInfo.totalPages}
                         </span>
                         <button
-                            onClick={() =>
-                                isSearching
-                                    ? handleSearch(pageInfo.number + 1)
-                                    : getNotice(pageInfo.number + 1)
-                            }
+                            onClick={() => getNotice(pageInfo.number + 1)}
                             disabled={pageInfo.last}
+                            style={{ marginLeft: '1rem' }}
                         >
                             다음
                         </button>
