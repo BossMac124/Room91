@@ -1,0 +1,16 @@
+# Gradle 빌드 결과물
+.gradle/
+build/
+
+# IDE 캐시·설정
+.idea/
+*.iml
+.vscode/
+
+# 잠금·히스토리·캐시 파일
+*.lock
+*.bin
+
+# OS별 불필요 파일
+.DS_Store
+Thumbs.db

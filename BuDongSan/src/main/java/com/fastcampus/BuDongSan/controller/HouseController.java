@@ -3,6 +3,7 @@ package com.fastcampus.BuDongSan.controller;
 import com.fastcampus.BuDongSan.Entity.Direction;
 import com.fastcampus.BuDongSan.Entity.House;
 import com.fastcampus.BuDongSan.Entity.TwoRoom;
+import com.fastcampus.BuDongSan.dto.DirectionResponseDto;
 import com.fastcampus.BuDongSan.service.HouseService;
 import com.fastcampus.BuDongSan.service.TwoRoomService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,15 +67,16 @@ public class HouseController {
     }
 
     @GetMapping("/direction")
-    public ResponseEntity<Direction> getDirections(
+    public ResponseEntity<DirectionResponseDto> getDirections(
             @RequestParam double originLat,
             @RequestParam double originLng,
             @RequestParam double destLat,
             @RequestParam double destLng) {
         try {
-            JsonNode resultNode = houseService.getOrFetchDirection(originLat, originLng, destLat, destLng);
-            Direction direction = objectMapper.treeToValue(resultNode, Direction.class);
-            return ResponseEntity.ok(direction);
+            DirectionResponseDto dto = houseService.getOrFetchDirectionDto(
+                    originLat, originLng, destLat, destLng
+            );
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
