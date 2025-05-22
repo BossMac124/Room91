@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,8 @@ public class NoticeService {
     // 페이지네이션 적용된 공지 목록 조회
     @Transactional(readOnly = true)
     public Page<NoticeDto> getNotices(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size); // 0-based index
+        Sort sort = Sort.by(Sort.Direction.DESC, "updatedAt").and(Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = PageRequest.of(page, size, sort);
         return noticeRepository.findAll(pageable)
                 .map(NoticeDto::fromEntity);
     }
