@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+// CKEditor import
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
 function NoticeCreate() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -34,11 +38,13 @@ function NoticeCreate() {
                 </div>
                 <div>
                     <label>내용</label><br />
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        rows={8}
-                        required
+                    <CKEditor
+                        editor={ClassicEditor}
+                        data={content}
+                        onChange={(event, editor) => {
+                            const data = editor.getData();
+                            setContent(data);
+                        }}
                     />
                 </div>
                 <button type="submit">등록</button>
