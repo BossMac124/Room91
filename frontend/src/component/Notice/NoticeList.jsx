@@ -1,5 +1,5 @@
 import React from "react";
-import NoticeItem from "./NoticeItem";
+import NoticeItem from "./NoticeItem.jsx";
 import { Link } from "react-router-dom";
 
 // NoticeList 컴포넌트는 공지 리스트 + 페이징 + 공지 작성 버튼을 렌더링함

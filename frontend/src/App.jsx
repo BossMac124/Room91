@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import './css/App.css'
-import NoticeCreate from "./component/NoticeCreate.jsx";
+import NoticeCreate from "./component/Notice/NoticeCreate.jsx";
 import Header from "./component/Header.jsx";
 import Redevelopment from "./component/Redevelopment.jsx";
-import NoticePage from "./Notice/NoticePage.jsx";
+import NoticePage from "./component/Notice/NoticePage.jsx";
 
 function App() {
   return (

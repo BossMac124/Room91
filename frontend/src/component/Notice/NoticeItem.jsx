@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import NoticeEditor from "./NoticeEditor";
+import NoticeEditor from "./NoticeEditor.jsx";
 
 // 개별 공지 항목을 보여주는 컴포넌트
 function NoticeItem({ notice, getNotice, currentPage }) {

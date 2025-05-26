@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import NoticeSearch from "./NoticeSearch"; // 검색 컴포넌트
-import NoticeList from "./NoticeList";     // 리스트 출력 컴포넌트
+import NoticeSearch from "./NoticeSearch.jsx"; // 검색 컴포넌트
+import NoticeList from "./NoticeList.jsx";     // 리스트 출력 컴포넌트
 
 // 공지사항 전체 페이지 컴포넌트
 function NoticePage() {
