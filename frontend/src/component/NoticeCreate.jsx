@@ -34,6 +34,11 @@ function NoticeCreate() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
+                        style={{
+                            display: "block",
+                            marginBottom: "0.5rem",
+                            width: "100%",
+                        }}
                     />
                 </div>
                 <div>
