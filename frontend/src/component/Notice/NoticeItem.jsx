@@ -67,8 +67,28 @@ function NoticeItem({ notice, getNotice, currentPage }) {
                                 padding: "0.5rem 1rem",
                                 backgroundColor: "#f9f9f9",
                             }}
-                            dangerouslySetInnerHTML={{ __html: notice.content }} // HTML 렌더링
-                        />
+                        >
+                            {/* 이미지가 있을 경우 먼저 출력 */}
+                            {notice.imageName && (
+                                <img
+                                    src={`http://localhost:8080/uploads/${notice.imageName}`}
+                                    alt="공지 이미지"
+                                    style={{
+                                        maxWidth: "50%",
+                                        Width: "100%",
+                                        height: "auto",
+                                        marginBottom: "1rem",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                />
+                            )}
+
+                            {/* 공지 내용은 HTML로 렌더링 */}
+                            <div
+                                className="notice-content"
+                                dangerouslySetInnerHTML={{ __html: notice.content }} />
+                        </div>
                     )}
 
                     {/* 수정/삭제 버튼 */}
