@@ -5,6 +5,32 @@
   text-align: center;
 }
 
+.notice-content {
+  line-height: 1.6;
+  font-size: 1rem;
+  color: #333;
+}
+
+.notice-content img {
+  max-width: 70%;
+  height: auto;
+  display: block;
+  margin: 1.5rem auto; /* 위아래 여백 + 가운데 정렬 */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notice-content p {
+  margin-bottom: 1rem;
+}
+
+.notice-content h1,
+.notice-content h2,
+.notice-content h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
