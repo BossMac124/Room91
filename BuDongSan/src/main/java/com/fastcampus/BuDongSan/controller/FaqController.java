@@ -2,7 +2,6 @@ package com.fastcampus.BuDongSan.controller;
 
 import com.fastcampus.BuDongSan.dto.FaqDto;
 import com.fastcampus.BuDongSan.service.FaqService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
