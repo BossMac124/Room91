@@ -15,4 +15,10 @@ public class ViewController {
     public String twoRoomPage() {
         return "two.html"; // static/two.html 반환
     }
+
+
+    @GetMapping("/main")
+    public String a() {
+        return "a.html";        // templates/a.html
+    }
 }

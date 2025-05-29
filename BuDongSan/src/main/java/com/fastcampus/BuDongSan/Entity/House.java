@@ -24,6 +24,8 @@ public class House {
     private String id;
     //지역
     private String region;
+    //지역구
+    private String gu;
     //방타입(원룸, 투룸)
     private String articleName;
     //방타입코드(B1 원룸, B2 투룸)

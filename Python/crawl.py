@@ -777,6 +777,7 @@ desired_columns = [
 
 # (6) 시트별로 데이터 읽고 MongoDB에 조건 분기 저장
 for sheet in sheets:
+    # sheet 변수에 엑셀 시트 이름(구 이름)이 들어있습니다
     df = pd.read_excel(xlsx_filename, sheet_name=sheet, engine="openpyxl")
     df = df[desired_columns]
 
@@ -798,6 +799,8 @@ for sheet in sheets:
                 parsed_list = ast.literal_eval(tag_list)
                 if isinstance(parsed_list, list):
                     document["tagList"] = parsed_list
+                else:
+                    document["tagList"] = []
             except Exception:
                 document["tagList"] = []
 
@@ -809,9 +812,10 @@ for sheet in sheets:
                 "coordinates": [lon, lat]
             }
 
-        # 이제 rentPrc, elevatorCount 는 NaN 이 없고 0 으로 채워져 있습니다.
+        # ✅ gu 필드 추가 (시트 이름을 구 이름으로)
+        document["gu"] = sheet
 
-        # ✅ 조건에 따라 컬렉션 분기 저장
+        # ✅ realEstateTypeName 에 따라 OneRoom / TwoRoom 분기 저장
         if document.get("realEstateTypeName") in ("원룸", "오피스텔"):
             one_room_collection.insert_one(document)
         else:
