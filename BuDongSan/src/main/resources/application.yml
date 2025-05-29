@@ -21,8 +21,16 @@ spring:
       host: localhost
       port: 6384
 
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
 server:
   port: 8080
 
 kakao:
   rest-api-key: d21c83b1e788c64c8f6d15ac5f7223fc
+
+file:
+  upload-dir: /Users/kangminwoo/projects/Room91/BuDongSan/images/
