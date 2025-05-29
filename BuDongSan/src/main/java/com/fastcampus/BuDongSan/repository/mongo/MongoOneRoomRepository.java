@@ -16,4 +16,6 @@ public interface MongoOneRoomRepository extends MongoRepository<House, String> {
     List<House> findByRegion(String region);
 
     List<House> findByLocationNear(Point point, Distance distance);
+
+    List<House> findTop5ByGuOrderByRentPrcAsc(String gu);
 }

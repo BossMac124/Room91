@@ -20,369 +20,147 @@
             --warning: #FFC107;       /* 경고 */
             --error: #F44336;         /* 오류 */
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            font-family: 'Noto Sans KR', sans-serif;
-            color: var(--text-dark);
-            background-color: #f9f9f9;
+            margin: 0; display: flex; flex-direction: column;
+            height: 100vh; font-family: 'Noto Sans KR', sans-serif;
+            color: var(--text-dark); background-color: #f9f9f9;
         }
-
         nav {
-            background: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: var(--primary); color: white;
+            padding: 15px 20px; display: flex;
+            justify-content: space-between; align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        nav .logo {
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-        }
-
-        nav .logo svg {
-            margin-right: 8px;
-        }
-
-        #mainLayout {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
+        nav .logo { font-size: 20px; font-weight: 700; display: flex; align-items: center; }
+        nav .logo svg { margin-right: 8px; }
+        #mainLayout { display: flex; flex: 1; overflow: hidden; }
         #houseList {
-            width: 320px;
-            padding: 15px;
-            overflow-y: auto;
-            height: 100%;
-            box-sizing: border-box;
-            background-color: var(--background);
+            width: 320px; padding: 15px; overflow-y: auto;
+            height: 100%; background: var(--background);
             border-right: 1px solid var(--border);
         }
-
-        #mapWrapper {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-
+        #mapWrapper { flex: 1; overflow: hidden; position: relative; }
         nav button {
-            background: white;
-            color: var(--primary);
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            background: white; color: var(--primary); border: none;
+            border-radius: 4px; padding: 8px 16px; cursor: pointer;
+            font-size: 14px; font-weight: 500; transition: all 0.2s ease;
             margin-left: 8px;
         }
-
-        nav button:hover {
-            background: rgba(255, 255, 255, 0.9);
-            transform: translateY(-1px);
-        }
-
-        nav button.active {
-            background: var(--primary-dark);
-            color: white;
-        }
-
+        nav button:hover { background: rgba(255,255,255,0.9); transform: translateY(-1px); }
+        nav button.active { background: var(--primary-dark); color: white; }
         #directionBtn {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 4px;
-            background: var(--primary);
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: 500;
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border: none; border-radius: 4px; background: var(--primary);
+            color: #fff; font-size: 16px; cursor: pointer; font-weight: 500;
             transition: all 0.2s ease;
         }
-
-        #directionBtn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
+        #directionBtn:hover { background: var(--primary-dark); transform: translateY(-1px); }
         #directionResult {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #fff;
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 15px; margin-bottom: 15px; background: #fff;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-
-        #directionResult h3 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
+        #directionResult h3 { color: var(--primary); margin-bottom: 10px; font-size: 16px; }
         #houseListContent .house-item {
-            padding: 15px;
-            border: 1px solid var(--border);
-            margin-bottom: 12px;
-            background: #fff;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+            padding: 15px; border: 1px solid var(--border);
+            margin-bottom: 12px; background: #fff; cursor: pointer;
+            border-radius: 8px; transition: all 0.2s ease;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-
         #houseListContent .house-item:hover {
-            background: var(--primary-light);
-            transform: translateY(-2px);
+            background: var(--primary-light); transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-        .house-title {
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--primary);
-            font-size: 16px;
-        }
-
-        .house-info {
-            font-size: 14px;
-            color: var(--text-light);
-            line-height: 1.5;
-        }
-
+        .house-title { font-weight: 700; margin-bottom: 8px; color: var(--primary); font-size: 16px; }
+        .house-info { font-size: 14px; color: var(--text-light); line-height: 1.5; }
         #houseDetail {
-            width: 400px;
-            border-right: 1px solid var(--border);
-            padding: 20px;
-            background: #fff;
-            display: none;
-            overflow-y: auto;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+            width: 400px; border-right: 1px solid var(--border);
+            padding: 20px; background: #fff; display: none;
+            overflow-y: auto; box-shadow: -2px 0 5px rgba(0,0,0,0.05);
         }
-
         #detailHeader {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 1px solid var(--border);
         }
-
-        #detailHeader h3 {
-            margin: 0;
-            font-size: 18px;
-            color: var(--primary);
-        }
-
+        #detailHeader h3 { margin: 0; font-size: 18px; color: var(--primary); }
         #closeDetailBtn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: var(--text-light);
+            background: none; border: none; font-size: 20px;
+            cursor: pointer; color: var(--text-light);
             transition: color 0.2s ease;
         }
-
-        #closeDetailBtn:hover {
-            color: var(--primary);
-        }
-
+        #closeDetailBtn:hover { color: var(--primary); }
         .detail-row {
-            margin-bottom: 10px;
-            padding-bottom: 8px;
+            margin-bottom: 10px; padding-bottom: 8px;
             border-bottom: 1px solid var(--border);
         }
-
-        .detail-label {
-            font-weight: 500;
-            margin-right: 5px;
-            color: var(--text-dark);
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-
+        .detail-label { font-weight: 500; margin-right: 5px; color: var(--text-dark); }
+        #map { width: 100%; height: 100%; }
         #searchForm {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 2;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            width: 280px;
+            position: absolute; top: 15px; left: 15px; z-index: 2;
+            background: #fff; padding: 15px; border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); width: 280px;
         }
-
-        #searchForm label {
-            font-size: 14px;
-            margin-right: 10px;
-        }
-
-        #searchForm input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
+        #searchForm label { font-size: 14px; margin-right: 10px; }
+        #searchForm input[type="checkbox"] { margin-right: 5px; }
         #searchForm input[type="number"] {
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 6px;
-            width: 70px;
-            margin: 0 5px;
+            border: 1px solid var(--border); border-radius: 4px;
+            padding: 6px; width: 70px; margin: 0 5px;
         }
-
         #searchForm input[type="number"]:focus {
-            border-color: var(--primary);
-            outline: none;
+            border-color: var(--primary); outline: none;
         }
-
         #addressInput {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 14px;
+            width: 100%; padding: 10px; border: 1px solid var(--border);
+            border-radius: 4px; margin-bottom: 8px; font-size: 14px;
         }
-
         #addressInput:focus {
-            border-color: var(--primary);
-            outline: none;
+            border-color: var(--primary); outline: none;
         }
-
         #searchButton {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-weight: 500;
-            width: 100%;
-            transition: all 0.2s ease;
+            background: var(--primary); color: white; border: none;
+            border-radius: 4px; padding: 10px 15px; cursor: pointer;
+            font-weight: 500; width: 100%; transition: all 0.2s ease;
         }
-
-        #searchButton:hover {
-            background: var(--primary-dark);
-        }
-
-        /* 자동완성 리스트 스타일 */
+        #searchButton:hover { background: var(--primary-dark); }
         #autocompleteList {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 0 0 4px 4px;
-            z-index: 1000;
-            margin: 0;
-            padding: 0;
-            list-style: none;
+            position: absolute; top: 100%; left: 0; width: 100%;
+            max-height: 200px; overflow-y: auto; background: #fff;
+            border: 1px solid var(--border); border-radius: 0 0 4px 4px;
+            z-index: 1000; margin: 0; padding: 0; list-style: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
         #autocompleteList li {
-            padding: 10px 12px;
-            cursor: pointer;
+            padding: 10px 12px; cursor: pointer;
             border-bottom: 1px solid var(--border);
         }
-
-        #autocompleteList li:last-child {
-            border-bottom: none;
-        }
-
-        #autocompleteList li:hover {
-            background: var(--primary-light);
-        }
-
-        /* 말풍선 컨테이너 */
+        #autocompleteList li:last-child { border-bottom: none; }
+        #autocompleteList li:hover { background: var(--primary-light); }
         .dest-bubble {
-            display: inline-block;
-            position: relative;
-            padding: 8px 14px;
-            background: #8A4FFF;
-            color: #fff;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 12px;
-            white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: inline-block; position: relative;
+            padding: 8px 14px; background: #8A4FFF; color: #fff;
+            font-size: 14px; font-weight: bold; border-radius: 12px;
+            white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-
-        /* 말풍선 아래 삼각형(꼬리) */
         .dest-bubble::after {
-            content: "";
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
+            content: ""; position: absolute; bottom: -6px; left: 50%;
             transform: translateX(-50%);
-            border-width: 6px 6px 0 6px;
-            border-style: solid;
+            border-width: 6px 6px 0 6px; border-style: solid;
             border-color: #8A4FFF transparent transparent transparent;
         }
-
         .filter-section {
-            margin-bottom: 12px;
-            padding-bottom: 10px;
+            margin-bottom: 12px; padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
         }
-
-        .filter-section:last-child {
-            border-bottom: none;
-        }
-
-        .filter-title {
-            font-weight: 500;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .search-wrapper {
-            position: relative;
-            margin-top: 12px;
-        }
-
-        .price-inputs {
-            display: flex;
-            align-items: center;
-        }
-
-        .price-inputs span {
-            margin: 0 5px;
-            color: var(--text-light);
-        }
-
-        /* 클러스터 스타일 */
+        .filter-section:last-child { border-bottom: none; }
+        .filter-title { font-weight: 500; margin-bottom: 8px; font-size: 14px; }
+        .search-wrapper { position: relative; margin-top: 12px; }
+        .price-inputs { display: flex; align-items: center; }
+        .price-inputs span { margin: 0 5px; color: var(--text-light); }
         .cluster-marker {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            font-weight: bold;
-            color: white;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 50%; font-weight: bold; color: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
     </style>
@@ -391,9 +169,15 @@
 
 <nav>
     <div class="logo">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M9 22V12H15V22" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142
+                     C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893
+                     3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
+                  stroke="white" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round"/>
+            <path d="M9 22V12H15V22" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span>부동산 매물 지도</span>
     </div>
@@ -426,25 +210,20 @@
                 <label><input type="checkbox" name="tradeType" value="B2" checked> 월세</label>
                 <label><input type="checkbox" name="tradeType" value="B3" checked> 단기임대</label>
             </div>
-
             <div class="filter-section">
                 <div class="filter-title">월세 범위 (만원)</div>
                 <div class="price-inputs">
-                    <input id="rentPrcMin" type="number" placeholder="최소">
-                    <span>~</span>
+                    <input id="rentPrcMin" type="number" placeholder="최소"><span>~</span>
                     <input id="rentPrcMax" type="number" placeholder="최대">
                 </div>
             </div>
-
             <div class="filter-section">
                 <div class="filter-title">보증금 범위 (만원)</div>
                 <div class="price-inputs">
-                    <input id="dealPrcMin" type="number" placeholder="최소">
-                    <span>~</span>
+                    <input id="dealPrcMin" type="number" placeholder="최소"><span>~</span>
                     <input id="dealPrcMax" type="number" placeholder="최대">
                 </div>
             </div>
-
             <div class="search-wrapper">
                 <input id="addressInput" placeholder="주소 및 키워드를 입력하세요" autocomplete="off">
                 <ul id="autocompleteList"></ul>
@@ -459,9 +238,7 @@
     // ─── ➊ 전역 변수 ───
     let searchedLat, searchedLng, destLat, destLng;
     let addressMarker, companyLabel;
-    let routeLine   = null;  // 실제 도로 경로선
-    let straightLine = null; // 직선 점선
-    let destMarker   = null; // 도착 말풍선
+    let routeLine = null, straightLine = null, destMarker = null;
 
     // 네비게이션
     document.getElementById("oneBtn").onclick = () => window.location.href = "/";
@@ -480,8 +257,9 @@
             inp.style.backgroundColor = onlyJeonse ? "#eee" : "white";
         });
     }
-    document.querySelectorAll('input[name="tradeType"]')
-        .forEach(el => el.addEventListener('change', updateRentFilterStatus));
+    document.querySelectorAll('input[name="tradeType"]').forEach(el =>
+        el.addEventListener('change', updateRentFilterStatus)
+    );
     updateRentFilterStatus();
 
     // ① 카카오 맵 초기화
@@ -491,93 +269,38 @@
     );
 
     const clusterStyles = [
-        {
-            width: '40px',
-            height: '40px',
-            background: 'rgba(255, 107, 61, 0.7)',  // 메인 오렌지 컬러
-            color: '#fff',
-            textAlign: 'center',
-            lineHeight: '40px',
-            borderRadius: '50%',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-            fontWeight: 'bold'
-        },
-        {
-            width: '50px',
-            height: '50px',
-            background: 'rgba(255, 107, 61, 0.8)',  // 메인 오렌지 컬러
-            color: '#fff',
-            textAlign: 'center',
-            lineHeight: '50px',
-            borderRadius: '50%',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-            fontWeight: 'bold'
-        },
-        {
-            width: '60px',
-            height: '60px',
-            background: 'rgba(224, 78, 26, 0.85)',  // 진한 오렌지
-            color: '#fff',
-            textAlign: 'center',
-            lineHeight: '60px',
-            borderRadius: '50%',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-            fontWeight: 'bold'
-        },
-        {
-            width: '70px',
-            height: '70px',
-            background: 'rgba(224, 78, 26, 0.9)',  // 진한 오렌지
-            color: '#fff',
-            textAlign: 'center',
-            lineHeight: '70px',
-            borderRadius: '50%',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-            fontWeight: 'bold'
-        }
+        { width:'40px', height:'40px', background:'rgba(255,107,61,0.7)', color:'#fff',
+            textAlign:'center', lineHeight:'40px', borderRadius:'50%', boxShadow:'0 2px 6px rgba(0,0,0,0.2)', fontWeight:'bold' },
+        { width:'50px', height:'50px', background:'rgba(255,107,61,0.8)', /*...*/ },
+        { width:'60px', height:'60px', background:'rgba(224,78,26,0.85)', /*...*/ },
+        { width:'70px', height:'70px', background:'rgba(224,78,26,0.9)', /*...*/ }
     ];
-    // 커스텀 오버레이 방식의 클러스터러
     const clusterer = new kakao.maps.MarkerClusterer({
-        map,
-        averageCenter: true,
-        minLevel: 2,
-        minClusterSize: 1,
-        disableClickZoom: true,
-        styles: clusterStyles
+        map, averageCenter:true, minLevel:2, minClusterSize:1,
+        disableClickZoom:true, styles:clusterStyles
     });
 
-    // ③ decodePolyline 함수 정의
     function decodePolyline(encoded) {
-        const path = [];
-        let index = 0, lat = 0, lng = 0;
+        const path = []; let index=0, lat=0, lng=0;
         while (index < encoded.length) {
-            let b, shift = 0, result = 0;
-            do {
-                b = encoded.charCodeAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            lat += (result & 1) ? ~(result >> 1) : (result >> 1);
-
-            shift = 0; result = 0;
-            do {
-                b = encoded.charCodeAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            lng += (result & 1) ? ~(result >> 1) : (result >> 1);
-
-            path.push(new kakao.maps.LatLng(lat * 1e-5, lng * 1e-5));
+            let b, shift=0, result=0;
+            do { b=encoded.charCodeAt(index++)-63; result |= (b&0x1f)<<shift; shift+=5; }
+            while (b>=0x20);
+            lat += (result&1)? ~(result>>1):(result>>1);
+            shift=0; result=0;
+            do { b=encoded.charCodeAt(index++)-63; result |= (b&0x1f)<<shift; shift+=5; }
+            while (b>=0x20);
+            lng += (result&1)? ~(result>>1):(result>>1);
+            path.push(new kakao.maps.LatLng(lat*1e-5, lng*1e-5));
         }
         return path;
     }
 
-    // ─── ➏ 자동완성 + 검색 ───
+    // 자동완성 + 검색
     const ps = new kakao.maps.services.Places();
     const geocoder = new kakao.maps.services.Geocoder();
     const input    = document.getElementById('addressInput');
     const autoList = document.getElementById('autocompleteList');
-
     input.addEventListener('input', () => {
         const kw = input.value.trim();
         if (!kw) { autoList.innerHTML = ''; return; }
@@ -589,45 +312,31 @@
             }
         });
     });
-
-    // 자동완성 선택
     autoList.addEventListener('click', e => {
-        if (e.target.tagName !== 'LI') return;
+        if (e.target.tagName!=='LI') return;
         input.value = e.target.textContent;
-        const lng = parseFloat(e.target.dataset.lng);
-        const lat = parseFloat(e.target.dataset.lat);
+        const lng = parseFloat(e.target.dataset.lng),
+            lat = parseFloat(e.target.dataset.lat);
         autoList.innerHTML = '';
         handleResult([{ x: lng, y: lat }], kakao.maps.services.Status.OK);
     });
-
-    // 리스트 외부 클릭 시 닫기
     document.addEventListener('click', e => {
         if (!document.getElementById('searchForm').contains(e.target)) {
             autoList.innerHTML = '';
         }
     });
-
-    // 검색 버튼 클릭
     document.getElementById('searchButton').onclick = () => {
         const q = input.value.trim();
         if (!q) return alert('주소를 입력하세요.');
         geocoder.addressSearch(q, (res, stat) => {
-            if (stat === kakao.maps.services.Status.OK) {
-                handleResult(res, stat);
-            } else {
-                ps.keywordSearch(q, handleResult);
-            }
+            if (stat===kakao.maps.services.Status.OK) handleResult(res, stat);
+            else ps.keywordSearch(q, handleResult);
         });
     };
-
-    // Enter 키 → 검색 버튼 클릭
-    document.getElementById('addressInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('searchButton').click();
-        }
+    input.addEventListener('keydown', e => {
+        if (e.key==='Enter') document.getElementById('searchButton').click();
     });
 
-    // 검색 결과 공통 처리
     function handleResult(res, status) {
         if (status !== kakao.maps.services.Status.OK) {
             return alert('검색 결과가 없습니다.');
@@ -637,217 +346,189 @@
     }
 
     function setCenterAndSearch(lat, lng) {
-        // 길찾기 초기화
-        if (routeLine)    { routeLine.setMap(null);    routeLine    = null; }
+        if (routeLine)    { routeLine.setMap(null);    routeLine = null; }
         if (straightLine) { straightLine.setMap(null); straightLine = null; }
-        if (destMarker)   { destMarker.setMap(null);   destMarker   = null; }
+        if (destMarker)   { destMarker.setMap(null);   destMarker = null; }
         document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
 
-        // 저장 & 중심 이동
-        searchedLat = lat; searchedLng = lng;
-        destLat = destLng = null;
-        map.setCenter(new kakao.maps.LatLng(lat, lng));
+        searchedLat=lat; searchedLng=lng; destLat=destLng=null;
+        map.setCenter(new kakao.maps.LatLng(lat,lng));
 
-        // 회사 위치 마커/레이블
         if (addressMarker) addressMarker.setMap(null);
-        if (companyLabel ) companyLabel.setMap(null);
+        if (companyLabel)  companyLabel.setMap(null);
 
-        addressMarker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(lat, lng),
-            map
-        });
+        addressMarker = new kakao.maps.Marker({ position: new kakao.maps.LatLng(lat,lng), map });
         companyLabel = new kakao.maps.CustomOverlay({
             position: addressMarker.getPosition(),
-            yAnchor: 1.4,
+            yAnchor:1.4,
             content:
-                '<div style="padding:6px 10px; background:#3D7DFF; ' +
-                'color:#fff; border-radius:4px; font-weight:500; box-shadow:0 2px 4px rgba(0,0,0,0.2);">회사 위치</div>'
+                '<div style="padding:6px 10px; background:#3D7DFF; color:#fff; '+
+                'border-radius:4px; font-weight:500; box-shadow:0 2px 4px rgba(0,0,0,0.2);">'+
+                '회사 위치</div>'
         });
         companyLabel.setMap(map);
 
-        // 매물 API 호출
-        const urlPath = location.pathname === '/' ? '/house' : '/house/two';
-        const types   = Array.from(
-            document.querySelectorAll('input[name="tradeType"]:checked')
-        ).map(c => c.value);
-        const rMin = parseInt(document.getElementById('rentPrcMin').value) || 0;
-        const rMax = parseInt(document.getElementById('rentPrcMax').value) || 999999999;
-        const dMin = parseInt(document.getElementById('dealPrcMin').value) || 0;
-        const dMax = parseInt(document.getElementById('dealPrcMax').value) || 999999999;
+        const urlPath = location.pathname==='/'?'/house':'/house/two';
+        const types   = Array.from(document.querySelectorAll('input[name="tradeType"]:checked')).map(c=>c.value);
+        const rMin = parseInt(document.getElementById('rentPrcMin').value)||0;
+        const rMax = parseInt(document.getElementById('rentPrcMax').value)||999999999;
+        const dMin = parseInt(document.getElementById('dealPrcMin').value)||0;
+        const dMax = parseInt(document.getElementById('dealPrcMax').value)||999999999;
 
         const params = [
             `lng=${lng}`, `lat=${lat}`, `radius=3`,
-            ...types.map(t => `tradeTypeCodes=${t}`),
+            ...types.map(t=>`tradeTypeCodes=${t}`),
             `rentPrcMin=${rMin}`, `rentPrcMax=${rMax}`,
             `dealPrcMin=${dMin}`, `dealPrcMax=${dMax}`
         ].join('&');
 
         fetch(`${urlPath}?${params}`)
-            .then(r => r.json())
+            .then(r=>r.json())
             .then(renderSearchResult)
-            .catch(() => alert('매물 조회 중 오류'));
+            .catch(()=>alert('매물 조회 중 오류'));
     }
 
-    // 매물 목록 렌더링
+    // 매물 목록 렌더링 (data-id 추가, 클릭 시 API 호출)
     function renderSearchResult(data) {
         clusterer.clear();
         const markers = data.map(h => {
             const [lng, lat] = h.location.coordinates;
-            const m = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(lat, lng)
-            });
+            const m = new kakao.maps.Marker({ position: new kakao.maps.LatLng(lat,lng) });
             m.houseData = h;
             const iw = new kakao.maps.InfoWindow({
                 content:
                     `<div style="padding:8px; min-width:150px;">
-                        <div style="font-weight:bold; color:#FF6B3D; margin-bottom:5px;">${h.buildingName||'-'}</div>
-                        <div style="font-size:13px; margin-bottom:3px;">월세: ${h.rentPrc||'-'}</div>
-                        <div style="font-size:13px;">보증금: ${h.dealOrWarrantPrc||'-'}</div>
-                    </div>`
+                      <div style="font-weight:bold; color:#FF6B3D; margin-bottom:5px;">
+                        ${h.buildingName||'-'}
+                      </div>
+                      <div style="font-size:13px; margin-bottom:3px;">
+                        월세: ${h.rentPrc||'-'}
+                      </div>
+                      <div style="font-size:13px;">
+                        보증금: ${h.dealOrWarrantPrc||'-'}
+                      </div>
+                  </div>`
             });
-            kakao.maps.event.addListener(m, 'mouseover', () => iw.open(map,m));
-            kakao.maps.event.addListener(m, 'mouseout' , () => iw.close());
+            kakao.maps.event.addListener(m,'mouseover',()=>iw.open(map,m));
+            kakao.maps.event.addListener(m,'mouseout', ()=>iw.close());
             return m;
         });
         clusterer.addMarkers(markers);
-        renderHouseList(data);
+        const arr = data;
+        const list = document.getElementById('houseListContent');
+        if (!arr.length) {
+            list.innerHTML = '<p>매물 없음</p>';
+        } else {
+            list.innerHTML = arr.map((h,i)=>`
+                <div class="house-item" data-idx="${i}" data-id="${h.id}">
+                    <div class="house-title">${h.buildingName||'-'}</div>
+                    <div class="house-info">
+                        <div>방타입: ${h.articleName||'-'}</div>
+                        <div>월세: ${h.rentPrc||'-'}</div>
+                        <div>보증금: ${h.dealOrWarrantPrc||'-'}</div>
+                        <div>방향: ${h.direction||'-'}</div>
+                    </div>
+                </div>
+            `).join('');
+            list.querySelectorAll('.house-item').forEach(el=>{
+                el.onclick = ()=> openDetailPanel(el.dataset.id);
+            });
+        }
         document.getElementById('directionResult').innerText =
             '여기에 길찾기 결과가 표시됩니다.';
     }
 
     // 클러스터 클릭
-    kakao.maps.event.addListener(clusterer, 'clusterclick', c => {
-        // 1) 매물 목록 갱신
-        const arr = c.getMarkers().map(m => m.houseData);
-        renderHouseList(arr);
-
-        // 2) destLat/destLng 업데이트
+    kakao.maps.event.addListener(clusterer, 'clusterclick', c=>{
+        const arr = c.getMarkers().map(m=>m.houseData);
+        renderSearchResult(arr);
         const cen = c.getCenter();
-        destLat = cen.getLat();
-        destLng = cen.getLng();
-
-        // 3) 지도만 이동 (경로·말풍선은 그대로)
+        destLat=cen.getLat(); destLng=cen.getLng();
         map.setCenter(cen);
-        document.getElementById('directionResult').innerText = '여기에 길찾기 결과가 표시됩니다.';
+        document.getElementById('directionResult').innerText =
+            '여기에 길찾기 결과가 표시됩니다.';
     });
 
-    // 매물 검색 (주소, 키워드 분기)
-    document.getElementById('directionBtn').onclick = () => {
-        if (!searchedLat || !searchedLng) return alert('주소 검색 먼저');
-        if (!destLat    || !destLng)    return alert('목적지 선택 필요');
-
-        // (A) 직선 점선
-        if (straightLine) { straightLine.setMap(null); straightLine = null; }
+    // 길찾기 이벤트
+    document.getElementById('directionBtn').onclick = ()=>{
+        if (!searchedLat||!searchedLng) return alert('주소 검색 먼저');
+        if (!destLat||!destLng) return alert('목적지 선택 필요');
+        if (straightLine) { straightLine.setMap(null); straightLine=null; }
         straightLine = new kakao.maps.Polyline({
-            path: [
+            path:[
                 new kakao.maps.LatLng(searchedLat, searchedLng),
                 new kakao.maps.LatLng(destLat, destLng)
             ],
-            strokeWeight: 4,
-            strokeColor: '#888',
-            strokeOpacity: 0.8,
-            strokeStyle: 'dash'
+            strokeWeight:4, strokeColor:'#888', strokeOpacity:0.8, strokeStyle:'dash'
         });
         straightLine.setMap(map);
-
-        // (B) 핑크 말풍선
         if (destMarker) destMarker.setMap(null);
         destMarker = new kakao.maps.CustomOverlay({
-            map,
-            position: new kakao.maps.LatLng(destLat, destLng),
-            content: '<div class="dest-bubble">도착</div>',
-            yAnchor: 1
+            map, position:new kakao.maps.LatLng(destLat,destLng),
+            content:'<div class="dest-bubble">도착</div>', yAnchor:1
         });
-        destMarker.setZIndex(999);
-
-        // (C) 실제 도로 경로 파란 실선
         fetch(`/house/direction?originLat=${searchedLat}&originLng=${searchedLng}&destLat=${destLat}&destLng=${destLng}`)
-            .then(r => r.json())
-            .then(data => {
-                if (routeLine) { routeLine.setMap(null); routeLine = null; }
+            .then(r=>r.json())
+            .then(data=>{
+                if (routeLine) { routeLine.setMap(null); routeLine=null; }
                 const kakaoPath = decodePolyline(data.polyline);
                 routeLine = new kakao.maps.Polyline({
-                    path: kakaoPath,
-                    strokeWeight: 4,
-                    strokeColor: '#3D7DFF',
-                    strokeOpacity: 0.8,
-                    strokeStyle: 'solid'
+                    path:kakaoPath, strokeWeight:4, strokeColor:'#3D7DFF',
+                    strokeOpacity:0.8, strokeStyle:'solid'
                 });
                 routeLine.setMap(map);
-
                 document.getElementById('directionResult').innerHTML =
-                    `<h3>길찾기 결과</h3>
-                    <p>거리: ${data.distance}</p>
-                    <p>시간: ${data.duration}</p>`;
+                    `<h3>길찾기 결과</h3><p>거리: ${data.distance}</p><p>시간: ${data.duration}</p>`;
             })
-            .catch(() => alert('길찾기 오류'));
+            .catch(()=>alert('길찾기 오류'));
     };
 
-    // 상세 조회
-    const detailPanel   = document.getElementById('houseDetail');
-    const detailContent = document.getElementById('detailContent');
-    document.getElementById('closeDetailBtn').onclick = closeDetailPanel;
-
-    // 매물 목록 렌더링
-    function renderHouseList(arr) {
-        const list = document.getElementById('houseListContent');
-        if (!arr.length) return list.innerHTML = '<p>매물 없음</p>';
-        list.innerHTML = arr.map((h,i) =>
-            `<div class="house-item" data-idx="${i}">
-                <div class="house-title">${h.buildingName||'-'}</div>
-                <div class="house-info">
-                    <div>방타입: ${h.articleName||'-'}</div>
-                    <div>월세: ${h.rentPrc||'-'}</div>
-                    <div>보증금: ${h.dealOrWarrantPrc||'-'}</div>
-                    <div>방향: ${h.direction||'-'}</div>
-                </div>
-            </div>`
-        ).join('');
-        list.querySelectorAll('.house-item').forEach((el,i) =>
-            el.onclick = () => openDetailPanel(arr[i])
-        );
-    }
-
-    function openDetailPanel(h) {
-        if (!h) return;
-        const fields = [
-            { label: '지역', value: h.region },
-            { label: '방 타입', value: h.articleName },
-            { label: '지불 유형', value: h.tradeTypeName },
-            { label: '건물이름', value: h.buildingName },
-            { label: '매물 층', value: h.floorInfo },
-            { label: '전체 면적', value: h.area1 },
-            { label: '사용 면적', value: h.area2 },
-            { label: '위도', value: h.latitude },
-            { label: '경도', value: h.longitude },
-            { label: '방향', value: h.direction },
-            { label: '등록 날짜', value: h.articleConfirmYmd },
-            { label: '월세', value: h.rentPrc },
-            { label: '보증금', value: h.dealOrWarrantPrc },
-            { label: '태그 리스트', value: h.tagList },
-            { label: '상세 설명', value: h.articleFeatureDesc },
-            { label: '엘리베이터 수', value: h.elevatorCount },
-            { label: '동일 주소 매물수', value: h.sameAddrCnt },
-            { label: '동일 주소 최소가', value: h.sameAddrMinPrc },
-            { label: '동일 주소 최고가', value: h.sameAddrMaxPrc },
-            { label: '공인중개사', value: h.realtorName },
-            { label: '매물등록사이트 ID', value: h.cpid },
-            { label: '매물등록사이트 이름', value: h.cpName },
-            { label: 'PC URL', value: h.cpPcArticleUrl },
-            { label: '모바일 URL', value: h.cpMobileArticleUrl }
-        ];
-        detailContent.innerHTML = fields.map(f => `
-            <div class="detail-row">
-                <span class="detail-label">${f.label}:</span>
-                <span>${f.value !== null && f.value !== undefined ? f.value : '-'}</span>
-            </div>
-        `).join('');
-        detailPanel.style.display = 'block';
+    // 상세 조회 & 조회수 증가
+    function openDetailPanel(id) {
+        fetch(`/api/rooms/${id}`)
+            .then(res => { if(!res.ok) throw new Error(); return res.json(); })
+            .then(room => {
+                const fields = [
+                    {label:'지역', value:room.region},
+                    {label:'방 타입', value:room.articleName},
+                    {label:'거래 유형', value:room.tradeTypeName},
+                    {label:'건물이름', value:room.buildingName},
+                    {label:'매물 층', value:room.floorInfo},
+                    {label:'전체 면적', value:room.area1},
+                    {label:'사용 면적', value:room.area2},
+                    {label:'위도', value:room.latitude},
+                    {label:'경도', value:room.longitude},
+                    {label:'방향', value:room.direction},
+                    {label:'등록 날짜', value:room.articleConfirmYmd},
+                    {label:'월세', value:room.rentPrc},
+                    {label:'보증금', value:room.dealOrWarrantPrc},
+                    {label:'조회수', value:room.searchCount},
+                    {label:'태그 리스트', value:room.tagList},
+                    {label:'상세 설명', value:room.articleFeatureDesc},
+                    {label:'엘리베이터 수', value:room.elevatorCount},
+                    {label:'동일 주소 매물수', value:room.sameAddrCnt},
+                    {label:'동일 주소 최소가', value:room.sameAddrMinPrc},
+                    {label:'공인중개사', value:room.realtorName},
+                    {label:'PC URL', value:room.cpPcArticleUrl},
+                    {label:'모바일 URL', value:room.cpMobileArticleUrl}
+                ];
+                document.getElementById('detailContent').innerHTML =
+                    fields.map(f=>`
+                        <div class="detail-row">
+                            <span class="detail-label">${f.label}:</span>
+                            <span>${f.value!=null?f.value:'-'}</span>
+                        </div>
+                    `).join('');
+                document.getElementById('houseDetail').style.display = 'block';
+            })
+            .catch(()=>alert('상세 조회 중 오류가 발생했습니다.'));
     }
 
     function closeDetailPanel() {
-        detailPanel.style.display = 'none';
+        document.getElementById('houseDetail').style.display = 'none';
     }
+    document.getElementById('closeDetailBtn').onclick = closeDetailPanel;
+
 </script>
 
 </body>
