@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";        // CKEditor 리액트 컴포넌트
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic"; // CKEditor의 클래식 에디터 빌드
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import MyCustomUploadAdapterPlugin from "./MyUploadAdapter";
 
-// 공지사항 수정용 에디터 컴포넌트
 function NoticeEditor({ id, title, content, onCancel, onSave }) {
-    // 제목과 내용 상태 저장 (수정 가능한 입력값)
+    // 제목과 내용을 상태로 관리 (입력값 추적용)
     const [editedTitle, setEditedTitle] = useState(title);
     const [editedContent, setEditedContent] = useState(content);
 
-    // 저장 버튼 클릭 시 호출되는 함수
+    // 저장 버튼 클릭 시 서버에 PUT 요청 보내기
     const save = async () => {
         try {
-            // PUT 요청으로 서버에 수정 데이터 전송
             const res = await fetch(`http://localhost:8080/api/notice/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -21,10 +20,7 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
                 }),
             });
 
-            // 실패 시 에러 처리
             if (!res.ok) throw new Error("수정 실패");
-
-            // 저장 성공 시 부모 컴포넌트로부터 전달된 onSave 콜백 실행
             onSave();
         } catch (e) {
             alert("수정에 실패했습니다.");
@@ -33,11 +29,11 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
 
     return (
         <>
-            {/* 제목 입력창 */}
+            {/* 제목 입력란 */}
             <input
                 type="text"
                 value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)} // 입력값 상태 업데이트
+                onChange={(e) => setEditedTitle(e.target.value)}
                 style={{
                     display: "block",
                     marginBottom: "0.5rem",
@@ -46,21 +42,38 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
             />
 
             {/* CKEditor 본문 입력 영역 */}
-            <CKEditor
-                editor={ClassicEditor}           // 클래식 에디터 사용
-                data={editedContent}             // 초기값 세팅
-                onChange={(event, editor) => setEditedContent(editor.getData())} // 변경 시 상태 업데이트
-            />
+            <div>
+                <CKEditor
+                    editor={ClassicEditor}
+                    data={editedContent}
+                    config={{
+                        extraPlugins: [MyCustomUploadAdapterPlugin],    // 이미지 업로드 플러그인 설정
+                        toolbar: [
+                            "heading", "|",
+                            "bold", "italic", "link", "bulletedList", "numberedList", "|",
+                            "insertTable", "imageUpload", "mediaEmbed", "undo", "redo"
+                        ],
+                        image: {
+                            toolbar: [
+                                "imageTextAlternative"  // // 이미지 대체 텍스트 툴바
+                            ]
+                        },
+                        mediaEmbed: {
+                            previewsInData: true    // 미디어 미리보기를 HTML 데이터에 포함
+                        },
+                    }}
+                    onChange={(event, editor) =>
+                        setEditedContent(editor.getData()) // 본문 내용 실시간 반영
+                    }
+                />
+            </div>
 
-            {/* 저장 버튼 */}
             <button
                 onClick={save}
                 style={{ marginTop: "0.5rem", marginRight: "0.5rem" }}
             >
                 저장
             </button>
-
-            {/* 취소 버튼 */}
             <button onClick={onCancel}>취소</button>
         </>
     );
