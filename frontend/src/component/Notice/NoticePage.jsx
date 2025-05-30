@@ -47,7 +47,12 @@ function NoticePage() {
     }, []);
 
     return (
-        <div>
+
+        <div style={{
+            maxWidth: '1200px',  // 최대 너비 제한
+            margin: '0 auto',    // 좌우 마진 자동 → 가운데 정렬
+            padding: '20px',     // 안쪽 여백
+        }}>
             <NoticeSearch onSearch={setNotices} setPageInfo={setPageInfo} />
             {loading ? (
                 <p>로딩중...</p>

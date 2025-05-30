@@ -39,7 +39,8 @@ function NoticeCreate() {
     }, []);
 
     return (
-        <div className="notice-create-container">
+        <div className="notice-create-container"
+             style={{ marginTop: "1rem", textAlign: "center" }}>
             <h2>공지사항 등록</h2>
             <form onSubmit={handleSubmit}>
                 <div>
@@ -49,14 +50,11 @@ function NoticeCreate() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
-                        style={{
-                            display: "block",
-                            marginBottom: "0.5rem",
-                            width: "100%",
-                        }}
+                        style={{ display: 'block', margin: '0 auto', width: '50%' }}
                     />
                 </div>
-                <div>
+                <div
+                    style={{ display: 'block', margin: '0 auto', width: '50%' }}>
                     <label>내용</label><br />
                     <CKEditor
                         editor={ClassicEditor}

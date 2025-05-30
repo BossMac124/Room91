@@ -7,7 +7,7 @@ function NoticeList({ notices, pageInfo, getNotice }) {
     return (
         <div>
             {/* 공지 작성 페이지로 이동하는 버튼 */}
-            <div style={{ marginBottom: "1rem" }}>
+            <div style={{ marginBottom: "1rem", textAlign: "center" }}>
                 <Link to="/notice/create">
                     <button>공지사항 작성</button>
                 </Link>
@@ -25,7 +25,7 @@ function NoticeList({ notices, pageInfo, getNotice }) {
             ))}
 
             {/* 페이지네이션 영역 */}
-            <div className="pagination" style={{ marginTop: "1rem" }}>
+            <div className="pagination" style={{ marginTop: "1rem", textAlign: "center" }}>
                 {/* 이전 버튼 - 첫 페이지일 경우 비활성화 */}
                 <button
                     onClick={() => getNotice(pageInfo.number - 1)} // 이전 페이지 요청

@@ -38,7 +38,7 @@ function NoticeSearch({ onSearch, setPageInfo }) {
     };
 
     return (
-        <div style={{ marginBottom: "1rem" }}>
+        <div style={{ marginTop: "1rem", textAlign: "center" }}>
             {/* 검색어 입력 */}
             <input
                 type="text"
