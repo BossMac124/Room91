@@ -36,6 +36,7 @@ function NoticeItem({ notice, getNotice, currentPage }) {
                 marginBottom: "1rem",
                 borderBottom: "1px solid #ddd",
                 paddingBottom: "1rem",
+                textAlign: "center",
             }}
         >
             {/* 수정 모드일 때는 NoticeEditor 렌더링 */}

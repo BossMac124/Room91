@@ -10,7 +10,12 @@ function App() {
       <BrowserRouter>
           <Header />
           <Routes>
-              <Route path="/" element={<h1>메인 화면 준비중입니다.</h1>} />
+              <Route path="/" element={<h1 style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100vh', // 화면 전체 높이
+              }}>메인 화면 준비중입니다.</h1>} />
               <Route path="/notice" element={<NoticePage />} />
               <Route path="/notice/create" element={<NoticeCreate />} />
               <Route path="/Redevelopment" element={<Redevelopment />} />

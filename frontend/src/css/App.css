@@ -1,8 +1,8 @@
 #root {
-  max-width: 1280px;
+  width: 100%; /* max-width 대신 100%로 */
+  height: 100vh; /* 화면 꽉 채우기 */
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  text-align: left; /* 보통은 left */
 }
 
 .notice-content {
