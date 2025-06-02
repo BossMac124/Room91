@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/house")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class HouseController {
 
     private final HouseService houseService;
