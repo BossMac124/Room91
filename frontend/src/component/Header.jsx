@@ -48,11 +48,13 @@ const Header = () => {
         <header style={styles.header}>
             <div style={styles.container}>
                 <div>
-                    <img src="/images/logo.png" alt="로고" style={styles.logo} />
+                    <Link to="/">
+                        <img src="/images/logo.png" alt="로고" style={styles.logo} />
+                    </Link>
                 </div>
                 <nav>
                     <ul style={styles.navList}>
-                        <li><Link to="/" style={styles.link}>메인</Link></li>
+                        <li><Link to="/news" style={styles.link}>뉴스</Link></li>
                         <li><Link to="/Redevelopment" style={styles.link}>재개발</Link></li>
                         <li><Link to="/room" style={styles.link}>원룸/투룸</Link></li>
                         <li><Link to="/notice" style={styles.link}>공지&FAQ</Link></li>
