@@ -7,9 +7,10 @@ function FaqPage() {
     const [totalPages, setTotalPages] = useState(0);
     const [openIndex, setOpenIndex] = useState(null);
 
+
     const fetchFaqs = async (pageNum = 0) => {
         try {
-            const res = await fetch(`http://localhost:8080/api/faq?page=${pageNum}&size=5`);
+            const res = await fetch(`http://localhost:8080/api/faq?page=${pageNum}&size=10`);
             const data = await res.json();
             setFaqs(data.content);
             setPage(data.number);
