@@ -55,7 +55,14 @@ const Header = () => {
                         <li><Link to="/" style={styles.link}>메인</Link></li>
                         <li><Link to="/Redevelopment" style={styles.link}>재개발</Link></li>
                         <li><Link to="/room" style={styles.link}>원룸/투룸</Link></li>
-                        <li><Link to="/notice" style={styles.link}>공지&FAQ</Link></li>
+
+                        <li className="dropdown">
+                            <span className="dropdown-title">공지&FAQ</span>
+                            <div className="dropdown-content">
+                                <Link to="/notice">공지사항</Link>
+                                <Link to="/faq">FAQ</Link>
+                            </div>
+                        </li>
                     </ul>
                 </nav>
             </div>
