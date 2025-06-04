@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/deals")
@@ -39,7 +40,6 @@ public class RealEstateDealController {
 
     // 검색한 주소를 좌표로 변환
     @GetMapping("/geocoding")
-    @ResponseBody
     public ResponseEntity<?> geocode(@RequestParam String address) {
         GeoLocation geo = kakaoMapService.getGeoLocation(address);
 
@@ -47,7 +47,7 @@ public class RealEstateDealController {
         if (geo == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("해당 주소를 찾을 수 없습니다.");
+                    .body(Map.of("error", "해당 주소를 찾을 수 없습니다."));
         }
         return ResponseEntity.ok(geo);
     }
