@@ -25,10 +25,7 @@ public class KakaoMapService {
     // 입력한 주소를 카카오에 요청해서 위도, 경도를 가져옴, Geolocation 객체로 변환
     public GeoLocation getGeoLocation(String address) {
         try {
-            // 한글 주소를 UTF_8로 인코딩
-            String encodedAddress = UriUtils.encode(address, StandardCharsets.UTF_8);
-            // 카카오 주소 검색 API URL
-            String url = "https://dapi.kakao.com/v2/local/search/address.json?query=" + encodedAddress;
+            String url = "https://dapi.kakao.com/v2/local/search/address.json?query=" + address;
 
             // 헤더 + RestTemplate 요청
             // 카카오 API는 Authorization 헤더에 KakaoAK {API_KEY} 방식으로 인증
