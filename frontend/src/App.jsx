@@ -4,7 +4,7 @@ import NoticeCreate from "./component/Notice/NoticeCreate.jsx";
 import Header from "./component/Header.jsx";
 import Redevelopment from "./component/Redevelopment/Redevelopment.jsx";
 import NoticePage from "./component/Notice/NoticePage.jsx";
-import FaqCreate from "./component/Faq/FaqCreate";
+import FaqCreate from './component/Faq/FaqCreate.jsx';
 import FaqPage from "./component/Faq/FaqPage.jsx";
 
 function App() {

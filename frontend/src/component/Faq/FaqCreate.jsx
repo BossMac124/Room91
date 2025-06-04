@@ -1,73 +1,48 @@
-import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import MyCustomUploadAdapterPlugin from './MyUploadAdapterFaq.jsx';
-
-
 function FaqCreate() {
-    const [question, setQuestion] = useState('');
-    const [answer, setAnswer] = useState('');
+    const [question, setQuestion] = useState("");
+    const [answer, setAnswer] = useState("");
     const navigate = useNavigate();
-    const editorRef = useRef(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('/api/faq', {
-                question: question,
-                answer: answer,
-                category: 'default' // 필요시 값 지정
+            const res = await fetch("http://localhost:8080/api/faq", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question, answer }),
             });
-            alert('FAQ가 등록되었습니다.');
-            navigate('/faq');   // FAQ 목록 페이지로 이동
+            if (!res.ok) throw new Error("등록 실패");
+            navigate("/faq");
         } catch (err) {
-            console.error(err);
-            alert('등록에 실패했습니다.');
+            alert("등록 실패");
         }
     };
 
-    useEffect(() => {
-        return () => {
-            if (editorRef.current) {
-                editorRef.current.destroy().catch(err => {
-                    console.error('Editor destroy error:', err);
-                });
-            }
-        };
-    }, []);
-
     return (
-        <div className="faq-create-container" style={{ marginTop: "1rem", textAlign: "center" }}>
-            <h2>FAQ 등록</h2>
+        <div style={{ padding: "2rem" }}>
+            <h2>FAQ 작성</h2>
             <form onSubmit={handleSubmit}>
-                <div>
+                <div style={{ marginBottom: "1rem" }}>
                     <label>질문</label><br />
                     <input
                         type="text"
                         value={question}
                         onChange={(e) => setQuestion(e.target.value)}
+                        style={{ width: "100%" }}
                         required
-                        style={{ display: 'block', margin: '0 auto', width: '50%' }}
                     />
                 </div>
-                <div style={{ display: 'block', margin: '1rem auto', width: '50%' }}>
+                <div style={{ marginBottom: "1rem" }}>
                     <label>답변</label><br />
-                    <CKEditor
-                        editor={ClassicEditor}
-                        data={answer}
-                        config={{
-                            extraPlugins: [MyCustomUploadAdapterPlugin]
-                        }}
-                        onReady={(editor) => {
-                            editorRef.current = editor;
-                        }}
-                        onChange={(event, editor) => {
-                            const data = editor.getData();
-                            setAnswer(data);
-                        }}
+                    <textarea
+                        value={answer}
+                        onChange={(e) => setAnswer(e.target.value)}
+                        rows="4"
+                        style={{ width: "100%" }}
+                        required
                     />
                 </div>
                 <button type="submit">등록</button>
@@ -75,4 +50,5 @@ function FaqCreate() {
         </div>
     );
 }
+
 export default FaqCreate;
