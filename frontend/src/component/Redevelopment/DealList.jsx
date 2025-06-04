@@ -1,7 +1,5 @@
 import React from 'react';
-
-// 거래 내역 출력
-const formatDealAmount = amount => `${(amount / 10000).toLocaleString('ko-KR')}억원`;
+import { formatDealAmount } from "./StatsBox.jsx";
 
 const DealList = ({ deals, selectedNeighborhood }) => {
     if (deals.length === 0 && selectedNeighborhood) {
