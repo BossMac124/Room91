@@ -5,6 +5,7 @@ import Header from "./component/Header.jsx";
 import Redevelopment from "./component/Redevelopment/Redevelopment.jsx";
 import NoticePage from "./component/Notice/NoticePage.jsx";
 import FaqCreate from "./component/Faq/FaqCreate";
+import FaqPage from "./component/Faq/FaqPage.jsx";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
               }}>메인 화면 준비중입니다.</h1>} />
               <Route path="/notice" element={<NoticePage />} />
               <Route path="/notice/create" element={<NoticeCreate />} />
+              <Route path="/faq" element={<FaqPage />} />
               <Route path="/faq/create" element={<FaqCreate />} />
               <Route path="/Redevelopment" element={<Redevelopment />} />
           </Routes>
