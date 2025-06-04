@@ -6,6 +6,7 @@ function FaqPage() {
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [openIndex, setOpenIndex] = useState(null);
+    const [pageGroupStart, setPageGroupStart] = useState(0); // 페이지 그룹 시작값
 
 
     const fetchFaqs = async (pageNum = 0) => {
@@ -15,6 +16,7 @@ function FaqPage() {
             setFaqs(data.content);
             setPage(data.number);
             setTotalPages(data.totalPages);
+            setPageGroupStart(Math.floor(data.number / 10) * 10); // 페이지 숫자
         } catch (e) {
             console.error('FAQ 목록 불러오기 실패', e);
             setFaqs([]);
@@ -70,16 +72,15 @@ function FaqPage() {
             )}
 
             {/* 숫자 페이지네이션 */}
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '4px', flexWrap: 'wrap' }}>
                 {/* ◀ 이전 그룹 */}
-                {page >= 10 && (
-                    <button onClick={() => fetchFaqs(Math.floor((page - 10) / 10) * 10)}>
-                        ◀
-                    </button>
+                {pageGroupStart > 0 && (
+                    <button onClick={() => fetchFaqs(pageGroupStart - 10)}>&lt;</button>
                 )}
 
-                {Array.from({ length: Math.min(10, totalPages - Math.floor(page / 10) * 10) }, (_, i) => {
-                    const pageNumber = Math.floor(page / 10) * 10 + i;
+                {/* 10개 단위로 숫자 버튼 */}
+                {Array.from({ length: Math.min(10, totalPages - pageGroupStart) }, (_, i) => {
+                    const pageNumber = pageGroupStart + i;
                     return (
                         <button
                             key={pageNumber}
@@ -100,10 +101,8 @@ function FaqPage() {
                 })}
 
                 {/* ▶ 다음 그룹 */}
-                {(Math.floor(page / 10) + 1) * 10 < totalPages && (
-                    <button onClick={() => fetchFaqs((Math.floor(page / 10) + 1) * 10)}>
-                        ▶
-                    </button>
+                {pageGroupStart + 10 < totalPages && (
+                    <button onClick={() => fetchFaqs(pageGroupStart + 10)}>&gt;</button>
                 )}
             </div>
         </div>
