@@ -26,7 +26,7 @@ const Redevelopment = () => {
                 const container = document.getElementById('map');
                 const options = {
                     center: new window.kakao.maps.LatLng(37.5665, 126.9780),
-                    level: 5
+                    level: 3
                 };
                 const mapInstance = new window.kakao.maps.Map(container, options);
                 setMap(mapInstance);
@@ -71,6 +71,13 @@ const Redevelopment = () => {
     const searchAddress = async (address) => {
         try {
             const res = await fetch(`/api/deals/geocoding?address=${encodeURIComponent(address)}`);
+
+            // 404 등 실패 시, 에러 메시지 꺼내서 처리
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || '주소 검색 실패');
+            }
+
             const data = await res.json();
 
             if (data.lat && data.lng) {
@@ -86,7 +93,7 @@ const Redevelopment = () => {
                 setMarker(newMarker);
             }
         } catch (error) {
-            console.error('주소 검색 실패:', error);
+            console.error('주소 검색 실패:', error.message); // 사용자에게 경고창 띄우는 것도 가능
         }
     };
 
