@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../../css/button.css";
+
 
 function FaqCreate() {
     const [question, setQuestion] = useState("");
@@ -19,6 +21,11 @@ function FaqCreate() {
         } catch (err) {
             alert("등록 실패");
         }
+    };
+
+    // 취소 버튼 클릭 시 FAQ 목록으로 돌아가기
+    const handleCancel = () => {
+        navigate("/faq");
     };
 
     return (
@@ -45,7 +52,22 @@ function FaqCreate() {
                         required
                     />
                 </div>
-                <button type="submit">등록</button>
+                {/* 버튼 컨테이너: 오른쪽 정렬 */}
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+                    {/* 취소 버튼 */}
+                    <button
+                        type="button"
+                        className="btn btn-cancel"
+                        onClick={handleCancel}>취소
+                    </button>
+
+                    {/* 등록 버튼 */}
+                    <button
+                        type="submit"
+                        className="btn btn-submit">등록
+                    </button>
+                </div>
+
             </form>
         </div>
     );
