@@ -27,7 +27,7 @@ const Redevelopment = () => {
                 const container = document.getElementById('map');
                 const options = {
                     center: new window.kakao.maps.LatLng(37.5665, 126.9780),
-                    level: 3
+                    level: 4
                 };
                 const mapInstance = new window.kakao.maps.Map(container, options);
                 setMap(mapInstance);
@@ -80,9 +80,10 @@ const Redevelopment = () => {
             }
 
             const data = await res.json();
+            const { latitude, longitude } = data;
 
-            if (data.lat && data.lng) {
-                const moveLatLng = new window.kakao.maps.LatLng(data.lat, data.lng);
+            if (latitude && longitude) {
+                const moveLatLng = new window.kakao.maps.LatLng(latitude, longitude);
                 map.setCenter(moveLatLng);
 
                 if (marker) marker.setMap(null);
