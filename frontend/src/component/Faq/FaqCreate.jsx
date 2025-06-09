@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../css/button.css";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 
 function FaqCreate() {
@@ -42,16 +44,38 @@ function FaqCreate() {
                         required
                     />
                 </div>
+                {/* 답변 입력 (CKEditor) */}
                 <div style={{ marginBottom: "1rem" }}>
                     <label>답변</label><br />
-                    <textarea
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                        rows="4"
-                        style={{ width: "100%" }}
-                        required
-                    />
+                    {/* 에디터 컨테이너: 가로폭 100% */}
+                    <div
+                        style={{
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            width: "100%",
+                            overflow: "hidden",
+                        }}
+                    >
+                        <CKEditor
+                            editor={ClassicEditor}
+                            data={answer} // 초기값 또는 편집 중 HTML 문자열
+                            onChange={(event, editor) => {
+                                const data = editor.getData();
+                                setAnswer(data);
+                            }}
+                            config={{
+                                toolbar: [
+                                    "heading", "|",
+                                    "bold", "italic", "link",
+                                    "bulletedList", "numberedList", "blockQuote", "|",
+                                    "undo", "redo",
+                                ],
+                                placeholder: "답변을 입력하세요...",
+                            }}
+                        />
+                    </div>
                 </div>
+
                 {/* 버튼 컨테이너: 오른쪽 정렬 */}
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
                     {/* 취소 버튼 */}

@@ -17,7 +17,10 @@ public class Faq {
     @GeneratedValue
     private Long id;
     private String question;
+
+    @Column(columnDefinition = "TEXT")  // CKEditor를 적용하기 위해
     private String answer;
+
     private String category;    // FAQ 카테고리
     private Boolean active = true; // 활성여부
     private LocalDateTime createdAt;
@@ -32,6 +35,4 @@ public class Faq {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-
 }
