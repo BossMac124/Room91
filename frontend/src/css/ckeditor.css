@@ -1,0 +1,9 @@
+/* 에디터 편집 영역(인라인)의 기본 텍스트 색상을 검은색으로 강제 지정 */
+.ck-editor__editable_inline {
+    color: #000 !important;
+}
+
+/* 일부 CKEditor 빌드가 쓰는 내부 콘텐츠 클래스에도 적용 */
+.ck-content {
+    color: #000 !important;
+}
