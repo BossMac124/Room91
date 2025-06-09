@@ -1,9 +1,16 @@
-/* 에디터 편집 영역(인라인)의 기본 텍스트 색상을 검은색으로 강제 지정 */
+/* CKEditor 인라인 에디터 영역 높이 고정 + 내부 스크롤 + 검은색 텍스트 */
 .ck-editor__editable_inline {
+    /* 대략 5줄 분량(줄 높이 약 32px 기준) */
+    min-height: 160px;
+    max-height: 160px;
+
+    overflow-y: auto;     /* 넘칠 때 세로 스크롤 */
+
+    /* 다크모드 기본 스타일보다 우선 적용 */
     color: #000 !important;
 }
 
-/* 일부 CKEditor 빌드가 쓰는 내부 콘텐츠 클래스에도 적용 */
+/* 빌드에 따라 .ck-content 로 감싸는 경우가 있어서 함께 지정 */
 .ck-content {
     color: #000 !important;
 }
