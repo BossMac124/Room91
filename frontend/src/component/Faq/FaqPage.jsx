@@ -1,112 +1,82 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import "../../css/FaqPage.css";
 
-function FaqPage() {
+export default function FaqPage() {
     const [faqs, setFaqs] = useState([]);
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const [openIndex, setOpenIndex] = useState(null);
-    const [pageGroupStart, setPageGroupStart] = useState(0); // 페이지 그룹 시작값
-
-
-    const fetchFaqs = async (pageNum = 0) => {
-        try {
-            const res = await fetch(`http://localhost:8080/api/faq?page=${pageNum}&size=10`);
-            const data = await res.json();
-            setFaqs(data.content);
-            setPage(data.number);
-            setTotalPages(data.totalPages);
-            setPageGroupStart(Math.floor(data.number / 10) * 10); // 페이지 숫자
-        } catch (e) {
-            console.error('FAQ 목록 불러오기 실패', e);
-            setFaqs([]);
-        }
-    };
-
-    const deleteFaq = async (id) => {
-        if (!window.confirm("정말 삭제하시겠습니까?")) return;
-        try {
-            await fetch(`http://localhost:8080/api/faq/${id}`, { method: 'DELETE' });
-            fetchFaqs(page);
-        } catch (e) {
-            alert('삭제 실패');
-        }
-    };
+    const [openSet, setOpenSet] = useState(new Set());
 
     useEffect(() => {
-        fetchFaqs(0);
+        fetch('http://localhost:8080/api/faq?page=0&size=10')
+            .then(res => res.json())
+            .then(json => setFaqs(json.content))
+            .catch(() => setFaqs([]));
     }, []);
 
-    const toggleAnswer = (index) => {
-        setOpenIndex(prev => (prev === index ? null : index));
+    const toggleAnswer = idx => {
+        setOpenSet(prev => {
+            const next = new Set(prev);
+            next.has(idx) ? next.delete(idx) : next.add(idx);
+            return next;
+        });
     };
 
-    console.log("faqs:", faqs);
+    const deleteFaq = async id => {
+        if (!window.confirm('정말 삭제하시겠습니까?')) return;
+        await fetch(`http://localhost:8080/api/faq/${id}`, { method: 'DELETE' });
+        setFaqs(faqs.filter(f => f.id !== id));
+    };
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <div className="faq-container">
             <h2>자주 묻는 질문 (FAQ)</h2>
             <Link to="/faq/create">
-                <button style={{ marginBottom: '1rem' }}>FAQ 작성</button>
+                <button className="faq-create-btn">FAQ 작성</button>
             </Link>
 
-            {faqs && faqs.length === 0 ? (
-                <p>FAQ가 없습니다.</p>
-            ) : (
-                faqs.map((faq, idx) => (
-                    <div key={faq.id} style={{ marginBottom: '1rem', borderBottom: '1px solid #ccc', paddingBottom: '1rem' }}>
-                        <div
-                            onClick={() => toggleAnswer(idx)}
-                            style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}
-                        >
-                            Q. {faq.question}
+            {faqs.length === 0 && <p>등록된 FAQ가 없습니다.</p>}
+
+            {faqs.map((faq, idx) => {
+                const isOpen = openSet.has(idx);
+                const hasImg = /<img\s/i.test(faq.answer);
+
+                return (
+                    <div key={faq.id} className="faq-item">
+                        {/* 질문 행 */}
+                        <div className="faq-row">
+                            <span className="faq-label">Q.</span>
+                            <span
+                                className="faq-question"
+                                onClick={() => toggleAnswer(idx)}
+                            >
+                {faq.question}
+                                {hasImg && <span className="faq-clip">📎</span>}
+              </span>
                         </div>
-                        {openIndex === idx && (
-                            <div style={{ marginBottom: '0.5rem' }}>
-                                A. {faq.answer}
+
+                        {/* 답변 행 (열려 있을 때만) */}
+                        {isOpen && (
+                            <div className="faq-row">
+                                <span className="faq-label">A.</span>
+                                <div
+                                    className="faq-answer"
+                                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                                />
                             </div>
                         )}
-                        <button onClick={() => deleteFaq(faq.id)} style={{ marginRight: '0.5rem' }}>삭제</button>
+
+                        {/* 삭제 행 */}
+                        <div className="faq-row faq-delete-row">
+                            <button
+                                className="faq-delete-btn"
+                                onClick={() => deleteFaq(faq.id)}
+                            >
+                                삭제
+                            </button>
+                        </div>
                     </div>
-                ))
-            )}
-
-            {/* 숫자 페이지네이션 */}
-            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '4px', flexWrap: 'wrap' }}>
-                {/* ◀ 이전 그룹 */}
-                {pageGroupStart > 0 && (
-                    <button onClick={() => fetchFaqs(pageGroupStart - 10)}>&lt;</button>
-                )}
-
-                {/* 10개 단위로 숫자 버튼 */}
-                {Array.from({ length: Math.min(10, totalPages - pageGroupStart) }, (_, i) => {
-                    const pageNumber = pageGroupStart + i;
-                    return (
-                        <button
-                            key={pageNumber}
-                            onClick={() => fetchFaqs(pageNumber)}
-                            style={{
-                                margin: '0 4px',
-                                fontWeight: pageNumber === page ? 'bold' : 'normal',
-                                backgroundColor: pageNumber === page ? '#FF6B3D' : 'white',
-                                color: pageNumber === page ? 'white' : 'black',
-                                border: '1px solid #ccc',
-                                borderRadius: '4px',
-                                padding: '4px 8px',
-                            }}
-                        >
-                            {pageNumber + 1}
-                        </button>
-                    );
-                })}
-
-                {/* ▶ 다음 그룹 */}
-                {pageGroupStart + 10 < totalPages && (
-                    <button onClick={() => fetchFaqs(pageGroupStart + 10)}>&gt;</button>
-                )}
-            </div>
+                );
+            })}
         </div>
     );
 }
-
-export default FaqPage;

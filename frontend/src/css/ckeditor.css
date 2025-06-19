@@ -14,3 +14,17 @@
 .ck-content {
     color: #000 !important;
 }
+
+/* 편집 영역(.ck-editor__editable_inline)만 높이 200px에 스크롤 */
+.ck-editor__editable_inline {
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    color: #000 !important;
+}
+
+/* 이미지 업로드 버튼 등 툴바가 정상 보이도록 전체 에디터에 테두리 */
+.ck-editor {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
