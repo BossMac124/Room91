@@ -59,7 +59,7 @@ const Header = () => {
                         <li><Link to="/room" style={styles.link}>원룸/투룸</Link></li>
 
                         <li className="dropdown">
-                            <span className="dropdown-title">공지&FAQ</span>
+                            <span className="dropdown-title" style={styles.link}>공지&FAQ</span>
                             <div className="dropdown-content">
                                 <Link to="/notice">공지사항</Link>
                                 <Link to="/faq">FAQ</Link>
