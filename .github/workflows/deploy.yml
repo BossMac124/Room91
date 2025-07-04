@@ -41,6 +41,14 @@ jobs:
           mkdir -p static
           cp -r frontend/dist/* static/
 
+      - name: 🔍 Check if EC2_KEY is present (safe debug)
+        run: |
+          if [ -n "${{ secrets.EC2_KEY }}" ]; then
+            echo "✅ EC2_KEY is present!"
+          else
+            echo "❌ EC2_KEY is missing!"
+          fi    
+
       - name: Copy backend jar and static to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
