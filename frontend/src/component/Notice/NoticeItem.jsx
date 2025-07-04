@@ -16,7 +16,7 @@ function NoticeItem({ notice, getNotice, currentPage }) {
 
         try {
             // DELETE 요청
-            const res = await fetch(`http://localhost:8080/api/notice/${notice.id}`, {
+            const res = await fetch(`/api/notice/${notice.id}`, {
                 method: "DELETE",
             });
 
@@ -72,7 +72,7 @@ function NoticeItem({ notice, getNotice, currentPage }) {
                             {/* 이미지가 있을 경우 먼저 출력 */}
                             {notice.imageName && (
                                 <img
-                                    src={`http://localhost:8080/uploads/${notice.imageName}`}
+                                    src={`http://3.39.127.143/uploads/${notice.imageName}`}
                                     alt="공지 이미지"
                                     style={{
                                         maxWidth: "50%",

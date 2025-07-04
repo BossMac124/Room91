@@ -17,7 +17,7 @@ function NoticePage() {
     const getNotice = async (page = 0) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:8080/api/notice?page=${page}`);
+            const res = await fetch(`/api/notice?page=${page}`);
             const json = await res.json();
 
             if (isMounted.current) { // 컴포넌트가 살아있으면 상태 업데이트

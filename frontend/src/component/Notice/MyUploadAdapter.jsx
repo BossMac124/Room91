@@ -12,7 +12,7 @@ class MyUploadAdapter {
             data.append("upload", file);         // 'upload'라는 키에 파일을 추가
 
             // fetch로 백엔드 API에 POST 요청 → 이미지 업로드
-            return fetch("http://localhost:8080/api/notice/upload/image", {
+            return fetch("/api/notice/upload/image", {
                 method: "POST",
                 body: data,                       // 전송할 데이터 (이미지)
                 credentials: "include",           // 쿠키나 인증 정보 포함 (세션 등 필요할 때)
