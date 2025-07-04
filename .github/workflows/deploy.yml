@@ -63,8 +63,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           source: |
-            BuDongSan/build/libs/BuDongSan-0.0.1-SNAPSHOT.jar
-            static/
+            ./BuDongSan/build/libs/BuDongSan-0.0.1-SNAPSHOT.jar
+            ./static/**
           target: /home/ubuntu/Room91
 
       - name: Restart services on EC2
