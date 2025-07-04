@@ -19,6 +19,7 @@ function NoticePage() {
         setLoading(true);
         try {
             const res = await fetch(`${baseUrl}/api/notice?page=${page}`);
+            console.log(import.meta.env.VITE_API_BASE_URL);
             const json = await res.json();
 
             if (isMounted.current) { // 컴포넌트가 살아있으면 상태 업데이트
