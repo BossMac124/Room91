@@ -7,11 +7,12 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
     // 제목과 내용을 상태로 관리 (입력값 추적용)
     const [editedTitle, setEditedTitle] = useState(title);
     const [editedContent, setEditedContent] = useState(content);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     // 저장 버튼 클릭 시 서버에 PUT 요청 보내기
     const save = async () => {
         try {
-            const res = await fetch(`http://3.39.127.143/api/notice/${id}`, {
+            const res = await fetch(`${baseUrl}/notice/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

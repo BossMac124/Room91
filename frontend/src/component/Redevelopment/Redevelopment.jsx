@@ -12,9 +12,10 @@ const Redevelopment = () => {
     const [deals, setDeals] = useState([]);
     const [map, setMap] = useState(null);
     const [marker, setMarker] = useState(null);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
-        fetch('http://3.39.127.143/api/deals/district')
+        fetch(`${baseUrl}/api/deals/district`)
             .then(res => res.json())
             .then(setDistricts)
             .catch(err => console.error('시군구 데이터 가져오기 실패', err));
@@ -42,7 +43,7 @@ const Redevelopment = () => {
         setDeals([]);
         setStats(null);
 
-        fetch(`http://3.39.127.143/api/deals/district/${district}/neighborhood`)
+        fetch(`${baseUrl}/api/deals/district/${district}/neighborhood`)
             .then(res => res.json())
             .then(setNeighborhoods)
             .catch(err => console.error('법정동 데이터 가져오기 실패', err));
@@ -54,12 +55,12 @@ const Redevelopment = () => {
 
         if (!selectedDistrict || !neighborhood) return;
 
-        fetch(`http://3.39.127.143/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}/stats`)
+        fetch(`${baseUrl}/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}/stats`)
             .then(res => res.json())
             .then(setStats)
             .catch(err => console.error('통계 데이터 로딩 실패', err));
 
-        fetch(`http://3.39.127.143/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}`)
+        fetch(`${baseUrl}/deals/district/${selectedDistrict}/neighborhood/${neighborhood}`)
             .then(res => res.json())
             .then(data => {
                 setDeals(data);
@@ -70,7 +71,7 @@ const Redevelopment = () => {
 
     const searchAddress = async (address) => {
         try {
-            const res = await fetch(`http://3.39.127.143/api/deals/geocoding?address=${encodeURIComponent(address)}`);
+            const res = await fetch(`${baseUrl}/api/deals/geocoding?address=${encodeURIComponent(address)}`);
             const data = await res.json();
 
             if (data.lat && data.lng) {

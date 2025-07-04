@@ -20,11 +20,12 @@ function Notice() {
 
     const [searchKeyword, setSearchKeyword] = useState("");
     const [searchType, setSearchType] = useState("title");
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     const getNotice = async (page = 0) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://3.39.127.143/api/notice?page=${page}`);
+            const res = await fetch(`${baseUrl}/api/notice?page=${page}`);
             const json = await res.json();
             setNotices(json.content);
             setPageInfo({
@@ -52,7 +53,7 @@ function Notice() {
         setLoading(true);
         try {
             const res = await fetch(
-                `http://3.39.127.143/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
+                `${baseUrl}/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
             );
             const json = await res.json();
             setNotices(json.content);
@@ -89,7 +90,7 @@ function Notice() {
 
     const saveEditing = async (id) => {
         try {
-            const res = await fetch(`http://3.39.127.143/api/notice/${id}`, {
+            const res = await fetch(`${baseUrl}/api/notice/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -110,7 +111,7 @@ function Notice() {
     const deleteNotice = async (id) => {
         if (!window.confirm("정말 삭제할까요?")) return;
         try {
-            const res = await fetch(`http://3.39.127.143/api/notice/${id}`, {
+            const res = await fetch(`${baseUrl}/api/notice/${id}`, {
                 method: "DELETE",
             });
             if (!res.ok) throw new Error("삭제 실패");

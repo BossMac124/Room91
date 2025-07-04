@@ -8,11 +8,12 @@ class MyUploadAdapter {
     // 업로드를 실행하는 함수 (CKEditor에서 자동으로 호출됨)
     upload() {
         return this.loader.file.then((file) => {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const data = new FormData();         // 이미지 전송을 위한 FormData 객체 생성
             data.append("upload", file);         // 'upload'라는 키에 파일을 추가
 
             // fetch로 백엔드 API에 POST 요청 → 이미지 업로드
-            return fetch("http://3.39.127.143/api/notice/upload/image", {
+            return fetch(`${baseUrl}/api/notice/upload/image`, {
                 method: "POST",
                 body: data,                       // 전송할 데이터 (이미지)
                 credentials: "include",           // 쿠키나 인증 정보 포함 (세션 등 필요할 때)

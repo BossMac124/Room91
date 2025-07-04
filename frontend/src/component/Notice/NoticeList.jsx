@@ -8,7 +8,7 @@ function NoticeList({ notices, pageInfo, getNotice }) {
         <div>
             {/* 공지 작성 페이지로 이동하는 버튼 */}
             <div style={{ marginBottom: "1rem", textAlign: "center" }}>
-                <Link to="http://3.39.127.143/notice/create">
+                <Link to="/notice/create">
                     <button>공지사항 작성</button>
                 </Link>
             </div>
