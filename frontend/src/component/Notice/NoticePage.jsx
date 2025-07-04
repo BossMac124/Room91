@@ -14,11 +14,11 @@ function NoticePage() {
 
     const isMounted = useRef(true);
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    console.log(baseUrl);
 
     const getNotice = async (page = 0) => {
         setLoading(true);
         try {
-            console.log(baseUrl);
             const res = await fetch(`${baseUrl}/api/notice?page=${page}`);
             const json = await res.json();
 
