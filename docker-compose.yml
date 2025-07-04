@@ -47,6 +47,8 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://root:1234@Housing-mongo:27017/housing?authSource=admin
     ports:
       - "8088:8080"
+    volumes:
+      - ./images:/Room91/images/
     depends_on:
       - postgres
       - redis
