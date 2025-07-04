@@ -13,7 +13,7 @@ function NoticeSearch({ onSearch, setPageInfo }) {
         try {
             // 검색 API 호출 (page는 항상 0부터 시작)
             const res = await fetch(
-                `/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
+                `http://3.39.127.143/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
             );
             const json = await res.json();
 

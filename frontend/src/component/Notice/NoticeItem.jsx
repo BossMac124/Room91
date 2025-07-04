@@ -16,7 +16,7 @@ function NoticeItem({ notice, getNotice, currentPage }) {
 
         try {
             // DELETE 요청
-            const res = await fetch(`/api/notice/${notice.id}`, {
+            const res = await fetch(`/http://3.39.127.143/api/notice/${notice.id}`, {
                 method: "DELETE",
             });
 

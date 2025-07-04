@@ -11,7 +11,7 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
     // 저장 버튼 클릭 시 서버에 PUT 요청 보내기
     const save = async () => {
         try {
-            const res = await fetch(`/api/notice/${id}`, {
+            const res = await fetch(`http://3.39.127.143/api/notice/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

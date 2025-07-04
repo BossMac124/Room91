@@ -18,7 +18,7 @@ function NoticeCreate() {
         e.preventDefault(); // 폼 제출 기본 동작 방지
         try {
             // 제목과 내용을 서버에 POST 요청
-            await axios.post('/api/notice', { title, content });
+            await axios.post('http://3.39.127.143/api/notice', { title, content });
             alert('공지사항이 등록되었습니다.');
             navigate('/notice'); // 공지 목록 페이지로 이동
         } catch (err) {
