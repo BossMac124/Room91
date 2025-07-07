@@ -1,25 +1,45 @@
 # 📦 Room91
 
-직장인이 매물을 찾을 때 따로 교통 앱을 열 필요 없이, 회사까지의 통합 통근 소요 시간을 자동 계산해주는 부동산 웹 서비스를 개발했습니다.
+> 직장인이 매물을 찾을 때 따로 교통 앱을 열 필요 없이, 회사까지의 통합 통근 소요 시간을 자동 계산해주는 부동산 웹 서비스를 개발했습니다.
 또한, 재개발 지역의 실거래가 및 투자 정보를 AI 뉴스 형태로 제공하여 투자자의 의사결정을 돕는 서비스도 포함했습니다.
 
 ## 🛠 기술 스택
-- Java 17 / Spring Boot
-- JavaScreipt(react ?)
-- MongoDB / Redis / PostgreSQL
-- Gradle
+- **Language**
+  - Front-end : JavaScript / react
+  - Back-end : Java 17 / Python
+- **Framework**
+  - spring Boot
+- **Database**
+  - MongoDB / Redis / PostgreSQL
+- **Infra & DevOps**
+  - AWS EC2 / Docker / Docker Compose / Nginx
+- **Build**
+  - Gradle
+- **Others**
+  - GitHub, Application-yml 설정
 
-## 파일 구조도
+## ▶️ 주요 기능
+1. 재개발 지역 목록 필터링 및 상세 정보 조회
+2. 원룸/투룸에 대한 목록 필터링 및 상세 정보 조회, 통근 소요 시간 계산, 길찾기 경로 구현
+3. 국토교통부의 실거래가 데이터 목록을 파이썬 코드를 통해 크롤링해서 사용
+4. 재개발 지역의 실거래가 및 투자 정보를 AI 뉴스 형태로 제공
+5. Spring Profiles(dev/prod) 설정으로 운영환경 분리
+6. Docker Compose로 다중 컨테이너 구성 및 배포
+7. EC2 + Nginx를 통한 실제 배포
 
+## 🧩 ERD
+
+## 📡 주요 API
 
 
 ## ⚙️ 실행 방법
 
-1. 프로젝트 복제
+1. Git 클론
+   - ```git clone https://github.com/BossMac124/Room91.git```
 
 2. MongoDBCompass, docker Desktop 설치
 
-3. 프로젝트 복제후 빌드 실행
+3. 프로젝트 복제 후 빌드 실행
 
 4. 터미널에서 
 
