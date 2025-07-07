@@ -60,7 +60,7 @@ const Redevelopment = () => {
             .then(setStats)
             .catch(err => console.error('통계 데이터 로딩 실패', err));
 
-        fetch(`${baseUrl}/deals/district/${selectedDistrict}/neighborhood/${neighborhood}`)
+        fetch(`${baseUrl}/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}`)
             .then(res => res.json())
             .then(data => {
                 setDeals(data);
