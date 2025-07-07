@@ -2,7 +2,6 @@ import React from 'react';
 
 // 거래 금액 통계
 export const formatDealAmount = (amount) => {
-    console.log(amount);
     if (amount >= 10000) {
         // 1억 이상이면 억 단위 (단위: 원 → 억) 소수점 한 자리로 반올림
         return `${Number((amount / 10000).toFixed(1)).toLocaleString('ko-KR')}억원`;
