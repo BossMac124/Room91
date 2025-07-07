@@ -14,7 +14,6 @@ function NoticePage() {
 
     const isMounted = useRef(true);
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    console.log(baseUrl);
 
     const getNotice = async (page = 0) => {
         setLoading(true);
