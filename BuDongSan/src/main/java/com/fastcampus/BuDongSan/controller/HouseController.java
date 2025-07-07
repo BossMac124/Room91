@@ -21,7 +21,7 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
-@RequestMapping("/house")
+@RequestMapping("/api/house")
 @RequiredArgsConstructor
 //@CrossOrigin(origins = "*")
 public class HouseController {
