@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import loadKakaoMap from '../../utils/loadKakaoMap.js';
+import loadKakaoMap from '../../utils/loadKakaoMap';
 
 const MapContainer = ({ center, markers = [], selected }) => {
     const mapRef = useRef(null);
@@ -7,7 +7,9 @@ const MapContainer = ({ center, markers = [], selected }) => {
     const clustererRef = useRef(null);
 
     useEffect(() => {
-        loadKakaoMap().then((kakao) => {
+        loadKakaoMap().then(kakao => {
+            if (!mapRef.current) return;
+
             const map = new kakao.maps.Map(mapRef.current, {
                 center: new kakao.maps.LatLng(center.lat, center.lng),
                 level: 5,
@@ -24,6 +26,8 @@ const MapContainer = ({ center, markers = [], selected }) => {
             clustererRef.current = clusterer;
 
             renderMarkers(kakao);
+        }).catch(err => {
+            console.error('카카오맵 로드 실패:', err);
         });
     }, [center]);
 
@@ -42,16 +46,14 @@ const MapContainer = ({ center, markers = [], selected }) => {
 
         const markerObjs = markers.map(({ lat, lng, name }) => {
             const marker = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(lat, lng),
+                position: new kakao.maps.LatLng(lat, lng)
             });
 
             const iw = new kakao.maps.InfoWindow({
-                content: `<div style="padding:8px; font-weight:bold; color:#FF6B3D;">${name}</div>`,
+                content: `<div style="padding:8px; font-weight:bold; color:#FF6B3D;">${name}</div>`
             });
 
-            kakao.maps.event.addListener(marker, 'mouseover', () =>
-                iw.open(map, marker)
-            );
+            kakao.maps.event.addListener(marker, 'mouseover', () => iw.open(map, marker));
             kakao.maps.event.addListener(marker, 'mouseout', () => iw.close());
 
             if (
@@ -68,7 +70,13 @@ const MapContainer = ({ center, markers = [], selected }) => {
         clusterer.addMarkers(markerObjs);
     };
 
-    return <div ref={mapRef} className="w-full h-full" />;
+    return (
+        <div
+            ref={mapRef}
+            className="w-full h-full"
+            style={{ minHeight: '100vh' }} // 혹시 height 0 문제 방지
+        />
+    );
 };
 
 export default MapContainer;

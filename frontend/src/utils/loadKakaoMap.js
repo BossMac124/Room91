@@ -2,7 +2,7 @@ let isLoaded = false;
 
 export default function loadKakaoMap() {
     return new Promise((resolve, reject) => {
-        if (isLoaded) {
+        if (isLoaded && window.kakao) {
             resolve(window.kakao);
             return;
         }
@@ -15,11 +15,12 @@ export default function loadKakaoMap() {
         script.onload = () => {
             window.kakao.maps.load(() => {
                 isLoaded = true;
+                console.log("✅ Kakao Maps SDK loaded");
                 resolve(window.kakao);
             });
         };
 
-        script.onerror = () => reject(new Error("Kakao Maps API 로드 실패"));
+        script.onerror = () => reject(new Error("❌ Kakao Maps API 로드 실패"));
 
         document.head.appendChild(script);
     });
