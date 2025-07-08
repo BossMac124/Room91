@@ -13,6 +13,7 @@ const Redevelopment = () => {
     const [map, setMap] = useState(null);
     const [marker, setMarker] = useState(null);
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const API_KEY = import.meta.env.VITE_KAKAO_API_KEY;
 
     useEffect(() => {
         fetch(`${baseUrl}/api/deals/district`)
@@ -21,7 +22,7 @@ const Redevelopment = () => {
             .catch(err => console.error('시군구 데이터 가져오기 실패', err));
 
         const script = document.createElement('script');
-        script.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=d6d23793f0ca98625a72a1157e4c9fe7&autoload=false";
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${API_KEY}&autoload=false`;
         script.onload = () => {
             window.kakao.maps.load(() => {
                 const container = document.getElementById('map');
