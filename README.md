@@ -1,127 +1,102 @@
 # 📦 Room91
 
-> 직장인이 매물을 찾을 때 따로 교통 앱을 열 필요 없이, 회사까지의 통합 통근 소요 시간을 자동 계산해주는 부동산 웹 서비스를 개발했습니다.
-또한, 재개발 지역의 실거래가 및 투자 정보를 AI 뉴스 형태로 제공하여 투자자의 의사결정을 돕는 서비스도 포함했습니다.
+> 직장인의 통근을 고려한 부동산 매물 검색 웹 서비스  
+출근 시간을 기준으로 원룸/투룸을 자동 필터링하고, 교통 앱 없이도 통합 통근 소요 시간 및 길찾기 경로를 제공합니다.
+또한, 재개발 지역 실거래가 데이터를 기반으로 AI 뉴스 형태의 투자 정보도 함께 제공하여 사용자의 의사결정을 지원합니다.
 
 ## 🛠 기술 스택
-- **Language**
-  - Front-end : JavaScript / react
-  - Back-end : Java 17 / Python
-- **Framework**
-  - spring Boot
-- **Database**
-  - MongoDB / Redis / PostgreSQL
-- **Infra & DevOps**
-  - AWS EC2 / Docker / Docker Compose / Nginx
-- **Build**
-  - Gradle
-- **Others**
-  - GitHub, Application-yml 설정
+
+
+| 분야             | 기술                                     |
+| -------------- | -------------------------------------- |
+| **Front-end**  | React (JavaScript)                     |
+| **Back-end**   | Spring Boot (Java 17), Python          |
+| **Database**   | PostgreSQL, MongoDB, Redis             |
+| **DevOps**     | AWS EC2, Docker, Docker Compose, Nginx |
+| **Build Tool** | Gradle                                 |
+| **기타**         | Swagger, Spring Profiles, GitHub       |
+
 
 ## ▶️ 주요 기능
-1. 재개발 지역 목록 필터링 및 상세 정보 조회
-2. 원룸/투룸에 대한 목록 필터링 및 상세 정보 조회, 통근 소요 시간 계산, 길찾기 경로 구현
-3. 국토교통부의 실거래가 데이터 목록을 파이썬 코드를 통해 크롤링해서 사용
-4. 재개발 지역의 실거래가 및 투자 정보를 AI 뉴스 형태로 제공
-5. Spring Profiles(dev/prod) 설정으로 운영환경 분리
-6. Docker Compose로 다중 컨테이너 구성 및 배포
-7. EC2 + Nginx를 통한 실제 배포
+1. 재개발 지역 목록 필터링 및 상세 실거래가 정보 조회
 
-## 🧩 ERD
+2. 원룸/투룸 매물 목록 필터링 및 상세정보 확인
+
+3. 통근 소요 시간 자동 계산 및 KakaoMap 기반 길찾기 기능 제공
+
+4. Python 기반 실거래가 데이터 크롤링 및 DB 저장
+
+5. AI 뉴스 형태의 투자 정보 제공
+
+6. Spring dev/prod Profile 구성으로 운영환경 분리
+
+7. Docker Compose 기반 다중 컨테이너 구성 및 배포 자동화
+
+8. AWS EC2 + Nginx 기반 실제 서비스 배포
 
 ## 📡 주요 API
 
+- Swagger 기반 API 문서 제공
+  → http://localhost:8080/swagger-ui/index.html
 
-## ⚙️ 실행 방법
+## 🚀 배포 주소
 
-1. Git 클론
-   - ```git clone https://github.com/BossMac124/Room91.git```
+- EC2 배포 서버: http://3.39.127.143
 
-2. MongoDBCompass, docker Desktop 설치
+## ⚙️ 로컬 실행 방법
 
-3. 프로젝트 복제 후 빌드 실행
+> 아래 순서를 반드시 지켜주세요.
 
-4. 터미널에서 
+1. 프로젝트 클론 및 빌드
+```aiignore
+git clone https://github.com/BossMac124/Room91.git
+cd Room91/BuDongSan
+docker build -t housing-image:latest .
+```
 
-   'cd BuDongSan 
+2. Docker compose 실행
+```aiignore
+docker-compose up -d
+```
+> PostgreSQL, Redis, MongoDB 컨테이너가 실행됩니다.
 
-   docker build -t housing-image:latest .'
+3. MongoDB 설정
+- Compass에서 아래 URL로 접속
+```aiignore
+mongodb://root:1234@localhost:27018/housing?authSource=admin
+```
+- housing 데이터베이스 → house 컬렉션 생성 후 아래 인덱스 추가
+```aiignore
+db.house.createIndex({ location: "2dsphere" })
+```
+- directions 컬렉션도 생성 후
+```aiignore
+db.directions.createIndex({ origin: "2dsphere" })
+db.directions.createIndex({ destination: "2dsphere" })
+```
 
-   생성된 이미지 확인
+4. Python 크롤링 데이터 수집
+```aiignore
+cd Python
+# 의존성 설치
+pip install -r requirements.txt
+# or
+pip3 install -r requirements.txt
 
-5. docker-compose.yml 파일 실행 후 docker Desktop에서 budongsan 멀티컨테이너 실행
+# 크롤링 실행
+python crawl.py
+# or
+python3 crawl.py
+```
 
-6. MongoDB 설치 후 27017 -> 27018 포트로 변경
+5. PostgreSQL 설정
+- PostgreSQL 및 pgAdmin 설치
+- postgres Role 생성 (비밀번호: 1234, 모든 권한 부여)
+- housing 데이터베이스 생성 (owner: postgres)
+- 아래 SQL로 테이블 생성
 
-7. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속합니다.
-
-8. housing 데이터베이스 만들고 house 컬렉션 생성
-
-9. house 컬렉션에서 OpenMongoDB shell에 접속
-
-    'db.house.createIndex( { location: "2dsphere" })' 명령어를 실행
-
-10. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속
-
-      'db.directions.createIndex( { origin: "2dsphere" })
-
-      db.directions.createIndex( { destination: "2dsphere" })'
-
-    명령어 실행
-
-11. Python 폴더 들어가서 터미널로 이동
-
-    'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정
-   
-     Window : 'pip install -r requirements.txt ' 명령어 실행
-
-     Mac : 'pip3 install -r requirements.txt ' 명령어 실행
-
-13. Window : 'python crawl.py' 을
-
-    Mac : 'python3 crawl.py' 을 실행
-=======
-      'db.directions.createIndex( { origin: "2dsphere" })
-      
-      db.directions.createIndex( { destination: "2dsphere" })' 
-      명령어 실행하여 인덱스 생성
-
-14. PostgreSQL 설치
-
-    Window : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads 접속 후 15.12 버전 설치
-
-    Mac : 'brew install postgresql@15' -> 'brew link postgresql@15 --force'
-
-    초기 비밀번호는 알아서 설정
-
-15. pgAdmin4 설치
-
-    Window : https://www.postgresql.org/ftp/pgadmin/pgadmin4/v9.2/windows -> Files에 pgadmin4-9.2-x64.exe 설치
-
-    Mac : 'brew install --cask pgadmin4' 설치 후 응용프로그램에서 확인
-
-16. pgAdmin4 접속 -> 초기 비밀번호 입력 -> 초기 서버로 연결됨
-
-17. Role 생성
-
-    Servers -> PostgreSQL 15 -> Login/Group Roles 우클릭 -> Create -> Login/Group Role 클릭
-
-    General 항목 / name : postgres
-    Definition 항목 / Password : 1234
-    Privileges 항목 / 전부 활성화 후 save
-
-18. Database 생성
-   
-    Servers -> PostgreSQL 15 -> Databases 우클릭 -> Create -> Database... 클릭
-
-    General 항목 / Database : housing, Owner : postgres
-    입력 후 save
-
-19. 인텔리제이 내부에 postgreSQL 연결
-
-    DB 우클릭 후 new -> Query Console 클릭
-    
-20. create table if not exists real_estate_deals (
+```aiignore
+create table if not exists real_estate_deals (
     id bigint generated by default as identity,
     apt_name varchar(255),
     data_type varchar(255),
@@ -141,15 +116,216 @@
     neighborhood varchar(255),
     plottage_area float8,
     share_dealing_type varchar(255)
-    );
+);
+```
 
-    쿼리문 실행 -> 테이블, 컬럼 생성
+6. 재개발 정보 수집
+```aiignore
+# redevelopment.py 실행
+python redevelopment/redevelopment.py
+```
 
-20. Python/redevelopment 경로에 있는 redevelopment.py 실행
+7. 서버 실행
+- 백엔드(Spring Boot)
+```aiignore
+cd BuDongSan
+./gradlew build
+java -jar build/libs/BuDongSan-0.0.1-SNAPSHOT.jar
+```
+- 프론트엔드(React)
+```aiignore
+cd frontend
+npm install
+npm run dev
+```
 
-21. 프로젝트로 넘어가서 BuDongSanApplication 실행
+8. 서비스 개발 서버 접속
+- http://localhost:5173
 
-22. http://localhost:8080/index.html 접속 -> 부동산 매물, 길찾기
-    http://localhost:8080/geocodeMap 접속 -> 재개발 지역 거래내역 조회
-   
-## 실행 결과
+[//]: # (1. Git 클론)
+
+[//]: # (    - ```git clone https://github.com/BossMac124/Room91.git```)
+
+[//]: # ()
+[//]: # (2. MongoDBCompass, docker Desktop 설치)
+
+[//]: # ()
+[//]: # (3. 프로젝트 복제 후 빌드 실행)
+
+[//]: # ()
+[//]: # (4. 터미널에서 )
+
+[//]: # ()
+[//]: # (   'cd BuDongSan )
+
+[//]: # ()
+[//]: # (   docker build -t housing-image:latest .')
+
+[//]: # ()
+[//]: # (   생성된 이미지 확인)
+
+[//]: # ()
+[//]: # (5. docker-compose.yml 파일 실행 후 docker Desktop에서 budongsan 멀티컨테이너 실행)
+
+[//]: # ()
+[//]: # (6. MongoDB 설치 후 27017 -> 27018 포트로 변경)
+
+[//]: # ()
+[//]: # (7. MongoDBCompass에서 접속할 때 url을 'mongodb://root:1234@localhost:27018/housing?authSource=admin' 으로 접속합니다.)
+
+[//]: # ()
+[//]: # (8. housing 데이터베이스 만들고 house 컬렉션 생성)
+
+[//]: # ()
+[//]: # (9. house 컬렉션에서 OpenMongoDB shell에 접속)
+
+[//]: # ()
+[//]: # (    'db.house.createIndex&#40; { location: "2dsphere" }&#41;' 명령어를 실행)
+
+[//]: # ()
+[//]: # (10. MongoDBCompass에서 directions 컬렉션을 생성후 OpenMongoDB shell에 접속)
+
+[//]: # ()
+[//]: # (      'db.directions.createIndex&#40; { origin: "2dsphere" }&#41;)
+
+[//]: # ()
+[//]: # (      db.directions.createIndex&#40; { destination: "2dsphere" }&#41;')
+
+[//]: # ()
+[//]: # (    명령어 실행)
+
+[//]: # ()
+[//]: # (11. Python 폴더 들어가서 터미널로 이동)
+
+[//]: # ()
+[//]: # (    'cd C:\Users\wjddu\IdeaProjects\Room91\Python' <- 각자 컴퓨터 디렉토리에 맞는 폴더 위치 수정)
+
+[//]: # (   )
+[//]: # (     Window : 'pip install -r requirements.txt ' 명령어 실행)
+
+[//]: # ()
+[//]: # (     Mac : 'pip3 install -r requirements.txt ' 명령어 실행)
+
+[//]: # ()
+[//]: # (13. Window : 'python crawl.py' 을)
+
+[//]: # ()
+[//]: # (    Mac : 'python3 crawl.py' 을 실행)
+
+[//]: # (=======)
+
+[//]: # (      'db.directions.createIndex&#40; { origin: "2dsphere" }&#41;)
+
+[//]: # (      )
+[//]: # (      db.directions.createIndex&#40; { destination: "2dsphere" }&#41;' )
+
+[//]: # (      명령어 실행하여 인덱스 생성)
+
+[//]: # ()
+[//]: # (14. PostgreSQL 설치)
+
+[//]: # ()
+[//]: # (    Window : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads 접속 후 15.12 버전 설치)
+
+[//]: # ()
+[//]: # (    Mac : 'brew install postgresql@15' -> 'brew link postgresql@15 --force')
+
+[//]: # ()
+[//]: # (    초기 비밀번호는 알아서 설정)
+
+[//]: # ()
+[//]: # (15. pgAdmin4 설치)
+
+[//]: # ()
+[//]: # (    Window : https://www.postgresql.org/ftp/pgadmin/pgadmin4/v9.2/windows -> Files에 pgadmin4-9.2-x64.exe 설치)
+
+[//]: # ()
+[//]: # (    Mac : 'brew install --cask pgadmin4' 설치 후 응용프로그램에서 확인)
+
+[//]: # ()
+[//]: # (16. pgAdmin4 접속 -> 초기 비밀번호 입력 -> 초기 서버로 연결됨)
+
+[//]: # ()
+[//]: # (17. Role 생성)
+
+[//]: # ()
+[//]: # (    Servers -> PostgreSQL 15 -> Login/Group Roles 우클릭 -> Create -> Login/Group Role 클릭)
+
+[//]: # ()
+[//]: # (    General 항목 / name : postgres)
+
+[//]: # (    Definition 항목 / Password : 1234)
+
+[//]: # (    Privileges 항목 / 전부 활성화 후 save)
+
+[//]: # ()
+[//]: # (18. Database 생성)
+
+[//]: # (   )
+[//]: # (    Servers -> PostgreSQL 15 -> Databases 우클릭 -> Create -> Database... 클릭)
+
+[//]: # ()
+[//]: # (    General 항목 / Database : housing, Owner : postgres)
+
+[//]: # (    입력 후 save)
+
+[//]: # ()
+[//]: # (19. 인텔리제이 내부에 postgreSQL 연결)
+
+[//]: # ()
+[//]: # (    DB 우클릭 후 new -> Query Console 클릭)
+
+[//]: # (    )
+[//]: # (20. create table if not exists real_estate_deals &#40;)
+
+[//]: # (    id bigint generated by default as identity,)
+
+[//]: # (    apt_name varchar&#40;255&#41;,)
+
+[//]: # (    data_type varchar&#40;255&#41;,)
+
+[//]: # (    deal_amount bigint not null,)
+
+[//]: # (    deal_area float8,)
+
+[//]: # (    deal_day integer not null,)
+
+[//]: # (    deal_month integer not null,)
+
+[//]: # (    deal_year integer not null,)
+
+[//]: # (    dealing_gbn varchar&#40;255&#41;,)
+
+[//]: # (    district varchar&#40;255&#41;,)
+
+[//]: # (    exclu_use_ar float8,)
+
+[//]: # (    floor integer,)
+
+[//]: # (    house_type varchar&#40;255&#41;,)
+
+[//]: # (    jibun varchar&#40;255&#41;,)
+
+[//]: # (    jimok varchar&#40;255&#41;,)
+
+[//]: # (    land_use varchar&#40;255&#41;,)
+
+[//]: # (    neighborhood varchar&#40;255&#41;,)
+
+[//]: # (    plottage_area float8,)
+
+[//]: # (    share_dealing_type varchar&#40;255&#41;)
+
+[//]: # (    &#41;;)
+
+[//]: # ()
+[//]: # (    쿼리문 실행 -> 테이블, 컬럼 생성)
+
+[//]: # ()
+[//]: # (20. Python/redevelopment 경로에 있는 redevelopment.py 실행)
+
+[//]: # ()
+[//]: # (21. BuDongSanApplication 실행, cd ./frontend/ 에서 npm run dev 실행)
+
+[//]: # ()
+[//]: # (22. http://localhost:5173 접속)
