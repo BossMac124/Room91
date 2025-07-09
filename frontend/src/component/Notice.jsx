@@ -21,8 +21,10 @@ function Notice() {
     const [searchKeyword, setSearchKeyword] = useState("");
     const [searchType, setSearchType] = useState("title");
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    console.log("✅ VITE_API_BASE_URL:", baseUrl);
 
     const getNotice = async (page = 0) => {
+        console.log("📡 GET 요청 URL:", `${baseUrl}/api/notice?page=${page}`);
         setLoading(true);
         try {
             const res = await fetch(`${baseUrl}/api/notice?page=${page}`);
@@ -65,6 +67,7 @@ function Notice() {
             });
         } catch (e) {
             console.error("검색 실패", e);
+            console.log("📡 GET 요청 URL:", `${baseUrl}/api/notice?page=${page}`);
         } finally {
             setLoading(false);
         }

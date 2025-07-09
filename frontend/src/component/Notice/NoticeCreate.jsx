@@ -21,23 +21,12 @@ function NoticeCreate() {
             // 제목과 내용을 서버에 POST 요청
             await axios.post(`${baseUrl}/api/notice`, { title, content });
             alert('공지사항이 등록되었습니다.');
-            navigate('/notice'); // 공지 목록 페이지로 이동
+            navigate('/notice');
         } catch (err) {
             console.error(err);
             alert('등록에 실패했습니다.');
         }
     };
-
-    /// 컴포넌트가 unmount될 때 에디터 인스턴스를 안전하게 제거
-    useEffect(() => {
-        return () => {
-            if (editorRef.current) {
-                editorRef.current.destroy().catch(error => {
-                    console.error('Editor destroy error:', error);
-                });
-            }
-        };
-    }, []);
 
     return (
         <div className="notice-create-container"

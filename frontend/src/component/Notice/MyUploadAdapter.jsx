@@ -8,6 +8,10 @@ class MyUploadAdapter {
     // 업로드를 실행하는 함수 (CKEditor에서 자동으로 호출됨)
     upload() {
         return this.loader.file.then((file) => {
+            if (!file || !(file instanceof File)) {
+                console.warn("업로드할 파일이 없거나 유효하지 않습니다.");
+                throw new Error("유효하지 않은 파일입니다.");
+            }
             const baseUrl = import.meta.env.VITE_API_BASE_URL;
             const data = new FormData();         // 이미지 전송을 위한 FormData 객체 생성
             data.append("upload", file);         // 'upload'라는 키에 파일을 추가
@@ -28,9 +32,12 @@ class MyUploadAdapter {
                     // 실패한 경우 에러 발생
                     throw new Error("이미지 업로드 실패");
                 });
+        })
+        .catch((err) => {
+            console.error("CKEditor 이미지 업로드 중 에러 발생:", err);
+            throw err;
         });
     }
-
     // 업로드 중단할 때 호출되는 함수 (필수로 정의해야 하지만 비워둬도 됨)
     abort() {}
 }
