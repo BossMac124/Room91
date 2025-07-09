@@ -18,15 +18,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate .env.production for back
-        working-directory: ./BuDongSan
-        run: |
-          echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
-
       - name: Generate .env.production
         working-directory: ./
         run: |
-          echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
+          echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" > .env
+
+      - name: Copy .env to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: ".env"
+          target: /home/ubuntu/Room91
 
       - name: Build Spring Boot backend
         working-directory: ./BuDongSan
@@ -92,3 +96,11 @@ jobs:
             docker build -t housing-image .
             docker-compose down
             docker-compose up -d
+
+      - name: Check Spring boot log
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: docker logs Housing-app --tail 100
