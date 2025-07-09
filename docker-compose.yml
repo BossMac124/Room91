@@ -39,6 +39,9 @@ services:
 
   spring-app:
     image: housing-image:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: Housing-app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://Housing-postgres:5432/housing

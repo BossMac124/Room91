@@ -96,11 +96,3 @@ jobs:
             docker build -t housing-image .
             docker-compose down
             docker-compose up -d
-
-      - name: Check Spring boot log
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: docker logs Housing-app --tail 100
