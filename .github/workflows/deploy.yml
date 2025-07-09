@@ -49,17 +49,8 @@ jobs:
           mkdir -p static
           cp -r frontend/dist/* static/
 
-#      - name: List static files
-#        run: ls -al static/
-
-#      - name: 🔍 Check if EC2_KEY is present
-#        run: |
-#          if [ -n "${{ secrets.EC2_KEY }}" ]; then
-#            echo "✅ EC2_KEY is present!"
-#          else
-#            echo "❌ EC2_KEY is missing!"
-#            exit 1
-#          fi
+      - name: Check static content
+        run: ls -al static
 
       # Spring Boot jar만 전송
       - name: Copy backend jar to EC2
@@ -78,8 +69,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "frontend/dist"
-          target: /home/ubuntu/Room91/static
+          source: "static"
+          target: /home/ubuntu/Room91
 
 
       - name: Restart services on EC2
