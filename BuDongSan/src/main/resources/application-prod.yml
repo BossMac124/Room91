@@ -24,7 +24,7 @@ spring:
       max-request-size: 500MB
 
 kakao:
-  rest-api-key: d21c83b1e788c64c8f6d15ac5f7223fc
+  rest-api-key: ${KAKAO_API_KEY}
 
 file:
   upload-dir: /Room91/images/

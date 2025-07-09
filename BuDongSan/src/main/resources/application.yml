@@ -33,7 +33,13 @@ server:
   port: 8080
 
 kakao:
-  rest-api-key: d21c83b1e788c64c8f6d15ac5f7223fc
+  rest-api-key: ${KAKAO_API_KEY}
 
 file:
   upload-dir: /Users/kangminwoo/projects/Room91/BuDongSan/images/
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
