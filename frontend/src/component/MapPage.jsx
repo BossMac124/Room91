@@ -1,103 +1,44 @@
-// src/pages/MapPage.jsx
-import React, { useState } from 'react';
-import NavigationBar from './Oneroom/NavigationBar';
-import SearchForm from './Oneroom/SearchForm';
-import DirectionPanel from './Oneroom/DirectionPanel';
-import HouseList from './Oneroom/HouseList';
-import HouseDetail from './Oneroom/HouseDetail';
-import MapContainer from './Oneroom/MapContainer';
+import React, { useEffect } from "react";
 
 const MapPage = () => {
-    const [selectedType, setSelectedType] = useState('one');
-    const [houseList, setHouseList] = useState([]);
-    const [selectedHouse, setSelectedHouse] = useState(null);
-    const [directionResult, setDirectionResult] = useState(null);
-    const [searchedAddress, setSearchedAddress] = useState('');
-    const [mapCenter, setMapCenter] = useState({ lat: 37.5665, lng: 126.978 });
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    useEffect(() => {
+        const script = document.createElement("script");
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_API_KEY}&libraries=services,clusterer`;
+        script.async = true;
+        script.onload = () => {
+            if (!window.kakao) return;
+            const { maps } = window.kakao;
 
-    const handleSearch = (lat, lng, filters) => {
-        const { tradeTypes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax } = filters;
-        const params = new URLSearchParams({
-            lat, lng, radius: 3, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax
-        });
-        tradeTypes.forEach(code => params.append('tradeTypeCodes', code));
+            const map = new maps.Map(document.getElementById("map"), {
+                center: new maps.LatLng(37.5665, 126.9780),
+                level: 5,
+            });
 
-        fetch(`${baseUrl}/api/house${selectedType === 'two' ? '/two' : ''}?${params}`)
-            .then(res => res.json())
-            .then(data => {
-                setHouseList(data);
-                setMapCenter({ lat, lng });
-            })
-            .catch(() => alert('매물 조회 실패'));
+            // 클러스터러, 검색, 경로, 마커 등 기존 로직을 여기에 이식
+            // (함수들 분리하여 useCallback/useRef 등으로 관리 추천)
+        };
+        document.head.appendChild(script);
 
-        setDirectionResult(null);
-        setSelectedHouse(null);
-    };
-
-    const handleDirection = () => {
-        if (!searchedAddress || !selectedHouse) {
-            alert('출발지와 도착지를 모두 지정하세요.');
-            return;
-        }
-        const params = new URLSearchParams({
-            originLat: '', originLng: '',
-            destLat: selectedHouse.latitude,
-            destLng: selectedHouse.longitude
-        });
-
-        fetch(`${baseUrl}/api/house/direction?${params}`)
-            .then(res => res.json())
-            .then(data => setDirectionResult(data))
-            .catch(() => alert('길찾기 실패'));
-    };
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
 
     return (
-        <div className="relative w-full h-screen overflow-hidden font-['Noto_Sans_KR']">
-            {/* 지도 배경 */}
-            <div className="absolute inset-0 z-0">
-                <MapContainer
-                    center={mapCenter}
-                    markers={houseList.map(h => ({
-                        lat: h.latitude,
-                        lng: h.longitude,
-                        name: h.buildingName
-                    }))}
-                    selected={selectedHouse}
-                />
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+            <div style={{ display: "flex", flex: 1 }}>
+                <div style={{ width: 320, borderRight: "1px solid #eee", padding: 15, overflowY: "auto" }}>
+                    <div style={{ fontWeight: "bold", fontSize: 20 }}>부동산 매물 지도</div>
+                    <input type="text" placeholder="출발지" style={{ width: "100%", marginBottom: 8 }} readOnly />
+                    <input type="text" placeholder="도착지" style={{ width: "100%", marginBottom: 8 }} readOnly />
+                    <button style={{ width: "100%", marginBottom: 12, background: "#FF6B3D", color: "white", padding: "10px", border: "none", borderRadius: 4 }}>길찾기</button>
+                    <div>길찾기 결과 표시 영역</div>
+                    <div style={{ marginTop: 20 }}>매물 리스트 영역</div>
+                </div>
+                <div style={{ flex: 1, position: "relative" }}>
+                    <div id="map" style={{ width: "100%", height: "100%" }}></div>
+                </div>
             </div>
-
-            {/* 상단 바 */}
-            <div className="absolute top-0 left-0 w-full z-20">
-                <NavigationBar selected={selectedType} onSelect={setSelectedType} />
-            </div>
-
-            {/* 왼쪽 사이드바 */}
-            <aside className="absolute top-[60px] left-0 w-[360px] h-[calc(100%-60px)] bg-white border-r border-[#eee] p-4 z-10 overflow-y-auto space-y-4">
-                <SearchForm
-                    onSearch={(lat, lng, filters) => {
-                        setSearchedAddress('출발지');
-                        handleSearch(lat, lng, filters);
-                    }}
-                />
-                <DirectionPanel
-                    start={searchedAddress}
-                    end={selectedHouse?.buildingName || ''}
-                    result={directionResult}
-                    onSearch={handleDirection}
-                />
-                <HouseList items={houseList} onSelect={setSelectedHouse} />
-            </aside>
-
-            {/* 상세 정보 */}
-            {selectedHouse && (
-                <section className="absolute top-[80px] right-4 z-20 bg-white p-4 shadow-lg rounded-lg max-w-[400px]">
-                    <HouseDetail
-                        house={selectedHouse}
-                        onClose={() => setSelectedHouse(null)}
-                    />
-                </section>
-            )}
         </div>
     );
 };
