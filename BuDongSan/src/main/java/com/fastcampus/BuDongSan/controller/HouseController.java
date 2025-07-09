@@ -1,19 +1,15 @@
 package com.fastcampus.BuDongSan.controller;
 
-import com.fastcampus.BuDongSan.Entity.Direction;
 import com.fastcampus.BuDongSan.Entity.House;
 import com.fastcampus.BuDongSan.Entity.TwoRoom;
 import com.fastcampus.BuDongSan.dto.DirectionResponseDto;
 import com.fastcampus.BuDongSan.service.HouseService;
 import com.fastcampus.BuDongSan.service.TwoRoomService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.ResponseEntity;
@@ -23,12 +19,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/house")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "*")
 public class HouseController {
 
     private final HouseService houseService;
     private final TwoRoomService twoRoomService;
-    private final ObjectMapper objectMapper;
 
     @GetMapping
     public List<House> getNearbyOneRoom(
