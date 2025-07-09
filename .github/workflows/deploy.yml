@@ -24,7 +24,7 @@ jobs:
           echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
 
       - name: Generate .env.production
-        working-directory: Room91
+        working-directory: ./
         run: |
           echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
 
