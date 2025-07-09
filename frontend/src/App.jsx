@@ -24,7 +24,7 @@ function App() {
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/faq/create" element={<FaqCreate />} />
               <Route path="/Redevelopment" element={<Redevelopment />} />
-              <Route path="/room" element={<MapPage />} />
+              <Route path="/one" element={<MapPage />} />
           </Routes>
       </BrowserRouter>
   )
