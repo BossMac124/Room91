@@ -18,12 +18,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Generate .env.production for back
+        working-directory: ./BuDongSan
+        run: |
+          echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
+
+      - name: Generate .env.production
+        working-directory: Room91
+        run: |
+          echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
+
       - name: Build Spring Boot backend
         working-directory: ./BuDongSan
         run: ./gradlew build -x test
-
-#      - name: List backend jar files
-#        run: ls -al BuDongSan/build/libs/
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -38,7 +45,7 @@ jobs:
         working-directory: ./frontend
         run: |
           echo "VITE_API_BASE_URL=${{ secrets.FRONTEND_API_URL }}" > .env.production
-          echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
+          echo "VITE_KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env.production
 
       - name: Build frontend
         working-directory: ./frontend
