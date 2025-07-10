@@ -45,7 +45,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_DATA_MONGODB_URI: mongodb://root:1234@Housing-mongo:27017/housing?authSource=admin
-      KAKAO_API_KEY: ${KAKAO_API_KEY}
     env_file:
       - .env
     ports:
