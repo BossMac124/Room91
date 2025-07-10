@@ -44,6 +44,19 @@ jobs:
       - name: Check static content
         run: ls -al static
 
+      - name: Create .env file
+        run: |
+          echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" > .env
+
+      - name: Send .env file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: ".env"
+          target: /home/ubuntu/Room91
+
       # Spring Boot jar만 전송
       - name: Copy backend jar to EC2
         uses: appleboy/scp-action@v0.1.7
