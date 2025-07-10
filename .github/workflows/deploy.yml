@@ -31,6 +31,13 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
+      # ✅ .env.production 생성 (빌드용 환경변수)
+      - name: Generate .env.production
+        working-directory: ./frontend
+        run: |
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" > .env.production
+          echo "VITE_KAKAO_JS_API_KEY=${{ secrets.KAKAO_JS_API_KEY }}" >> .env.production
+
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build
@@ -44,12 +51,14 @@ jobs:
       - name: Check static content
         run: ls -al static
 
-      - name: Create .env file
+      # ✅ Spring Boot용 .env 파일 생성
+      - name: Create backend .env file
         run: |
           echo "KAKAO_JS_API_KEY=${{ secrets.KAKAO_JS_API_KEY }}" > .env
           echo "KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
 
-      - name: Send .env file to EC2
+      # ✅ .env → EC2 전송 (Spring용)
+      - name: Send backend .env to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -58,7 +67,17 @@ jobs:
           source: ".env"
           target: /home/ubuntu/Room91
 
-      # Spring Boot jar만 전송
+      # ✅ .env.production → EC2의 frontend/에 전송
+      - name: Send frontend .env.production to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "frontend/.env.production"
+          target: /home/ubuntu/Room91/frontend
+
+      # JAR 전송
       - name: Copy backend jar to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -68,7 +87,7 @@ jobs:
           source: "BuDongSan/build/libs/BuDongSan-0.0.1-SNAPSHOT.jar"
           target: /home/ubuntu/Room91
 
-      # dist 디렉토리만 전송
+      # dist(static) 전송
       - name: Copy frontend dist to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -78,7 +97,7 @@ jobs:
           source: "static"
           target: /home/ubuntu/Room91
 
-
+      # 서비스 재시작
       - name: Restart services on EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
