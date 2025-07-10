@@ -13,7 +13,7 @@ const Redevelopment = () => {
     const [map, setMap] = useState(null);
     const [marker, setMarker] = useState(null);
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const API_KEY = import.meta.env.VITE_KAKAO_API_KEY;
+    const API_KEY = import.meta.env.VITE_KAKAO_JS_API_KEY;
 
     useEffect(() => {
         fetch(`${baseUrl}/api/deals/district`)

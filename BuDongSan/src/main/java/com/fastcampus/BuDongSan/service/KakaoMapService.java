@@ -31,6 +31,7 @@ public class KakaoMapService {
             // 카카오 API는 Authorization 헤더에 KakaoAK {API_KEY} 방식으로 인증
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "KakaoAK " + kakaoMapConfig.getRestApiKey());
+            headers.set("KA", "java/1.0"); // ✅ 이 줄 추가! (카카오 정책상 필수)
 
             // RestTemplate을 써서 HTTP 요청을 전송함
             //GET 방식으로 요청하고, 응답을 문자열 형태로 받음
