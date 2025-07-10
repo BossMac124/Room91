@@ -86,6 +86,6 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             cd /home/ubuntu/Room91
-            docker build -t housing-image .
+#            docker build -t housing-image .
             docker-compose down
             docker-compose up -d
