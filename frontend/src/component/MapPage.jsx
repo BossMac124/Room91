@@ -29,7 +29,10 @@ const MapPage = () => {
             const map = new window.kakao.maps.Map(mapContainer, mapOption);
             mapRef.current = map;
 
-            fetch(`${baseUrl}/api/house?lat=37.5665&lng=126.978`)
+            fetch(`${baseUrl}/api/house?lat=37.5665&lng=126.978`, {
+                method: "GET",
+                credentials: "include",
+            })
                 .then(res => res.json())
                 .then(data => {
                     setHouseList(data);
