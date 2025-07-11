@@ -42,22 +42,44 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
-      - name: Copy frontend dist to static/
+      # ✅ frontend_output 폴더로 임시 복사 (dist → deploy 대상)
+      - name: Prepare frontend output for deployment
         run: |
-          rm -rf static
-          mkdir -p static
-          cp -r frontend/dist/* static/
+          rm -rf frontend_output
+          mkdir -p frontend_output
+          cp -r frontend/dist/* frontend_output/
 
-      - name: Check static content
-        run: ls -al static
+      - name: Check frontend output content
+        run: ls -al frontend_output
 
-      # ✅ Spring Boot용 .env 파일 생성
+      # ✅ .env.production → EC2로 복사 (→ frontend/)
+      - name: Send .env.production to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "frontend/.env.production"
+          target: /home/ubuntu/Room91/frontend
+          strip_components: 1
+
+      # ✅ React 빌드 결과 → EC2의 frontend/ 로 복사
+      - name: Deploy frontend files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "frontend_output/*"
+          target: /home/ubuntu/Room91/frontend
+
+      # ✅ Spring Boot .env 생성
       - name: Create backend .env file
         run: |
           echo "KAKAO_JS_API_KEY=${{ secrets.KAKAO_JS_API_KEY }}" > .env
           echo "KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
 
-      # ✅ .env → EC2 전송 (Spring용)
+      # ✅ backend .env 전송
       - name: Send backend .env to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -67,17 +89,7 @@ jobs:
           source: ".env"
           target: /home/ubuntu/Room91
 
-      # ✅ .env.production → EC2의 frontend/에 전송
-      - name: Send frontend .env.production to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          source: "frontend/.env.production"
-          target: /home/ubuntu/Room91/frontend
-
-      # JAR 전송
+      # ✅ backend jar 전송
       - name: Copy backend jar to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -87,17 +99,7 @@ jobs:
           source: "BuDongSan/build/libs/BuDongSan-0.0.1-SNAPSHOT.jar"
           target: /home/ubuntu/Room91
 
-      # dist(static) 전송
-      - name: Copy frontend dist to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          source: "static"
-          target: /home/ubuntu/Room91
-
-      # 서비스 재시작
+      # ✅ 서비스 재시작
       - name: Restart services on EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
