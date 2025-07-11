@@ -11,12 +11,20 @@ const MapPage = () => {
 
     useEffect(() => {
         if (window.kakao && window.kakao.maps) {
-            window.kakao.maps.load(initMap);
+            window.kakao.maps.load(() => {
+                console.log("MarkerClusterer 확인:", window.kakao.maps.MarkerClusterer);
+                initMap();
+            });
         } else {
             const script = document.createElement("script");
             script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JS_API_KEY}&autoload=false&libraries=services,clusterer`;
             script.async = true;
-            script.onload = () => window.kakao.maps.load(initMap);
+            script.onload = () => {
+                window.kakao.maps.load(() => {
+                    console.log("MarkerClusterer 확인:", window.kakao.maps.MarkerClusterer);
+                    initMap();
+                });
+            };
             document.head.appendChild(script);
         }
 
