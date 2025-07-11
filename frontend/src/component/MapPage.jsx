@@ -37,7 +37,7 @@ const MapPage = () => {
             const map = new window.kakao.maps.Map(mapContainer, mapOption);
             mapRef.current = map;
 
-            fetch(`${baseUrl}/api/house?lat=37.5665&lng=126.978`, {
+            fetch(`${baseUrl}/api/house?lat=37.507011&lng=126.883534`, {
                 method: "GET",
                 credentials: "include",
             })
@@ -47,6 +47,9 @@ const MapPage = () => {
                 })
                 .then(data => {
                     console.log("받은 데이터", data);
+                    if (data.length === 0) {
+                        console.log("표시할 매물이 없습니다.");
+                    }
                     setHouseList(data);
                     setupMarkers(data, map);
                 })
