@@ -72,6 +72,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           source: "frontend_output/*"
           target: /home/ubuntu/Room91/frontend
+          strip_components: 1
 
       # ✅ Spring Boot .env 생성
       - name: Create backend .env file
