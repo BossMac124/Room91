@@ -33,8 +33,12 @@ const MapPage = () => {
                 method: "GET",
                 credentials: "include",
             })
-                .then(res => res.json())
+                .then(res => {
+                    console.log("응답 상태:", res.status);
+                    return res.json();
+                })
                 .then(data => {
+                    console.log("받은 데이터", data);
                     setHouseList(data);
                     setupMarkers(data, map);
                 })
