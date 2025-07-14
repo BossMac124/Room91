@@ -8,6 +8,7 @@ const MapPage = () => {
     const [houseList, setHouseList] = useState([]);
     const [searchText, setSearchText] = useState("");
     const mapRef = useRef(null);
+    const clustererRef = useRef(null);
 
     useEffect(() => {
         if (window.kakao && window.kakao.maps) {
@@ -37,31 +38,50 @@ const MapPage = () => {
             const map = new window.kakao.maps.Map(mapContainer, mapOption);
             mapRef.current = map;
 
-            fetch(`${baseUrl}/api/house?lat=37.507011&lng=126.883534`, {
+            // ✅ 최초 1회 매물 불러오기
+            const initialCenter = map.getCenter();
+            fetchHouseData(initialCenter);
+
+            // ✅ 지도 이동 시에도 다시 요청
+            window.kakao.maps.event.addListener(map, "dragend", () => {
+                const center = map.getCenter();
+                fetchHouseData(center);
+            });
+        }
+
+        function fetchHouseData(center) {
+            const lat = center.getLat();
+            const lng = center.getLng();
+
+            console.log(`[요청] 매물 데이터 → lat: ${lat}, lng: ${lng}`);
+
+            fetch(`${baseUrl}/api/house?lat=${lat}&lng=${lng}`, {
                 method: "GET",
                 credentials: "include",
             })
                 .then(res => {
-                    console.log("응답 상태:", res.status);
+                    console.log(`[응답] 상태 코드: ${res.status}`);
                     return res.json();
                 })
                 .then(data => {
-                    console.log("받은 데이터", data);
-                    if (data.length === 0) {
-                        console.log("표시할 매물이 없습니다.");
-                    }
+                    console.log(`[결과] 받은 매물 수: ${data.length}`);
+                    if (data.length === 0) console.log("⚠️ 표시할 매물이 없습니다.");
                     setHouseList(data);
-                    setupMarkers(data, map);
+                    setupMarkers(data, mapRef.current);
                 })
-                .catch(err => console.error("매물 불러오기 실패", err));
+                .catch(err => console.error("❌ 매물 불러오기 실패", err));
         }
 
         function setupMarkers(houses, map) {
-            const clusterer = new window.kakao.maps.MarkerClusterer({
-                map,
-                averageCenter: true,
-                minLevel: 5,
-            });
+            if (!clustererRef.current) {
+                clustererRef.current = new window.kakao.maps.MarkerClusterer({
+                    map,
+                    averageCenter: true,
+                    minLevel: 5,
+                });
+            } else {
+                clustererRef.current.clear(); // 기존 마커 제거
+            }
 
             const markers = houses.map(house => {
                 const marker = new window.kakao.maps.Marker({
@@ -76,7 +96,7 @@ const MapPage = () => {
                 return marker;
             });
 
-            clusterer.addMarkers(markers);
+            clustererRef.current.addMarkers(markers);
         }
     }, [baseUrl]);
 
