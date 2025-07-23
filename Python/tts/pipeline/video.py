@@ -1,7 +1,7 @@
 import os
 import random
 import datetime
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import numpy as np
 from moviepy.video.VideoClip import ImageClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
