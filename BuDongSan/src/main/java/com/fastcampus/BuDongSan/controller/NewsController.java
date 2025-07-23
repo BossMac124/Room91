@@ -2,6 +2,8 @@ package com.fastcampus.BuDongSan.controller;
 
 import com.fastcampus.BuDongSan.Entity.News;
 import com.fastcampus.BuDongSan.repository.postgre.NewsRepository;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -22,11 +24,25 @@ public class NewsController {
 
     private final NewsRepository newsRepository;
 
-    // 로컬에 있는 mp4 파일 경로 (절대 경로로 설정 권장)
-    private final Path videoPath = Paths.get("/Users/kimhanseop/Desktop/project/Room91/Python/tts/output/news_video.mp4");
+    @Value("${news.video-dir}")
+    private String videoDir;
+
+    private Path videoPath;
+
+    @PostConstruct
+    public void init() {
+        this.videoPath = Paths.get(videoDir);
+    }
 
     public NewsController(NewsRepository newsRepository) {
         this.newsRepository = newsRepository;
+    }
+
+    // 전체 뉴스 목록 반환 (JSON 형식)
+    @GetMapping
+    @ResponseBody
+    public ResponseEntity<?> getAllNews() {
+        return ResponseEntity.ok(newsRepository.findAll());
     }
 
     // 기본 확인용 엔드포인트
@@ -37,23 +53,30 @@ public class NewsController {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 뉴스가 존재하지 않습니다."));
 
-        System.out.println("뉴스 본문: " + news.getNewsPrompt()); // newsPrompt 값 확인
+        System.out.println("뉴스 본문: " + news.getNewsText());
 
         model.addAttribute("news", news);
         return "news";
     }
 
     // mp4 파일 제공 API
-    @GetMapping("/video")
-    public ResponseEntity<Resource> getNewsVideo() throws MalformedURLException {
-        Resource resource = new UrlResource(videoPath.toUri());
+    @GetMapping("/video/{id}")
+    public ResponseEntity<Resource> getNewsVideo(@PathVariable Long id) throws MalformedURLException {
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 뉴스가 존재하지 않습니다."));
+
+        // created_at 날짜 기반 폴더 추출 (예: 20250723)
+        String folderName = news.getCreatedAt().toLocalDate().toString().replace("-", "");
+        Path videoFilePath = videoPath.resolve(folderName).resolve("news_" + folderName + ".mp4");
+
+        Resource resource = new UrlResource(videoFilePath.toUri());
 
         if (!resource.exists()) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"news_video.mp4\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"news_" + folderName + ".mp4\"")
                 .contentType(MediaType.parseMediaType("video/mp4"))
                 .body(resource);
     }
