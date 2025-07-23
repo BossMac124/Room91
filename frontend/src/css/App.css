@@ -3,7 +3,7 @@
   height: 100vh; /* 화면 꽉 채우기 */
   margin: 0 auto;
   text-align: left; /* 보통은 left */
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 .notice-content {
