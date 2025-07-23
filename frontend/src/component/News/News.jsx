@@ -39,7 +39,7 @@ const News = ({ }) => {
             <div style={styles.content}>
                 <h2>뉴스 영상</h2>
                 <video controls style={styles.video}>
-                    <source src="/news" type="video/mp4" />
+                    <source src={`${baseUrl}/api/news/video/${newsId}`} type="video/mp4" />
                     브라우저가 video 태그를 지원하지 않습니다.
                 </video>
 
