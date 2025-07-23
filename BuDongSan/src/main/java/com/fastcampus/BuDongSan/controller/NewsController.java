@@ -17,7 +17,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Controller
+@RestController
 @RequestMapping("/api/news")
 public class NewsController {
 
