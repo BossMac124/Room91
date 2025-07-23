@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "news_prompt")
+@Table(name = "refined_news")
 @Data
 public class News{
 
@@ -16,7 +16,7 @@ public class News{
 
     private LocalDateTime createdAt;
 
-    @Column(name = "new_prompt")
-    private String newsPrompt;
+    @Column(name = "news_text")
+    private String newsText;
 
 }
