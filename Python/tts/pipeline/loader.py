@@ -20,7 +20,7 @@ def get_latest_excel_file(base_dir, prefix):
     files.sort(reverse=True)
     return os.path.join(base_dir, files[0])
 
-def get_top3_from_excel(file_paths):
+def get_top_n_from_excel(file_paths, top_n=4):  # ← 원하는 개수 설정
     all_rows = []
     for file in file_paths:
         if not file or not os.path.exists(file):
@@ -31,4 +31,4 @@ def get_top3_from_excel(file_paths):
                 all_rows.extend(df.to_dict("records"))
         except Exception as e:
             print(f"❌ 파일 불러오기 실패: {file} ({e})")
-    return pd.DataFrame(all_rows).head(3)
+    return pd.DataFrame(all_rows).head(top_n)
