@@ -11,7 +11,7 @@ import pandas as pd
 
 def init_driver():
     options = Options()
-    # options.add_argument("--headless=new")  # UI 없이 실행할 때만 주석 해제
+    options.add_argument("--headless=new")  # UI 없이 실행할 때만 주석 해제
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("lang=ko_KR")
