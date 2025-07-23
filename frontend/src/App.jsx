@@ -8,6 +8,7 @@ import FaqCreate from './component/Faq/FaqCreate.jsx';
 import FaqPage from "./component/Faq/FaqPage.jsx";
 import MapPage from "./component/MapPage.jsx";
 import News from "./component/News/News.jsx";
+import NewsList from "./component/News/NewsList.jsx";
 
 function App() {
   return (
@@ -26,7 +27,8 @@ function App() {
               <Route path="/faq/create" element={<FaqCreate />} />
               <Route path="/Redevelopment" element={<Redevelopment />} />
               <Route path="/one" element={<MapPage />} />
-              <Route path="/news" element={<News />} />
+              <Route path="/news" element={<NewsList />} />
+              <Route path="/news/:newsId" element={<News />} />
           </Routes>
       </BrowserRouter>
   )
