@@ -66,7 +66,7 @@ const styles = {
     header: {
         backgroundColor: '#2c3e50',
         color: 'white',
-        padding: '20px',
+        padding: '1px',
         textAlign: 'center',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     },
