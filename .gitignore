@@ -17,3 +17,6 @@ Thumbs.db
 
 # 환경 변수 파일
 .env.*
+*.json
+*.toml
+config.py
