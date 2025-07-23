@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {useParams} from "react-router-dom";
 
-const News = ({ newsId }) => {
+const News = ({ }) => {
+    const { newsId } = useParams();
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const [news, setNews] = useState(null);
     const [error, setError] = useState(null);
@@ -17,7 +19,7 @@ const News = ({ newsId }) => {
             }
         };
 
-        fetchNews();
+        if (newsId) fetchNews(); // ✅ newsId 있을 때만 호출
     }, [newsId]);
 
     if (error) {
@@ -42,7 +44,7 @@ const News = ({ newsId }) => {
                 </video>
 
                 <h2>뉴스 기사</h2>
-                <p>{news.newsPrompt}</p>
+                <p>{news.newsText}</p>
             </div>
 
             <footer style={styles.footer}>

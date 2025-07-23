@@ -2,8 +2,11 @@ spring:
   application:
     name: BuDongSan
 
-  profiles:
-    active: prod
+#  profiles:
+#    active: prod
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
   datasource:
     url: jdbc:postgresql://localhost:5432/housing
@@ -44,3 +47,6 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+news:
+  video-dir: /Users/kangminwoo/projects/Room91/Python/tts/pipeline/output
