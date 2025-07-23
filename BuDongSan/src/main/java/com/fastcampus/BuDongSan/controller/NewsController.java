@@ -45,19 +45,14 @@ public class NewsController {
         return ResponseEntity.ok(newsRepository.findAll());
     }
 
-    // 기본 확인용 엔드포인트
     @GetMapping("/{id}")
-    public String getNewsPage(@PathVariable Long id, Model model) {
-        System.out.println("요청된 ID: " + id); // id 값 확인
-
+    @ResponseBody
+    public ResponseEntity<News> getNewsById(@PathVariable Long id) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 뉴스가 존재하지 않습니다."));
-
-        System.out.println("뉴스 본문: " + news.getNewsText());
-
-        model.addAttribute("news", news);
-        return "news";
+        return ResponseEntity.ok(news);
     }
+
 
     // mp4 파일 제공 API
     @GetMapping("/video/{id}")
