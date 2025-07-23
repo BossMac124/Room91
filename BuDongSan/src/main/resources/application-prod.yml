@@ -4,6 +4,10 @@ spring:
     username: postgres
     password: 1234
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -28,4 +32,7 @@ kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
 
 file:
-  upload-dir: /Room91/images/
+  upload-dir: /home/ubuntu/Room91/images/
+
+news:
+  video-dir: /home/ubuntu/Room91/news_videos

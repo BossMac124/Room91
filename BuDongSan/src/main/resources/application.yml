@@ -2,8 +2,8 @@ spring:
   application:
     name: BuDongSan
 
-#  profiles:
-#    active: prod
+  profiles:
+    active: prod
   jackson:
     serialization:
       write-dates-as-timestamps: false
