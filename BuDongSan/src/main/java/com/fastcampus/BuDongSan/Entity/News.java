@@ -18,7 +18,7 @@ public class News{
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @Column(name = "news_text")
+    @Column(name = "news_text", columnDefinition = "text")
     private String newsText;
 
 }
