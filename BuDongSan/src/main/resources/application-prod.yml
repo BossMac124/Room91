@@ -36,6 +36,3 @@ file:
 
 news:
   video-dir: /home/ubuntu/Room91/news_videos
-
-server:
-  port: 8088
