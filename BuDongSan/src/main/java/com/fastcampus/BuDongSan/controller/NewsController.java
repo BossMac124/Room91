@@ -39,13 +39,11 @@ public class NewsController {
 
     // 전체 뉴스 목록 반환 (JSON 형식)
     @GetMapping
-    @ResponseBody
     public ResponseEntity<?> getAllNews() {
         return ResponseEntity.ok(newsRepository.findAll());
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
     public ResponseEntity<News> getNewsById(@PathVariable Long id) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 뉴스가 존재하지 않습니다."));
