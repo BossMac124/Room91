@@ -50,7 +50,7 @@ const News = ({ }) => {
             <footer style={styles.footer}>
                 © 2025 Room91 News. 모든 권리 보유.<br />
                 문의 사항이 있으시면 언제든지 이메일로 연락 주세요.<br />
-                <a href="mailto:contact@room91news.com" style={styles.emailLink}>이메일 보내기</a>
+                <a href="mailto:cap019@naver.com" style={styles.emailLink}>이메일 보내기</a>
             </footer>
         </div>
     );
