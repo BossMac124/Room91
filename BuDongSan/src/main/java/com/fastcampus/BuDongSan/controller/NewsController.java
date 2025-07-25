@@ -50,10 +50,10 @@ public class NewsController {
         return ResponseEntity.ok(news);
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "뉴스 테스트용 컨트롤러입니다.";
-    }
+//    @GetMapping("/test")
+//    public String test() {
+//        return "뉴스 테스트용 컨트롤러입니다.";
+//    }
 
 
     // mp4 파일 제공 API
