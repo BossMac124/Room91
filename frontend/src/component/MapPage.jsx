@@ -1,6 +1,6 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import HouseDetailPanel from "./Oneroom/HouseDetailPanel.jsx";
-import {AnimatePresence, motion} from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 const MapPage = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -11,7 +11,6 @@ const MapPage = () => {
     const clustererRef = useRef(null);
 
     useEffect(() => {
-        // 카카오 맵 SDK 로드
         if (window.kakao && window.kakao.maps) {
             window.kakao.maps.load(() => {
                 console.log("✅ MarkerClusterer 확인:", window.kakao.maps.MarkerClusterer);
@@ -19,7 +18,7 @@ const MapPage = () => {
             });
         } else {
             const script = document.createElement("script");
-            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JS_API_KEY}&autoload=false&libraries=services,clusterer`;
+            script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JS_API_KEY}&autoload=false&libraries=services,clusterer`;
             script.async = true;
             script.onload = () => {
                 window.kakao.maps.load(() => {
@@ -30,7 +29,6 @@ const MapPage = () => {
             document.head.appendChild(script);
         }
 
-        // 지도 초기화 함수
         function initMap() {
             const mapContainer = document.getElementById("map");
             const mapOption = {
@@ -40,16 +38,13 @@ const MapPage = () => {
             const map = new window.kakao.maps.Map(mapContainer, mapOption);
             mapRef.current = map;
 
-            // 최초 매물 요청
             fetchHouseData(map.getCenter());
 
-            // 지도 이동 시 매물 재요청
             window.kakao.maps.event.addListener(map, "dragend", () => {
                 fetchHouseData(map.getCenter());
             });
         }
 
-        // 매물 요청 함수
         function fetchHouseData(center) {
             const lat = center.getLat();
             const lng = center.getLng();
@@ -68,15 +63,19 @@ const MapPage = () => {
                     console.log(`[결과] 받은 매물 수: ${data.length}`);
                     if (data.length === 0) console.warn("⚠️ 표시할 매물이 없습니다.");
                     setHouseList(data);
-                    setupMarkers(data, mapRef.current);
+                    setupMarkersWithRetry(data, mapRef.current);
                 })
                 .catch(err => console.error("❌ 매물 불러오기 실패", err));
         }
 
-        // 마커 및 클러스터러 설정 함수
-        function setupMarkers(houses, map) {
+        function setupMarkersWithRetry(houses, map, retryCount = 0) {
             if (!map || !window.kakao || !window.kakao.maps.MarkerClusterer) {
-                console.error("❌ 지도 또는 MarkerClusterer가 준비되지 않았습니다.");
+                if (retryCount < 5) {
+                    console.warn(`⌛ MarkerClusterer 준비 중... (${retryCount + 1}/5)`);
+                    setTimeout(() => setupMarkersWithRetry(houses, map, retryCount + 1), 300);
+                } else {
+                    console.error("❌ MarkerClusterer 로드 실패. 클러스터 표시 생략.");
+                }
                 return;
             }
 
@@ -87,7 +86,7 @@ const MapPage = () => {
                     minLevel: 5,
                 });
             } else {
-                clustererRef.current.clear(); // 기존 마커 제거
+                clustererRef.current.clear();
             }
 
             const markers = houses
@@ -116,7 +115,7 @@ const MapPage = () => {
 
     const handleResultClick = (house) => {
         setSelectedHouse(house);
-        setMapCenter(house); // 필요 시 지도 중심 이동 구현
+        setMapCenter(house);
     };
 
     const setMapCenter = (house) => {
@@ -129,7 +128,6 @@ const MapPage = () => {
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <div style={{ display: "flex", flex: 1 }}>
-                {/* 왼쪽: 검색 + 매물 목록 */}
                 <div style={{
                     width: 320,
                     borderRight: "1px solid #eee",
@@ -162,7 +160,6 @@ const MapPage = () => {
                         검색
                     </button>
 
-                    {/* 검색 결과 목록 */}
                     <div style={{
                         height: "80vh",
                         overflowY: "auto",
@@ -191,7 +188,6 @@ const MapPage = () => {
                     </div>
                 </div>
 
-                {/* 오른쪽: 지도 + 패널 겹치기 */}
                 <div style={{ flex: 1, position: "relative" }}>
                     <div id="map" style={{ width: "100%", height: "90vh" }}></div>
 
@@ -205,7 +201,7 @@ const MapPage = () => {
                                 style={{
                                     position: "absolute",
                                     top: 0,
-                                    left: 0, //
+                                    left: 0,
                                     height: "100%",
                                     width: 400,
                                     backgroundColor: "#fff",
