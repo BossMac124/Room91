@@ -12,11 +12,10 @@ const Redevelopment = () => {
     const [deals, setDeals] = useState([]);
     const [map, setMap] = useState(null);
     const [marker, setMarker] = useState(null);
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const API_KEY = import.meta.env.VITE_KAKAO_JS_API_KEY;
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/deals/district`)
+        fetch(`/api/deals/district`)
             .then(res => res.json())
             .then(setDistricts)
             .catch(err => console.error('시군구 데이터 가져오기 실패', err));
@@ -44,7 +43,7 @@ const Redevelopment = () => {
         setDeals([]);
         setStats(null);
 
-        fetch(`${baseUrl}/api/deals/district/${district}/neighborhood`)
+        fetch(`/api/deals/district/${district}/neighborhood`)
             .then(res => res.json())
             .then(setNeighborhoods)
             .catch(err => console.error('법정동 데이터 가져오기 실패', err));
@@ -56,12 +55,12 @@ const Redevelopment = () => {
 
         if (!selectedDistrict || !neighborhood) return;
 
-        fetch(`${baseUrl}/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}/stats`)
+        fetch(`/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}/stats`)
             .then(res => res.json())
             .then(setStats)
             .catch(err => console.error('통계 데이터 로딩 실패', err));
 
-        fetch(`${baseUrl}/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}`)
+        fetch(`/api/deals/district/${selectedDistrict}/neighborhood/${neighborhood}`)
             .then(res => res.json())
             .then(data => {
                 setDeals(data);
@@ -72,7 +71,7 @@ const Redevelopment = () => {
 
     const searchAddress = async (address) => {
         try {
-            const res = await fetch(`${baseUrl}/api/deals/geocoding?address=${encodeURIComponent(address)}`);
+            const res = await fetch(`/api/deals/geocoding?address=${encodeURIComponent(address)}`);
 
             // 404 등 실패 시, 에러 메시지 꺼내서 처리
             if (!res.ok) {

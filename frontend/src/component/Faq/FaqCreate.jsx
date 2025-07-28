@@ -5,7 +5,6 @@ import "../../css/ckeditor.css";    // 전역 스타일 추가
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
 class CustomUploadAdapter {
     constructor(loader) {
         this.loader = loader;
@@ -16,7 +15,7 @@ class CustomUploadAdapter {
             const data = new FormData();
             data.append("upload", file);
 
-            return fetch(`${baseUrl}/api/uploads`, {
+            return fetch(`/api/uploads`, {
                 method: "POST",
                 body: data,
             })
@@ -38,7 +37,7 @@ function FaqCreate() {
     const handleSubmit = async e => {
         e.preventDefault();
         try {
-            const res = await fetch(`${baseUrl}/api/faq`, {
+            const res = await fetch(`/api/faq`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ question, answer }),
@@ -82,7 +81,7 @@ function FaqCreate() {
                                 "undo","redo","imageUpload"
                             ],
                             simpleUpload: {
-                                uploadUrl: "http://localhost:8080/api/uploads/images",
+                                uploadUrl: `/api/uploads/images`,
                             },
                             placeholder: "답변을 입력하세요...",
                             contentStyle: "body { color: #000; }"

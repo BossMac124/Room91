@@ -5,7 +5,6 @@ import NoticeEditor from "./NoticeEditor.jsx";
 function NoticeItem({ notice, getNotice, currentPage }) {
     const [open, setOpen] = useState(false);      // 공지 내용 펼치기 여부 상태
     const [editing, setEditing] = useState(false); // 수정 모드 여부 상태
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     // 공지 제목 클릭 시 펼치기/닫기 토글
     const toggleOpen = () => setOpen((prev) => !prev);
@@ -17,7 +16,7 @@ function NoticeItem({ notice, getNotice, currentPage }) {
 
         try {
             // DELETE 요청
-            const res = await fetch(`${baseUrl}/api/notice/${notice.id}`, {
+            const res = await fetch(`/api/notice/${notice.id}`, {
                 method: "DELETE",
             });
 
@@ -73,7 +72,7 @@ function NoticeItem({ notice, getNotice, currentPage }) {
                             {/* 이미지가 있을 경우 먼저 출력 */}
                             {notice.imageName && (
                                 <img
-                                    src={`${baseUrl}/uploads/${notice.imageName}`}
+                                    src={`/uploads/${notice.imageName}`}
                                     alt="공지 이미지"
                                     style={{
                                         maxWidth: "50%",

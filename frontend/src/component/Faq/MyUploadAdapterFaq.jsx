@@ -1,5 +1,4 @@
 // 📌 CKEditor에서 사용할 이미지 업로더를 정의해주는 클래스
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 class MyUploadAdapter {
     constructor(loader) {
@@ -14,7 +13,7 @@ class MyUploadAdapter {
             data.append("upload", file);         // 'upload'라는 키에 파일을 추가
 
             // fetch로 백엔드 API에 POST 요청 → 이미지 업로드
-            return fetch(`${baseUrl}/api/faq/upload/image`, {
+            return fetch(`/api/faq/upload/image`, {
                 method: "POST",
                 body: data,                       // 전송할 데이터 (이미지)
                 credentials: "include",           // 쿠키나 인증 정보 포함 (세션 등 필요할 때)
