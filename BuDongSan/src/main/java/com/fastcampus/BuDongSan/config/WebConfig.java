@@ -20,6 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://room91.org",
                         "http://www.room91.org",
+                        "https://room91.org",
+                        "https://www.room91.org",
                         "http://localhost:5173",
                         "http://3.39.127.143",
                         "http://3.39.127.143:80"
