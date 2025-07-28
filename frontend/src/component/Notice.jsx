@@ -27,7 +27,7 @@ function Notice() {
         console.log("📡 GET 요청 URL:", `${baseUrl}/api/notice?page=${page}`);
         setLoading(true);
         try {
-            const res = await fetch(`/api/notice?page=${page}`);
+            const res = await fetch(`${baseUrl}/api/notice?page=${page}`);
             const json = await res.json();
             setNotices(json.content);
             setPageInfo({
@@ -55,7 +55,7 @@ function Notice() {
         setLoading(true);
         try {
             const res = await fetch(
-                `/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
+                `${baseUrl}/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
             );
             const json = await res.json();
             setNotices(json.content);
@@ -67,7 +67,7 @@ function Notice() {
             });
         } catch (e) {
             console.error("검색 실패", e);
-            console.log("📡 GET 요청 URL:", `/api/notice?page=${page}`);
+            console.log("📡 GET 요청 URL:", `${baseUrl}/api/notice?page=${page}`);
         } finally {
             setLoading(false);
         }
@@ -93,7 +93,7 @@ function Notice() {
 
     const saveEditing = async (id) => {
         try {
-            const res = await fetch(`/api/notice/${id}`, {
+            const res = await fetch(`${baseUrl}/api/notice/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -114,7 +114,7 @@ function Notice() {
     const deleteNotice = async (id) => {
         if (!window.confirm("정말 삭제할까요?")) return;
         try {
-            const res = await fetch(`/api/notice/${id}`, {
+            const res = await fetch(`${baseUrl}/api/notice/${id}`, {
                 method: "DELETE",
             });
             if (!res.ok) throw new Error("삭제 실패");

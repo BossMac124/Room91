@@ -4,6 +4,7 @@ import {useParams} from "react-router-dom";
 
 const News = ({ }) => {
     const { newsId } = useParams();
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const [news, setNews] = useState(null);
     const [error, setError] = useState(null);
 
@@ -11,7 +12,7 @@ const News = ({ }) => {
         // 뉴스 데이터를 가져오는 함수
         const fetchNews = async () => {
             try {
-                const response = await axios.get(`/api/news/${newsId}`);
+                const response = await axios.get(`${baseUrl}/api/news/${newsId}`);
                 setNews(response.data);
             } catch (err) {
                 setError('뉴스를 불러오는 중 오류가 발생했습니다.');

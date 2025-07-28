@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const NewsList = () => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const [newsList, setNewsList] = useState([]);
     const [error, setError] = useState(null);
 
@@ -11,7 +12,7 @@ const NewsList = () => {
 
         const fetchNewsList = async () => {
             try {
-                const res = await axios.get(`/api/news`);
+                const res = await axios.get(`${baseUrl}/api/news`);
                 if (isMounted && Array.isArray(res.data)) {
                     setNewsList(res.data);
                 }

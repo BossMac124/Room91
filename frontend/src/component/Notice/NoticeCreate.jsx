@@ -12,13 +12,14 @@ function NoticeCreate() {
     const [content, setContent] = useState('');
     const navigate = useNavigate();                 // 페이지 이동을 위한 훅
     const editorRef = useRef(null);       // 에디터 인스턴스 저장용 ref
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     // 공지사항 등록 버튼 클릭 시 실행될 함수
     const handleSubmit = async (e) => {
         e.preventDefault(); // 폼 제출 기본 동작 방지
         try {
             // 제목과 내용을 서버에 POST 요청
-            await axios.post(`/api/notice`, { title, content });
+            await axios.post(`${baseUrl}/api/notice`, { title, content });
             alert('공지사항이 등록되었습니다.');
             navigate('/notice');
         } catch (err) {

@@ -8,12 +8,14 @@ function NoticeSearch({ onSearch, setPageInfo }) {
     // 검색 유형 상태 (title, content, title_content)
     const [searchType, setSearchType] = useState("title");
 
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
     // 검색 실행 함수
     const handleSearch = async () => {
         try {
             // 검색 API 호출 (page는 항상 0부터 시작)
             const res = await fetch(
-                `/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
+                `${baseUrl}/api/notice/search?keyword=${searchKeyword}&type=${searchType}&page=0`
             );
             const json = await res.json();
 

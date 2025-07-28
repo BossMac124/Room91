@@ -5,9 +5,10 @@ import "../../css/FaqPage.css";
 export default function FaqPage() {
     const [faqs, setFaqs] = useState([]);
     const [openSet, setOpenSet] = useState(new Set());
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
-        fetch(`/api/faq?page=0&size=10`)
+        fetch(`${baseUrl}/api/faq?page=0&size=10`)
             .then(res => res.json())
             .then(json => setFaqs(json.content))
             .catch(() => setFaqs([]));
@@ -23,7 +24,7 @@ export default function FaqPage() {
 
     const deleteFaq = async id => {
         if (!window.confirm('정말 삭제하시겠습니까?')) return;
-        await fetch(`/api/faq/${id}`, { method: 'DELETE' });
+        await fetch(`${baseUrl}/api/faq/${id}`, { method: 'DELETE' });
         setFaqs(faqs.filter(f => f.id !== id));
     };
 

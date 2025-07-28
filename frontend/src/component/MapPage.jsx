@@ -56,7 +56,7 @@ const MapPage = () => {
 
             console.log(`[요청] 매물 데이터 → lat: ${lat}, lng: ${lng}`);
 
-            fetch(`/api/house?lat=${lat}&lng=${lng}`, {
+            fetch(`${baseUrl}/api/house?lat=${lat}&lng=${lng}`, {
                 method: "GET",
                 credentials: "include",
             })
