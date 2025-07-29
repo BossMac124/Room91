@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.service;
 
-import com.fastcampus.BuDongSan.Entity.Notice;
+import com.fastcampus.BuDongSan.entity.Notice;
 import com.fastcampus.BuDongSan.dto.NoticeDto;
 import com.fastcampus.BuDongSan.repository.postgre.NoticeRepository;
 import lombok.RequiredArgsConstructor;

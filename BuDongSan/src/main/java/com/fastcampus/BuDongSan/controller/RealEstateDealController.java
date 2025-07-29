@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.controller;
 
-import com.fastcampus.BuDongSan.Entity.GeoLocation;
+import com.fastcampus.BuDongSan.entity.GeoLocation;
 import com.fastcampus.BuDongSan.dto.PriceStatsDto;
 import com.fastcampus.BuDongSan.dto.RealEstateDealResponse;
 import com.fastcampus.BuDongSan.service.KakaoMapService;

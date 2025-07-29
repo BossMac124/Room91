@@ -1,11 +1,9 @@
 package com.fastcampus.BuDongSan.dto;
 
-import com.fastcampus.BuDongSan.Entity.Notice;
+import com.fastcampus.BuDongSan.entity.Notice;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor

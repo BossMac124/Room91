@@ -1,4 +1,4 @@
-package com.fastcampus.BuDongSan.Entity;
+package com.fastcampus.BuDongSan.entity;
 
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.EntityListeners;

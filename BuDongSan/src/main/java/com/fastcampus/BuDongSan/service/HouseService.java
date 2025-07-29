@@ -1,8 +1,7 @@
 package com.fastcampus.BuDongSan.service;
 
-import com.fastcampus.BuDongSan.Entity.Direction;
-import com.fastcampus.BuDongSan.Entity.House;
-import com.fastcampus.BuDongSan.Entity.TwoRoom;
+import com.fastcampus.BuDongSan.entity.Direction;
+import com.fastcampus.BuDongSan.entity.House;
 import com.fastcampus.BuDongSan.dto.DirectionResponseDto;
 import com.fastcampus.BuDongSan.dto.LatLngDto;
 import com.fastcampus.BuDongSan.repository.mongo.MongoDirectionRepository;

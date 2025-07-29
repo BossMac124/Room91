@@ -1,7 +1,7 @@
 package com.fastcampus.BuDongSan.repository.postgre;
 
 
-import com.fastcampus.BuDongSan.Entity.Notice;
+import com.fastcampus.BuDongSan.entity.Notice;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

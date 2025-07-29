@@ -1,11 +1,8 @@
-package com.fastcampus.BuDongSan.Entity;
+package com.fastcampus.BuDongSan.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.LastModifiedDate;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter

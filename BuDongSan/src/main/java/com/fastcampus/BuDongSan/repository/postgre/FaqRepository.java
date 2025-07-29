@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.repository.postgre;
 
-import com.fastcampus.BuDongSan.Entity.Faq;
+import com.fastcampus.BuDongSan.entity.Faq;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

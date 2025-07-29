@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.controller;
 
-import com.fastcampus.BuDongSan.Entity.News;
+import com.fastcampus.BuDongSan.entity.News;
 import com.fastcampus.BuDongSan.repository.postgre.NewsRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;

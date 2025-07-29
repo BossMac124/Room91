@@ -1,30 +1,21 @@
 package com.fastcampus.BuDongSan.service;
 
-import com.fastcampus.BuDongSan.Entity.Direction;
-import com.fastcampus.BuDongSan.Entity.House;
-import com.fastcampus.BuDongSan.Entity.TwoRoom;
+import com.fastcampus.BuDongSan.entity.TwoRoom;
 import com.fastcampus.BuDongSan.repository.mongo.MongoDirectionRepository;
-import com.fastcampus.BuDongSan.repository.mongo.MongoOneRoomRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 

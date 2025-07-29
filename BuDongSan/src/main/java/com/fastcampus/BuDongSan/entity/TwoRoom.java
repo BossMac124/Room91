@@ -1,4 +1,4 @@
-package com.fastcampus.BuDongSan.Entity;
+package com.fastcampus.BuDongSan.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;

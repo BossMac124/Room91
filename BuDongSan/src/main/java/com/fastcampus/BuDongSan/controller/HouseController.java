@@ -1,7 +1,7 @@
 package com.fastcampus.BuDongSan.controller;
 
-import com.fastcampus.BuDongSan.Entity.House;
-import com.fastcampus.BuDongSan.Entity.TwoRoom;
+import com.fastcampus.BuDongSan.entity.House;
+import com.fastcampus.BuDongSan.entity.TwoRoom;
 import com.fastcampus.BuDongSan.dto.DirectionResponseDto;
 import com.fastcampus.BuDongSan.service.HouseService;
 import com.fastcampus.BuDongSan.service.TwoRoomService;

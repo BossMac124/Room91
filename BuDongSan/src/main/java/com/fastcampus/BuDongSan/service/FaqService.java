@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.service;
 
-import com.fastcampus.BuDongSan.Entity.Faq;
+import com.fastcampus.BuDongSan.entity.Faq;
 import com.fastcampus.BuDongSan.dto.FaqDto;
 import com.fastcampus.BuDongSan.repository.postgre.FaqRepository;
 import jakarta.persistence.EntityNotFoundException;

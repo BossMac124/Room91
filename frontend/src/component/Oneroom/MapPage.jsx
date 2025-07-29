@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import HouseDetailPanel from "./Oneroom/HouseDetailPanel.jsx";
+import HouseDetailPanel from "./HouseDetailPanel.jsx";
 import { AnimatePresence, motion } from "framer-motion";
 
 const MapPage = () => {

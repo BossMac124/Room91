@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.repository.mongo;
 
-import com.fastcampus.BuDongSan.Entity.House;
+import com.fastcampus.BuDongSan.entity.House;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.repository.MongoRepository;

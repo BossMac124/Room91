@@ -1,4 +1,4 @@
-package com.fastcampus.BuDongSan.Entity;
+package com.fastcampus.BuDongSan.entity;
 
 import jakarta.persistence.Id;
 import lombok.Getter;
@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import org.springframework.data.geo.Point;
 import java.time.Instant;
 
 @Document(collection = "directions")

@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.dto;
 
-import com.fastcampus.BuDongSan.Entity.RealEstateDeal;
+import com.fastcampus.BuDongSan.entity.RealEstateDeal;
 import lombok.*;
 
 import java.time.LocalDate;

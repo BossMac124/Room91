@@ -1,6 +1,6 @@
 package com.fastcampus.BuDongSan.service;
 
-import com.fastcampus.BuDongSan.Entity.RealEstateDeal;
+import com.fastcampus.BuDongSan.entity.RealEstateDeal;
 import com.fastcampus.BuDongSan.dto.PriceStatsDto;
 import com.fastcampus.BuDongSan.dto.RealEstateDealResponse;
 import com.fastcampus.BuDongSan.repository.postgre.RealEstateDealRepository;
