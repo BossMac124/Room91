@@ -3,6 +3,7 @@ package com.fastcampus.BuDongSan.controller;
 import com.fastcampus.BuDongSan.dto.FaqDto;
 import com.fastcampus.BuDongSan.service.FaqService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,8 @@ public class FaqController {
 
     @PostMapping
     public ResponseEntity<FaqDto> addFaq(@RequestBody FaqDto faqDto, HttpServletRequest request) {
-        request.getSession(); // ✅ 세션 강제 생성
+        HttpSession session = request.getSession();
+        System.out.println("✅ 세션 생성됨: " + session.getId());
         FaqDto createFaq = faqService.createFaq(faqDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createFaq);
     }
