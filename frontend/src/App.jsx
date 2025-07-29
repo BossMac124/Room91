@@ -6,21 +6,19 @@ import Redevelopment from "./component/Redevelopment/Redevelopment.jsx";
 import NoticePage from "./component/Notice/NoticePage.jsx";
 import FaqCreate from './component/Faq/FaqCreate.jsx';
 import FaqPage from "./component/Faq/FaqPage.jsx";
-import MapPage from "./component/MapPage.jsx";
+import MapPage from "./component/Oneroom/MapPage.jsx";
 import News from "./component/News/News.jsx";
 import NewsList from "./component/News/NewsList.jsx";
+import Register from "./component/Sign/Register.jsx";
+import Login from "./component/Sign/Login.jsx";
 
 function App() {
   return (
       <BrowserRouter>
           <Header />
           <Routes>
-              <Route path="/" element={<h1 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100vh', // 화면 전체 높이
-              }}>메인 화면 준비중입니다.</h1>} />
+              <Route path="/" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/notice" element={<NoticePage />} />
               <Route path="/notice/create" element={<NoticeCreate />} />
               <Route path="/faq" element={<FaqPage />} />
