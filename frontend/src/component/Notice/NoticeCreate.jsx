@@ -19,7 +19,9 @@ function NoticeCreate() {
         e.preventDefault(); // 폼 제출 기본 동작 방지
         try {
             // 제목과 내용을 서버에 POST 요청
-            await axios.post(`${baseUrl}/api/notice`, { title, content });
+            await axios.post(`${baseUrl}/api/notice`, { title, content }, {
+                withCredentials: true
+            });
             alert('공지사항이 등록되었습니다.');
             navigate('/notice');
         } catch (err) {
