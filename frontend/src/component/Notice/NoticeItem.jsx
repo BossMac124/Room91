@@ -1,11 +1,16 @@
 import React, {useEffect, useRef, useState} from "react";
 import NoticeEditor from "./NoticeEditor.jsx";
+import {parseJwt} from "../utils/jwt.js";
 
 // 개별 공지 항목을 보여주는 컴포넌트
 function NoticeItem({ notice, getNotice, currentPage }) {
     const [open, setOpen] = useState(false);      // 공지 내용 펼치기 여부 상태
     const [editing, setEditing] = useState(false); // 수정 모드 여부 상태
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+    const token = localStorage.getItem("jwt");
+    const userRole = token ? parseJwt(token)?.role : null;
+    const isAdmin = userRole === "ROLE_ADMIN";
 
     const isMounted = useRef(true);
 
@@ -60,7 +65,7 @@ function NoticeItem({ notice, getNotice, currentPage }) {
                 />
             ) : (
                 <>
-                    <div onClick={() => setOpen((prev) => !prev)} style={{ cursor: "pointer", fontWeight: "bold" }}>
+                    <div onClick={toggleOpen} style={{ cursor: "pointer", fontWeight: "bold" }}>
                         {notice.title}
                     </div>
                     {open && (
@@ -82,20 +87,12 @@ function NoticeItem({ notice, getNotice, currentPage }) {
                             <div className="notice-content" dangerouslySetInnerHTML={{ __html: notice.content }} />
                         </div>
                     )}
-                    <div style={{ marginTop: "0.5rem" }}>
-                        <button onClick={() => setEditing(true)}>수정</button>
-                        <button onClick={async () => {
-                            if (window.confirm("정말 삭제할까요?")) {
-                                try {
-                                    const res = await fetch(`${baseUrl}/api/notice/${notice.id}`, { method: "DELETE" });
-                                    if (!res.ok) throw new Error("삭제 실패");
-                                    await getNotice(currentPage);
-                                } catch {
-                                    alert("삭제에 실패했습니다.");
-                                }
-                            }
-                        }}>삭제</button>
-                    </div>
+                    {isAdmin && (
+                        <div style={{ marginTop: "0.5rem" }}>
+                            <button onClick={() => setEditing(true)}>수정</button>
+                            <button onClick={deleteNotice}>삭제</button>
+                        </div>
+                    )}
                 </>
             )}
         </div>

@@ -1,17 +1,23 @@
 import React from "react";
 import NoticeItem from "./NoticeItem.jsx";
 import { Link } from "react-router-dom";
+import {parseJwt} from "../utils/jwt.js";
 
 // NoticeList 컴포넌트는 공지 리스트 + 페이징 + 공지 작성 버튼을 렌더링함
 function NoticeList({ notices, pageInfo, getNotice }) {
+    const token = localStorage.getItem("jwt");
+    const userRole = token ? parseJwt(token)?.role : null;  // ✅ role로 읽기
+    const isAdmin = userRole === "ROLE_ADMIN";
     return (
         <div>
             {/* 공지 작성 페이지로 이동하는 버튼 */}
-            <div style={{ marginBottom: "1rem", textAlign: "center" }}>
-                <Link to="/notice/create">
-                    <button>공지사항 작성</button>
-                </Link>
-            </div>
+            {isAdmin && (
+                <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+                    <Link to="/notice/create">
+                        <button>공지사항 작성</button>
+                    </Link>
+                </div>
+            )}
 
             {/* 공지 리스트 렌더링 - 하나하나 NoticeItem 컴포넌트로 전달 */}
             {Array.isArray(notices) && notices.map((notice, index) => (
