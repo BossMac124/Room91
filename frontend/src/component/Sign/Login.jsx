@@ -29,20 +29,22 @@ function Login() {
             const response = await axios.post(`${baseUrl}/api/users/login`, formData);
             const token = response.data.token;
 
-            // 토큰 저장 (로컬스토리지 or 쿠키)
+            if (!token) throw new Error("토큰 없음");
+
+            // 토큰 저장
             localStorage.setItem("jwt", token);
 
             alert("로그인 성공!");
-            navigate("/news"); // 홈으로 이동 (필요하면 변경)
+            navigate("/news");
         } catch (err) {
-            console.error(err);
+            console.error("로그인 에러:", err);
             alert("로그인 실패: 아이디 또는 비밀번호를 확인해주세요.");
         }
     };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "0 auto", padding: "1rem" }}>
-            <h2>로그인</h2>
+        <div style={{ maxWidth: "400px", margin: "0 auto", padding: "2rem" }}>
+            <h2 style={{ textAlign: "center" }}>로그인</h2>
             <form onSubmit={handleSubmit}>
                 <input
                     name="username"
@@ -50,7 +52,8 @@ function Login() {
                     value={formData.username}
                     onChange={handleChange}
                     required
-                /><br />
+                    style={{ width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
+                />
                 <input
                     name="password"
                     type="password"
@@ -58,13 +61,38 @@ function Login() {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                /><br />
-                <button type="submit">로그인</button>
+                    style={{ width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
+                />
+                <button
+                    type="submit"
+                    style={{
+                        width: "100%",
+                        padding: "0.6rem",
+                        backgroundColor: "#333",
+                        color: "#fff",
+                        border: "none",
+                        cursor: "pointer",
+                    }}
+                >
+                    로그인
+                </button>
             </form>
 
-            <hr />
+            <hr style={{ margin: "2rem 0" }} />
 
-            <button onClick={goToRegister}>회원가입</button>
+            <button
+                onClick={goToRegister}
+                style={{
+                    width: "100%",
+                    padding: "0.6rem",
+                    backgroundColor: "#888",
+                    color: "#fff",
+                    border: "none",
+                    cursor: "pointer",
+                }}
+            >
+                회원가입
+            </button>
         </div>
     );
 }

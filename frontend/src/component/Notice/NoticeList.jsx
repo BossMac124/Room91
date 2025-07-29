@@ -14,7 +14,7 @@ function NoticeList({ notices, pageInfo, getNotice }) {
             </div>
 
             {/* 공지 리스트 렌더링 - 하나하나 NoticeItem 컴포넌트로 전달 */}
-            {notices.map((notice, index) => (
+            {Array.isArray(notices) && notices.map((notice, index) => (
                 <NoticeItem
                     key={notice.id}               // React가 리스트 아이템을 구분할 때 사용
                     notice={notice}               // 공지 객체 자체

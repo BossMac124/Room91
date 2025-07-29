@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import "../../css/FaqPage.css";
+import {parseJwt} from "../utils/jwt.js";
 
 export default function FaqPage() {
     const [faqs, setFaqs] = useState([]);
     const [openSet, setOpenSet] = useState(new Set());
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+    const token = localStorage.getItem("jwt");
+    const userRole = token ? parseJwt(token)?.auth : null;
+    const isAdmin = userRole === "ROLE_ADMIN";
 
     useEffect(() => {
         fetch(`${baseUrl}/api/faq?page=0&size=10`)
@@ -31,9 +36,11 @@ export default function FaqPage() {
     return (
         <div className="faq-container">
             <h2>자주 묻는 질문 (FAQ)</h2>
-            <Link to="/faq/create">
-                <button className="faq-create-btn">FAQ 작성</button>
-            </Link>
+            {isAdmin && (
+                <Link to="/faq/create">
+                    <button className="faq-create-btn">FAQ 작성</button>
+                </Link>
+            )}
 
             {faqs.length === 0 && <p>등록된 FAQ가 없습니다.</p>}
 
@@ -67,14 +74,16 @@ export default function FaqPage() {
                         )}
 
                         {/* 삭제 행 */}
-                        <div className="faq-row faq-delete-row">
-                            <button
-                                className="faq-delete-btn"
-                                onClick={() => deleteFaq(faq.id)}
-                            >
-                                삭제
-                            </button>
-                        </div>
+                        {isAdmin && (
+                            <div className="faq-row faq-delete-row">
+                                <button
+                                    className="faq-delete-btn"
+                                    onClick={() => deleteFaq(faq.id)}
+                                >
+                                    삭제
+                                </button>
+                            </div>
+                        )}
                     </div>
                 );
             })}
