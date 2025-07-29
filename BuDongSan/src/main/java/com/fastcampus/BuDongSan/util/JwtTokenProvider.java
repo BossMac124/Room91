@@ -16,9 +16,10 @@ public class JwtTokenProvider {
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     // 토큰 생성
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -28,6 +29,9 @@ public class JwtTokenProvider {
     // 토큰에서 사용자 이름 추출
     public String getUsername(String token) {
         return parseClaims(token).getSubject();
+    }
+    public String getRole(String token) {
+        return parseClaims(token).get("role", String.class);
     }
 
     // 토큰 유효성 검사
