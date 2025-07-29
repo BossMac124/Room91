@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "https://room91.org", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/notice")
 @RequiredArgsConstructor
@@ -53,6 +52,7 @@ public class NoticeController {
         return noticeService.getNoticeById(id);
     }
 
+    @CrossOrigin(origins = "https://room91.org", allowCredentials = "true")
     @PostMapping
     public NoticeDto createNotice(@RequestBody NoticeDto dto) {
         return noticeService.createNotice(dto);
