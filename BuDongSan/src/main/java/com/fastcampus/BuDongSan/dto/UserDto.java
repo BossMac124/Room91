@@ -25,7 +25,7 @@ public class UserDto {
                 .name(name)
                 .gender(gender)
                 .email(email)
-                .role(this.role != null ? this.role : "ROLE_USER") // 기본값 설정
+                .role(this.role != null ? this.role : "ADMIN") // 기본값 설정
                 .build();
     }
 }
