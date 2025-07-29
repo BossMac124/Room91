@@ -33,7 +33,7 @@ function Login() {
             localStorage.setItem("jwt", token);
 
             alert("로그인 성공!");
-            navigate("/"); // 홈으로 이동 (필요하면 변경)
+            navigate("/news"); // 홈으로 이동 (필요하면 변경)
         } catch (err) {
             console.error(err);
             alert("로그인 실패: 아이디 또는 비밀번호를 확인해주세요.");
