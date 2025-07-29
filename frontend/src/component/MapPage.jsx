@@ -72,7 +72,7 @@ const MapPage = () => {
             if (!map || !window.kakao || !window.kakao.maps.MarkerClusterer) {
                 if (retryCount < 5) {
                     console.warn(`⌛ MarkerClusterer 준비 중... (${retryCount + 1}/5)`);
-                    setTimeout(() => setupMarkersWithRetry(houses, map, retryCount + 1), 300);
+                    setTimeout(() => setupMarkersWithRetry(houses, map, retryCount + 1), 5000);
                 } else {
                     console.error("❌ MarkerClusterer 로드 실패. 클러스터 표시 생략.");
                 }
