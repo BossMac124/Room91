@@ -21,8 +21,8 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/notice" element={<NoticePage />} />
               <Route path="/notice/create" element={<NoticeCreate />} />
-              <Route path="/faq" element={<FaqPage />} />
               <Route path="/faq/create" element={<FaqCreate />} />
+              <Route path="/faq" element={<FaqPage />} />
               <Route path="/Redevelopment" element={<Redevelopment />} />
               <Route path="/one" element={<MapPage />} />
               <Route path="/news" element={<NewsList />} />

@@ -36,7 +36,8 @@
                                     "/api/users/login",
                                     "/api/users/register",
                                     "/api/news",
-                                    "/api/house"
+                                    "/api/house",
+                                    "/uploads/**"
                             ).permitAll()
                             .requestMatchers("/api/notice/**", "/api/faq/**").hasRole("ADMIN")
                             .anyRequest().authenticated()

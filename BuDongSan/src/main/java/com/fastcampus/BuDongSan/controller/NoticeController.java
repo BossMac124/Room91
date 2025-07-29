@@ -22,6 +22,7 @@ public class NoticeController {
     private final NoticeService noticeService;
     private final ImageUploadService imageUploadService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/upload/image")
     public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam("upload") MultipartFile file) {
         try {

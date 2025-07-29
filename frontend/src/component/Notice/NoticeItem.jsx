@@ -41,6 +41,9 @@ function NoticeItem({ notice, getNotice, currentPage }) {
             // DELETE 요청
             const res = await fetch(`${baseUrl}/api/notice/${notice.id}`, {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             // 요청 실패 시 에러 발생

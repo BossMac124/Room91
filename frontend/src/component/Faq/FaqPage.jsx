@@ -29,7 +29,11 @@ export default function FaqPage() {
 
     const deleteFaq = async id => {
         if (!window.confirm('정말 삭제하시겠습니까?')) return;
-        await fetch(`${baseUrl}/api/faq/${id}`, { method: 'DELETE' });
+        await fetch(`${baseUrl}/api/faq/${id}`, { method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`, // ✅ JWT 토큰 헤더에 추가
+            },
+        });
         setFaqs(faqs.filter(f => f.id !== id));
     };
 

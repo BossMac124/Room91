@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import MyCustomUploadAdapterPlugin from "./MyUploadAdapter";
+import { MyCustomUploadAdapterPlugin } from "../utils/MyUploadAdapter.jsx";
 
 function NoticeEditor({ id, title, content, onCancel, onSave }) {
     // 제목과 내용을 상태로 관리 (입력값 추적용)
@@ -11,10 +11,15 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
 
     // 저장 버튼 클릭 시 서버에 PUT 요청 보내기
     const save = async () => {
+        const token = localStorage.getItem("jwt");
+
         try {
             const res = await fetch(`${baseUrl}/api/notice/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     title: editedTitle,
                     content: editedContent,
@@ -48,7 +53,7 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
                     editor={ClassicEditor}
                     data={editedContent}
                     config={{
-                        extraPlugins: [MyCustomUploadAdapterPlugin],    // 이미지 업로드 플러그인 설정
+                        extraPlugins: [MyCustomUploadAdapterPlugin("/api/notice/upload/image")],    // 이미지 업로드 플러그인 설정
                         toolbar: [
                             "heading", "|",
                             "bold", "italic", "link", "bulletedList", "numberedList", "|",
