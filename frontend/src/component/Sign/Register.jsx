@@ -13,7 +13,7 @@ function Register() {
         name: "",
         gender: "",
         email: "",
-        role: "ROLE_USER", // 기본값
+        role: "",
     });
 
     const handleChange = (e) => {
