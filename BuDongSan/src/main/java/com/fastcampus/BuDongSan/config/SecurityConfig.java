@@ -33,8 +33,7 @@
                             .requestMatchers(HttpMethod.GET, "/api/notice/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/faq/**").permitAll()
                             .requestMatchers(
-                                    "/api/users/login",
-                                    "/api/users/register",
+                                    "/api/users/**",
                                     "/api/news",
                                     "/api/house",
                                     "/uploads/**"
@@ -50,7 +49,10 @@
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(List.of("https://room91.org", "http://localhost:5173"));
+            config.setAllowedOrigins(List.of(
+                    "http://localhost:5173",
+                    "https://room91.org",
+                    "http://room91.org"));
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);  // ✅ 꼭 필요
