@@ -15,7 +15,6 @@ import java.util.Map;
 @CrossOrigin(origins = "https://room91.org", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/notice")
-//@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequiredArgsConstructor
 public class NoticeController {
 
