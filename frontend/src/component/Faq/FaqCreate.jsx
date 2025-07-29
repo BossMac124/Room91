@@ -41,6 +41,7 @@ function FaqCreate() {
             const res = await fetch(`${baseUrl}/api/faq`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include", // ✅ 추가해줘야 서버가 세션 쿠키 인식함
                 body: JSON.stringify({ question, answer }),
             });
             if (!res.ok) throw new Error("등록 실패");
