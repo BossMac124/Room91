@@ -30,16 +30,21 @@
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
+                            // 🔓 회원가입, 로그인은 누구나 가능
+                            .requestMatchers("/api/users/register", "/api/users/login").permitAll()
+
+                            // 🔓 공지/FAQ 조회는 GET만 가능
                             .requestMatchers(HttpMethod.GET, "/api/notice/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/faq/**").permitAll()
-                            .requestMatchers(
-                                    "/api/users/**",
-                                    "/api/news",
-                                    "/api/house",
-                                    "/uploads/**"
-                            ).permitAll()
+
+                            // 🔓 정적 리소스
+                            .requestMatchers("/uploads/**").permitAll()
+
+                            // 🔐 관리자만 가능
                             .requestMatchers("/api/notice/**", "/api/faq/**").hasRole("ADMIN")
-                            .anyRequest().authenticated()
+
+                            // 🔒 그 외 모든 요청 누구나 가능
+                            .anyRequest().permitAll()
                     )
                     .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
             return http.build();
