@@ -7,11 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
+@CrossOrigin(origins = "https://room91.org", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/notice")
 @RequiredArgsConstructor
@@ -52,17 +54,19 @@ public class NoticeController {
         return noticeService.getNoticeById(id);
     }
 
-    @CrossOrigin(origins = "https://room91.org", allowCredentials = "true")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public NoticeDto createNotice(@RequestBody NoticeDto dto) {
         return noticeService.createNotice(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public NoticeDto updateNotice(@PathVariable Long id, @RequestBody NoticeDto dto) {
         return noticeService.updateNotice(id, dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteNotice(@PathVariable Long id) {
         noticeService.deleteNotice(id);

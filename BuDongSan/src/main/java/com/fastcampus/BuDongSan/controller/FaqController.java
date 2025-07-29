@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +18,7 @@ public class FaqController {
 
     private final FaqService faqService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<FaqDto> addFaq(@RequestBody FaqDto faqDto, HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -38,6 +40,7 @@ public class FaqController {
         return ResponseEntity.ok(getFaq);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<FaqDto> updateFaq(@PathVariable Long id,
                                             @RequestBody FaqDto faqDto) {
@@ -45,12 +48,14 @@ public class FaqController {
         return ResponseEntity.ok(updateFaq);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delFaq(@PathVariable Long id) {
         faqService.deleteFaq(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delAllFaq() {

@@ -22,19 +22,22 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
+                        // ✅ 관리자 전용 경로
+                        .requestMatchers("/api/notice/**", "/api/faq/**").hasRole("ADMIN")
+                        // ✅ 그 외 모든 요청은 허용
+                        .anyRequest().permitAll()
                 );
         return http.build();
     }
 
-    // ✅ Cors 설정
+    // ✅ CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("https://room91.org", "http://localhost:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);  // ✅ 꼭 있어야 해
+        config.setAllowCredentials(true);  // ✅ 꼭 필요
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
