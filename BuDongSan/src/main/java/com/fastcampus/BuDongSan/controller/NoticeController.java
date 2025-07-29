@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
+@CrossOrigin(origins = "https://room91.org", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/notice")
 //@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
