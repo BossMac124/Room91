@@ -18,7 +18,7 @@ public class UserDto {
 
     // 👉 User 엔티티로 변환하는 메서드
     public User toEntity(PasswordEncoder passwordEncoder) {
-        String defaultRole = (role != null && !role.isBlank()) ? role : "ROLE_ADMIN";
+        String defaultRole = (role != null && !role.isBlank()) ? role : "ROLE_USER";
         return User.builder()
                 .username(username)
                 .password(passwordEncoder.encode(this.password))  // 비밀번호는 암호화된 걸 받아서 넣음
