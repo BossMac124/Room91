@@ -63,7 +63,11 @@ public class NewsController {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 뉴스가 존재하지 않습니다."));
 
-        // created_at 날짜 기반 폴더 추출 (예: 20250723)
+        if (news.getCreatedAt() == null) {
+            throw new RuntimeException("❌ createdAt 값이 null입니다. 영상 경로를 생성할 수 없습니다. (newsId = " + id + ")");
+        }
+
+        // created_at 날짜 기반 폴더 추출 (예: 20250730)
         String folderName = news.getCreatedAt().toLocalDate().toString().replace("-", "");
         Path videoFilePath = videoPath.resolve(folderName).resolve("news_" + folderName + ".mp4");
 
