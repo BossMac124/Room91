@@ -20,9 +20,9 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody UserDto userDto) {
-        User newUser = userService.register(userDto);
-        return ResponseEntity.ok(newUser);
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+        userService.register(userDto);
+        return ResponseEntity.ok("회원가입 성공");
     }
 
     @PostMapping("/login")
