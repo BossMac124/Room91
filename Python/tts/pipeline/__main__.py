@@ -6,6 +6,11 @@ from scraper import crawl_google_news_selenium, crawl_naver_news_selenium
 from tts import generate_tts
 from video import create_news_video
 
+# 🔐 Mac 환경에서 gRPC 충돌 방지
+import multiprocessing as mp
+mp.set_start_method("spawn", force=True)
+
+
 if __name__ == "__main__":
     print("🌐 실시간 뉴스 크롤링 중...")
 
