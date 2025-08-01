@@ -20,4 +20,3 @@ Thumbs.db
 *.json
 *.toml
 config.py
-*.yml
