@@ -11,39 +11,20 @@ const MapPage = () => {
     const clustererRef = useRef(null);
 
     useEffect(() => {
-        const loadKakaoMap = () => {
-            // MarkerClusterer가 준비되었는지 확인
-            if (
-                window.kakao &&
-                window.kakao.maps &&
-                window.kakao.maps.MarkerClusterer
-            ) {
-                console.log("✅ MarkerClusterer 완전히 준비됨");
-                initMap();
-            } else {
-                console.log("⌛ MarkerClusterer 아직 준비 안됨 → 재시도");
-                setTimeout(loadKakaoMap, 1000); // 0.3초 간격으로 재시도
-            }
-        };
-
-        if (!window.kakao || !window.kakao.maps) {
-            // kakao script가 아직 로드되지 않은 경우
+        const loadKakaoMapScript = () => {
             const script = document.createElement("script");
             script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JS_API_KEY}&autoload=false&libraries=services,clusterer`;
             script.async = true;
             script.onload = () => {
                 window.kakao.maps.load(() => {
-                    loadKakaoMap(); // 지도 로딩 후 MarkerClusterer 준비될 때까지 체크
+                    console.log("✅ Kakao Maps SDK 완전 로드됨");
+                    initMap();
                 });
             };
             document.head.appendChild(script);
-        } else {
-            // 이미 로드되었으면 바로 확인
-            loadKakaoMap();
-        }
+        };
 
-        // 지도를 초기화하는 함수
-        function initMap() {
+        const initMap = () => {
             const mapContainer = document.getElementById("map");
             const mapOption = {
                 center: new window.kakao.maps.LatLng(37.5665, 126.9780),
@@ -52,39 +33,41 @@ const MapPage = () => {
             const map = new window.kakao.maps.Map(mapContainer, mapOption);
             mapRef.current = map;
 
+            // 초기 데이터 로드
             fetchHouseData(map.getCenter());
 
+            // 지도 이동 이벤트 리스너 등록
             window.kakao.maps.event.addListener(map, "dragend", () => {
                 fetchHouseData(map.getCenter());
             });
-        }
+        };
 
-        // 매물 데이터 불러오기
-        function fetchHouseData(center) {
+        const fetchHouseData = (center) => {
             const lat = center.getLat();
             const lng = center.getLng();
-
             console.log(`[요청] 매물 데이터 → lat: ${lat}, lng: ${lng}`);
 
             fetch(`${baseUrl}/api/house?lat=${lat}&lng=${lng}`, {
                 method: "GET",
                 credentials: "include",
             })
-                .then(res => {
-                    console.log(`[응답] 상태 코드: ${res.status}`);
-                    return res.json();
-                })
-                .then(data => {
+                .then((res) => res.json())
+                .then((data) => {
                     console.log(`[결과] 받은 매물 수: ${data.length}`);
-                    if (data.length === 0) console.warn("⚠️ 표시할 매물이 없습니다.");
                     setHouseList(data);
                     setupMarkers(data, mapRef.current);
                 })
-                .catch(err => console.error("❌ 매물 불러오기 실패", err));
-        }
+                .catch((err) => {
+                    console.error("❌ 매물 불러오기 실패", err);
+                });
+        };
 
-        // 마커 클러스터 설정
-        function setupMarkers(houses, map) {
+        const setupMarkers = (houses, map) => {
+            if (!window.kakao || !window.kakao.maps || !window.kakao.maps.MarkerClusterer) {
+                console.warn("⚠️ MarkerClusterer가 준비되지 않았습니다.");
+                return;
+            }
+
             if (!clustererRef.current) {
                 clustererRef.current = new window.kakao.maps.MarkerClusterer({
                     map,
@@ -96,8 +79,8 @@ const MapPage = () => {
             }
 
             const markers = houses
-                .filter(h => h.latitude && h.longitude)
-                .map(house => {
+                .filter((h) => h.latitude && h.longitude)
+                .map((house) => {
                     const marker = new window.kakao.maps.Marker({
                         position: new window.kakao.maps.LatLng(house.latitude, house.longitude),
                         title: house.name,
@@ -111,10 +94,16 @@ const MapPage = () => {
                 });
 
             clustererRef.current.addMarkers(markers);
+        };
+
+        if (!window.kakao || !window.kakao.maps) {
+            loadKakaoMapScript();
+        } else {
+            initMap();
         }
     }, [baseUrl]);
 
-    const filteredHouses = houseList.filter(house => {
+    const filteredHouses = houseList.filter((house) => {
         const target = `${house.region} ${house.buildingName} ${house.articleName}`.toLowerCase();
         return target.includes(searchText.toLowerCase());
     });
@@ -149,7 +138,7 @@ const MapPage = () => {
                         type="text"
                         placeholder="지역, 건물명 등 검색"
                         value={searchText}
-                        onChange={e => setSearchText(e.target.value)}
+                        onChange={(e) => setSearchText(e.target.value)}
                         className="w-full border px-2 py-1 mb-2"
                     />
                     <button
