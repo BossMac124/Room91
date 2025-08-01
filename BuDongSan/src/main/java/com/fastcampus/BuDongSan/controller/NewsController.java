@@ -30,8 +30,8 @@ public class NewsController {
     @PostConstruct
     public void init() {
         this.videoPath = Paths.get(videoDir);
-        System.out.println("✅ NewsController 등록됨");
-        System.out.println("📁 영상 경로: " + videoPath.toAbsolutePath());
+//        System.out.println("✅ NewsController 등록됨");
+//        System.out.println("📁 영상 경로: " + videoPath.toAbsolutePath());
     }
 
     public NewsController(NewsRepository newsRepository) {
