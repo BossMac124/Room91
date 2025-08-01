@@ -77,9 +77,7 @@ jobs:
       # ✅ Spring Boot .env 생성
       - name: Create backend .env file
         run: |
-          echo "KAKAO_JS_API_KEY=${{ secrets.KAKAO_JS_API_KEY }}" > .env
-          echo "KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
-          echo "CUSTOM_BASE_URL=${{ secrets.CUSTOM_BASE_URL }}" >> .env
+          echo "${{ secrets.ENV_PROD }}" > .env
 
       # ✅ backend .env 전송
       - name: Send backend .env to EC2
