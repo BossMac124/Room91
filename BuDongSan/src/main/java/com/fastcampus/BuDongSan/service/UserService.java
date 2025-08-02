@@ -34,7 +34,7 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        // ✅ JWT 토큰에 username + role 포함
-        return jwtTokenProvider.generateToken(user.getUsername(), user.getRole());
+        // ✅ JWT 토큰에 username + nickname + role 포함
+        return jwtTokenProvider.generateToken(user.getUsername(), user.getNickname(), user.getRole());
     }
 }

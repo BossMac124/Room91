@@ -1,9 +1,34 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutButton from "./Sign/LogoutButton.jsx";
 
 const Header = () => {
     const [roomOpen, setRoomOpen] = useState(false);
     const [noticeOpen, setNoticeOpen] = useState(false);
+    const [nickname, setNickname] = useState(null);
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem("token");
+    const isLoggedIn = !!token;
+
+    useEffect(() => {
+        // console.log("📦 token:", token);
+        const parsed = token && parseJwt(token);
+        // console.log("🧩 parsed:", parsed);
+        if (parsed?.nickname) {
+            setNickname(parsed.nickname);
+        }
+    }, [token]);
+
+    const parseJwt = (token) => {
+        try {
+            const base64Payload = token.split('.')[1];
+            const payload = atob(base64Payload);
+            return JSON.parse(payload);
+        } catch (e) {
+            return null;
+        }
+    };
 
     const styles = {
         header: {
@@ -34,6 +59,7 @@ const Header = () => {
             gap: '30px',
             margin: 0,
             padding: 0,
+            alignItems: 'center',
         },
         navItem: {
             position: 'relative',
@@ -65,6 +91,14 @@ const Header = () => {
             color: '#333',
             fontSize: '0.95rem',
             whiteSpace: 'nowrap',
+        },
+        logoutBtn: {
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: '#fff',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            fontSize: '1rem',
         }
     };
 
@@ -110,6 +144,16 @@ const Header = () => {
                                 </div>
                             )}
                         </li>
+                        {isLoggedIn && (
+                            <>
+                                <li style={styles.navItem}>
+                                    <span style={styles.link}>👤 {nickname}</span>
+                                </li>
+                                <li style={styles.navItem}>
+                                    <LogoutButton />
+                                </li>
+                            </>
+                        )}
                     </ul>
                 </nav>
             </div>

@@ -32,7 +32,7 @@ function Login() {
             if (!token) throw new Error("토큰 없음");
 
             // 토큰 저장
-            localStorage.setItem("jwt", token);
+            localStorage.setItem("token", token);
 
             alert("로그인 성공!");
             navigate("/news");
