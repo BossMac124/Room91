@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import "../../css/FaqPage.css";
-import {parseJwt} from "../utils/jwt.js";
 
-export default function FaqPage() {
+export default function FaqPage( { userRole } ) {
     const [faqs, setFaqs] = useState([]);
     const [openSet, setOpenSet] = useState(new Set());
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
-    const token = localStorage.getItem("jwt");
-    const userRole = token ? parseJwt(token)?.role : null;
-    const isAdmin = userRole     === "ROLE_ADMIN";
+    const isAdmin = userRole === "ROLE_ADMIN";
+    const token = localStorage.getItem("token");
 
     useEffect(() => {
         fetch(`${baseUrl}/api/faq?page=0&size=10`)

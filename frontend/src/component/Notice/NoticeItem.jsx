@@ -3,14 +3,13 @@ import NoticeEditor from "./NoticeEditor.jsx";
 import {parseJwt} from "../utils/jwt.js";
 
 // 개별 공지 항목을 보여주는 컴포넌트
-function NoticeItem({ notice, getNotice, currentPage }) {
+function NoticeItem({ notice, getNotice, currentPage, userRole }) {
     const [open, setOpen] = useState(false);      // 공지 내용 펼치기 여부 상태
     const [editing, setEditing] = useState(false); // 수정 모드 여부 상태
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-    const token = localStorage.getItem("jwt");
-    const userRole = token ? parseJwt(token)?.role : null;
     const isAdmin = userRole === "ROLE_ADMIN";
+    const token = localStorage.getItem("token");
 
     const isMounted = useRef(true);
 

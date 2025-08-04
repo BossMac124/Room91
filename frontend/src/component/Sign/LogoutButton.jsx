@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 
-const LogoutButton = () => {
+const LogoutButton = ({ setUserRole }) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
         localStorage.removeItem("token"); // 혹은 sessionStorage
+        setUserRole(null); // 관리자 상태 초기화
         navigate("/"); // 로그아웃 후 로그인 페이지 이동
     };
 

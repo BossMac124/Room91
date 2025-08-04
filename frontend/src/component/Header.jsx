@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import LogoutButton from "./Sign/LogoutButton.jsx";
 
-const Header = () => {
+const Header = ({ userRole, setUserRole }) => {
     const [roomOpen, setRoomOpen] = useState(false);
     const [noticeOpen, setNoticeOpen] = useState(false);
     const [nickname, setNickname] = useState(null);
-    const navigate = useNavigate();
 
     const token = localStorage.getItem("token");
     const isLoggedIn = !!token;
@@ -150,7 +149,7 @@ const Header = () => {
                                     <span style={styles.link}>👤 {nickname}</span>
                                 </li>
                                 <li style={styles.navItem}>
-                                    <LogoutButton />
+                                    <LogoutButton setUserRole={setUserRole} />
                                 </li>
                             </>
                         )}

@@ -4,13 +4,11 @@ import { Link } from "react-router-dom";
 import {parseJwt} from "../utils/jwt.js";
 
 // NoticeList 컴포넌트는 공지 리스트 + 페이징 + 공지 작성 버튼을 렌더링함
-function NoticeList({ notices, pageInfo, getNotice }) {
-    const token = localStorage.getItem("jwt");
-    const userRole = token ? parseJwt(token)?.role : null;  // ✅ role로 읽기
+function NoticeList({ notices, pageInfo, getNotice, userRole }) {
     const isAdmin = userRole === "ROLE_ADMIN";
     return (
         <div>
-            {/* 공지 작성 페이지로 이동하는 버튼 */}
+            {/* 공지 작성 버튼 (관리자만 보임) */}
             {isAdmin && (
                 <div style={{ marginBottom: "1rem", textAlign: "center" }}>
                     <Link to="/notice/create">
@@ -27,6 +25,7 @@ function NoticeList({ notices, pageInfo, getNotice }) {
                     index={index}                 // 공지 순번 (0부터 시작)
                     getNotice={getNotice}         // 수정/삭제 후 리스트 갱신을 위한 콜백 함수
                     currentPage={pageInfo.number} // 현재 페이지 번호 전달
+                    userRole={userRole}
                 />
             ))}
 

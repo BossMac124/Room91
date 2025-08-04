@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import NoticeSearch from "./NoticeSearch.jsx";
 import NoticeList from "./NoticeList.jsx";
 
-function NoticePage() {
+function NoticePage({ userRole }) {
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageInfo, setPageInfo] = useState({
@@ -62,6 +62,7 @@ function NoticePage() {
                     notices={notices}
                     pageInfo={pageInfo}
                     getNotice={getNotice}
+                    userRole={userRole}
                 />
             )}
         </div>

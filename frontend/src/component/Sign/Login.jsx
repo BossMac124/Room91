@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {parseJwt} from "../utils/jwt.js";
 
-function Login() {
+function Login( { setUserRole} ) {
     const navigate = useNavigate();
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -33,6 +34,8 @@ function Login() {
 
             // 토큰 저장
             localStorage.setItem("token", token);
+            const parsed = parseJwt(token);
+            setUserRole(parsed?.role); // ✅ App 상태 갱신
 
             alert("로그인 성공!");
             navigate("/news");

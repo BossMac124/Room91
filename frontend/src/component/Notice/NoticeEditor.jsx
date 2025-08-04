@@ -11,7 +11,7 @@ function NoticeEditor({ id, title, content, onCancel, onSave }) {
 
     // 저장 버튼 클릭 시 서버에 PUT 요청 보내기
     const save = async () => {
-        const token = localStorage.getItem("jwt");
+        const token = localStorage.getItem("token");
 
         try {
             const res = await fetch(`${baseUrl}/api/notice/${id}`, {

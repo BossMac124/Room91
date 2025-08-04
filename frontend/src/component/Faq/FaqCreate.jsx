@@ -6,56 +6,12 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {MyCustomUploadAdapterPlugin} from "../utils/MyUploadAdapter.jsx";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
-// ✅ 이미지 업로더 클래스
-class MyUploadAdapter {
-    constructor(loader, uploadUrl) {
-        this.loader = loader;
-        this.uploadUrl = uploadUrl;
-    }
-
-    upload() {
-        const token = localStorage.getItem("jwt");
-
-        return this.loader.file.then((file) => {
-            const data = new FormData();
-            data.append("upload", file);
-
-            return fetch(`${baseUrl}${this.uploadUrl}`, {
-                method: "POST",
-                body: data,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then(async (res) => {
-                    if (!res.ok) {
-                        const text = await res.text();
-                        throw new Error(`이미지 업로드 실패: ${res.status} ${text}`);
-                    }
-                    return res.json();
-                })
-                .then((res) => {
-                    if (res && res.url) {
-                        return { default: res.url };
-                    }
-                    throw new Error("이미지 업로드 실패: URL 없음");
-                });
-        });
-    }
-
-    abort() {
-        // 취소 시 구현 가능
-    }
-}
-
-// ✅ Faq 작성 컴포넌트
 function FaqCreate() {
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const navigate = useNavigate();
-    const token = localStorage.getItem("jwt");
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const token = localStorage.getItem("token");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
