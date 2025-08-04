@@ -9,7 +9,7 @@ function NoticeItem({ notice, getNotice, currentPage, userRole }) {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     const isAdmin = userRole === "ROLE_ADMIN";
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
 
     const isMounted = useRef(true);
 

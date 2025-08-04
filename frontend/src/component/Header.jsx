@@ -1,33 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import LogoutButton from "./Sign/LogoutButton.jsx";
+import {parseJwt} from "./utils/jwt.js";
 
 const Header = ({ userRole, setUserRole }) => {
     const [roomOpen, setRoomOpen] = useState(false);
     const [noticeOpen, setNoticeOpen] = useState(false);
     const [nickname, setNickname] = useState(null);
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
     const isLoggedIn = !!token;
 
     useEffect(() => {
-        // console.log("📦 token:", token);
         const parsed = token && parseJwt(token);
-        // console.log("🧩 parsed:", parsed);
         if (parsed?.nickname) {
             setNickname(parsed.nickname);
         }
     }, [token]);
-
-    const parseJwt = (token) => {
-        try {
-            const base64Payload = token.split('.')[1];
-            const payload = atob(base64Payload);
-            return JSON.parse(payload);
-        } catch (e) {
-            return null;
-        }
-    };
 
     const styles = {
         header: {

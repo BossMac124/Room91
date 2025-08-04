@@ -7,7 +7,7 @@ export default function FaqPage( { userRole } ) {
     const [openSet, setOpenSet] = useState(new Set());
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const isAdmin = userRole === "ROLE_ADMIN";
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
 
     useEffect(() => {
         fetch(`${baseUrl}/api/faq?page=0&size=10`)

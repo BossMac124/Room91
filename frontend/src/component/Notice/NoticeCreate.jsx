@@ -13,7 +13,7 @@ function NoticeCreate() {
     const navigate = useNavigate();                 // 페이지 이동을 위한 훅
     const editorRef = useRef(null);       // 에디터 인스턴스 저장용 ref
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
 
     // 공지사항 등록 버튼 클릭 시 실행될 함수
     const handleSubmit = async (e) => {

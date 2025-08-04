@@ -11,7 +11,7 @@ function FaqCreate() {
     const [answer, setAnswer] = useState("");
     const navigate = useNavigate();
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
 
     const handleSubmit = async (e) => {
         e.preventDefault();

@@ -33,7 +33,7 @@ function Login( { setUserRole} ) {
             if (!token) throw new Error("토큰 없음");
 
             // 토큰 저장
-            localStorage.setItem("token", token);
+            localStorage.setItem("jwt", token);
             const parsed = parseJwt(token);
             setUserRole(parsed?.role); // ✅ App 상태 갱신
 
