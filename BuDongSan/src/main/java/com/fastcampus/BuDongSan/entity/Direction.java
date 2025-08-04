@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+// MongoDB의 "directions" 컬렉션에 저장
 @Document(collection = "directions")
 @Getter
 @Setter

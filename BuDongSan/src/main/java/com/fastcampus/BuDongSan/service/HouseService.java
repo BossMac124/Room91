@@ -46,12 +46,12 @@ public class HouseService {
 
     // 원룸 매물 필터 조회, reids 저장및 조회
     public List<House> findByLocationWithFilters(Point point,
-                                                         Distance distance,
-                                                         List<String> tradeTypeCodes,
-                                                         Integer rentPrcMin,
-                                                         Integer rentPrcMax,
-                                                         Integer dealPrcMin,
-                                                         Integer dealPrcMax) throws JsonProcessingException {
+                                                 Distance distance,
+                                                 List<String> tradeTypeCodes,
+                                                 Integer rentPrcMin,
+                                                 Integer rentPrcMax,
+                                                 Integer dealPrcMin,
+                                                 Integer dealPrcMax) throws JsonProcessingException {
 
         // 캐시 키를 조건별로 생성
         String cacheKey = buildCacheKey(point, distance, tradeTypeCodes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
@@ -82,7 +82,7 @@ public class HouseService {
                 .filter(h -> isDepositInRange(h, dealPrcMin, dealPrcMax))
                 .collect(Collectors.toList());
 
-        // 4. 캐시에 저장
+        // 4. 캐시에 저장(MongoDB 안거치고 Redis에서 바로 꺼냄)
         if (!filtered.isEmpty()) {
             redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(filtered), Duration.ofHours(12));
         }
@@ -90,6 +90,7 @@ public class HouseService {
         return filtered;
     }
 
+    // Redis 캐시 키 만드는 곳
     private String buildCacheKey(Point point, Distance distance,
                                  List<String> tradeTypeCodes,
                                  Integer rentPrcMin, Integer rentPrcMax,
