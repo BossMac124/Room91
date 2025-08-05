@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import LogoutButton from "./Sign/LogoutButton.jsx";
-import {parseJwt} from "./utils/jwt.js";
+import {useAuth} from "./context/AuthContext.jsx";
 
-const Header = ({ userRole, setUserRole }) => {
+const Header = () => {
     const [roomOpen, setRoomOpen] = useState(false);
     const [noticeOpen, setNoticeOpen] = useState(false);
-    const [nickname, setNickname] = useState(null);
-
-    const token = localStorage.getItem("jwt");
-    const isLoggedIn = !!token;
-
-    useEffect(() => {
-        const parsed = token && parseJwt(token);
-        if (parsed?.nickname) {
-            setNickname(parsed.nickname);
-        }
-    }, [token]);
+    const { isLoggedIn, nickname } = useAuth();
 
     const styles = {
         header: {
@@ -54,7 +44,7 @@ const Header = ({ userRole, setUserRole }) => {
         },
         link: {
             textDecoration: 'none',
-            color: '#fff',
+            color: '#333',
             fontWeight: 'bold',
             fontSize: '1rem',
             transition: 'color 0.3s',
@@ -132,15 +122,24 @@ const Header = ({ userRole, setUserRole }) => {
                                 </div>
                             )}
                         </li>
-                        {isLoggedIn && (
+                        {isLoggedIn ? (
                             <>
                                 <li style={styles.navItem}>
                                     <span style={styles.link}>👤 {nickname}</span>
                                 </li>
                                 <li style={styles.navItem}>
-                                    <LogoutButton setUserRole={setUserRole} />
+                                    <LogoutButton />
                                 </li>
                             </>
+                        ) : (
+                            <li style={styles.navItem}>
+                                <button
+                                    style={styles.link}
+                                    onClick={() => navigate("/")}
+                                >
+                                    로그인
+                                </button>
+                            </li>
                         )}
                     </ul>
                 </nav>

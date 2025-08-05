@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {parseJwt} from "../utils/jwt.js";
+import {useAuth} from "../context/AuthContext.jsx";
 
-function Login( { setUserRole} ) {
+function Login() {
     const navigate = useNavigate();
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const { setIsLoggedIn, setUserRole } = useAuth();
 
     const [formData, setFormData] = useState({
         username: "",
@@ -34,6 +36,7 @@ function Login( { setUserRole} ) {
 
             // 토큰 저장
             localStorage.setItem("jwt", token);
+            setIsLoggedIn(true); // 로그인 상태 유지
             const parsed = parseJwt(token);
             setUserRole(parsed?.role); // ✅ App 상태 갱신
 

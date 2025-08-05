@@ -16,36 +16,27 @@ import News from "./component/News/News.jsx";
 import NewsList from "./component/News/NewsList.jsx";
 import Register from "./component/Sign/Register.jsx";
 import Login from "./component/Sign/Login.jsx";
+import {AuthProvider} from "./component/context/AuthContext.jsx";
 
 function App() {
-    const [userRole, setUserRole] = useState(null);
-
-    useEffect(() => {
-        const token = localStorage.getItem("jwt");
-        if (token) {
-            const parsed = parseJwt(token);
-            setUserRole(parsed?.role || null);
-        } else {
-            setUserRole(null);
-        }
-    }, []);
-
     return (
-        <BrowserRouter>
-            <Header userRole={userRole} setUserRole={setUserRole} />
-            <Routes>
-                <Route path="/" element={<Login setUserRole={setUserRole} />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/notice" element={<NoticePage userRole={userRole} />} />
-                <Route path="/notice/create" element={<NoticeCreate />} />
-                <Route path="/faq/create" element={<FaqCreate />} />
-                <Route path="/faq" element={<FaqPage userRole={userRole} />} />
-                <Route path="/Redevelopment" element={<Redevelopment />} />
-                <Route path="/one" element={<MapPage />} />
-                <Route path="/news" element={<NewsList />} />
-                <Route path="/news/:newsId" element={<News />} />
-            </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+            <BrowserRouter>
+                <Header />
+                <Routes>
+                    <Route path="/" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/notice" element={<NoticePage />} />
+                    <Route path="/notice/create" element={<NoticeCreate />} />
+                    <Route path="/faq" element={<FaqPage />} />
+                    <Route path="/Redevelopment" element={<Redevelopment />} />
+                    <Route path="/one" element={<MapPage />} />
+                    <Route path="/news" element={<NewsList />} />
+                    <Route path="/faq/create" element={<FaqCreate />} />
+                    <Route path="/news/:newsId" element={<News />} />
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
     )
 }
 
