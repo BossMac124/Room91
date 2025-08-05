@@ -32,16 +32,32 @@ const HouseDetailPanel = ({ house, onClose }) => {
 
     return (
         <div className="w-[400px] h-full overflow-y-auto bg-white border-r border-gray-200 shadow-md p-5">
+            {/* 상단 타이틀 + 닫기 버튼 */}
             <div className="flex justify-between items-center border-b pb-3 mb-4">
-                <h3 className="text-xl font-bold text-orange-500">매물 상세 정보</h3>
-                <button onClick={onClose} className="text-xl text-gray-400 hover:text-orange-500">×</button>
+                <h3 className="text-xl font-bold text-orange-500">
+                    매물 상세 정보
+                </h3>
+                <button
+                    onClick={onClose}
+                    className="text-2xl font-bold text-gray-500 hover:text-orange-500 focus:outline-none"
+                    aria-label="닫기"
+                >
+                    ×
+                </button>
             </div>
+
+
+
+
+            {/* 상세 정보 필드 출력 */}
             <div className="space-y-3">
-                {fields.map((f, i) => (
-                    <div key={i} className="border-b pb-2">
-                        <span className="font-medium text-gray-800">{f.label}:</span>{" "}
+                {fields.map(({ label, value }, index) => (
+                    <div key={index} className="border-b pb-2">
+                        <span className="font-medium text-gray-800">{label}:</span>{" "}
                         <span className="text-gray-600">
-                            {f.value !== null && f.value !== undefined ? f.value : "-"}
+                            {value !== null && value !== undefined && value !== ""
+                                ? value
+                                : "-"}
                         </span>
                     </div>
                 ))}

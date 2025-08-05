@@ -4,23 +4,12 @@ import { AnimatePresence, motion } from "framer-motion";
 
 // 메인 지도 페이지 컴포넌트
 const MapPage = () => {
-    // 백엔드 API 주소 (환경변수에서 불러옴)
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
-    // 선택된 매물 정보
-    const [selectedHouse, setSelectedHouse] = useState(null);
-
-    // 지도에 표시할 전체 매물 리스트
-    const [houseList, setHouseList] = useState([]);
-
-    // 검색창 입력값
-    const [searchText, setSearchText] = useState("");
-
-    // 카카오맵 객체 참조
-    const mapRef = useRef(null);
-
-    // 클러스터러 객체 참조 (여러 마커를 묶어서 군집 처리)
-    const clustererRef = useRef(null);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;                       // 백엔드 API 주소 (환경변수에서 불러옴)
+    const [selectedHouse, setSelectedHouse] = useState(null);      // 선택된 매물 정보
+    const [houseList, setHouseList] = useState([]);         // 지도에 표시할 전체 매물 리스트
+    const [searchText, setSearchText] = useState("");       // 검색창 입력값
+    const mapRef = useRef(null);                    // 카카오맵 객체 참조
+    const clustererRef = useRef(null);              // 클러스터러 객체 참조 (여러 마커를 묶어서 군집 처리)
 
     // 페이지가 처음 로드될 때 실행되는 로직
     useEffect(() => {
@@ -133,10 +122,15 @@ const MapPage = () => {
 
     // 검색 결과 클릭 시 지도 이동 + 상세 보기
     const handleResultClick = (house) => {
-        setSelectedHouse(house);
-        setMapCenter(house);
+        if (selectedHouse?.id === house.id) {
+            // 이미 선택된 매물 → 다시 클릭 시 닫기
+            setSelectedHouse(null);
+        } else {
+            // 새 매물 선택 → 열기 + 지도 이동
+            setSelectedHouse(house);
+            setMapCenter(house);
+        }
     };
-
     // 지도 중심 좌표를 해당 매물 위치로 이동
     const setMapCenter = (house) => {
         if (window.kakao && window.kakao.maps && house.latitude && house.longitude) {
