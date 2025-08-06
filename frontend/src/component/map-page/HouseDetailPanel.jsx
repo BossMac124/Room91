@@ -46,13 +46,34 @@ const HouseDetailPanel = ({ house, onClose, roomType = "one" }) => {
     return (
         <div className="w-[400px] h-full overflow-y-auto bg-white border-r border-gray-200 shadow-md p-5">
             {/* 상단 타이틀 + 닫기 버튼 */}
-            <div className="flex items-center justify-between border-b pb-3 mb-4">
-                <h3 className="text-xl font-bold text-orange-500">
-                    {title}
+            <div className="flex justify-between border-b pb-3 mb-4">
+                <h3
+                    style={{
+                        display: "inline-block",
+                        marginLeft: "10px",
+                        marginRight: "10px",
+                    }}
+                >
+                    매물 상세 정보
                 </h3>
                 <button
                     onClick={onClose}
-                    className="text-2xl font-bold text-gray-500 hover:text-orange-500 focus:outline-none transition-colors duration-200"
+                    style={{
+                        fontSize: "2rem",
+                        padding: 0,
+                        margin: 0,
+                        marginLeft: "240px",
+                        fontWeight: "bold",
+                        color: "#6B7280",
+                        backgroundColor: "transparent",
+                        border: "none",
+                        outline: "none",
+                        flexShrink: 0,
+                        cursor: "pointer",           // 기본 버튼처럼 마우스 커서
+                        transition: "color 0.2s",    // hover 효과 부드럽게
+                    }}
+                    onMouseEnter={(e) => (e.target.style.color = "#f97316")} // hover:text-orange-500
+                    onMouseLeave={(e) => (e.target.style.color = "#6B7280")}
                     aria-label="닫기"
                 >
                     ×
