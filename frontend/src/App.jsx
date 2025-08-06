@@ -17,6 +17,7 @@ import NewsList from "./component/News/NewsList.jsx";
 import Register from "./component/Sign/Register.jsx";
 import Login from "./component/Sign/Login.jsx";
 import {AuthProvider} from "./component/context/AuthContext.jsx";
+import TwoRoomMapPage from "./component/two-room/TwoRoomMapPage.jsx";
 
 function App() {
     return (
@@ -31,6 +32,7 @@ function App() {
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/Redevelopment" element={<Redevelopment />} />
                     <Route path="/one" element={<MapPage />} />
+                    <Route path="/two" element={<TwoRoomMapPage />} />
                     <Route path="/news" element={<NewsList />} />
                     <Route path="/faq/create" element={<FaqCreate />} />
                     <Route path="/news/:newsId" element={<News />} />
