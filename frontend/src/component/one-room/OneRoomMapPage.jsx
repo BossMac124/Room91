@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import HouseDetailPanel from "./HouseDetailPanel.jsx";
+import OneRoomDetailPanel from "./OneRoomDetailPanel.jsx";
 import { AnimatePresence, motion } from "framer-motion";
 
 // 메인 지도 페이지 컴포넌트
-const MapPage = () => {
+const OneRoomMapPage = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;                       // 백엔드 API 주소 (환경변수에서 불러옴)
     const [selectedHouse, setSelectedHouse] = useState(null);      // 선택된 매물 정보
     const [houseList, setHouseList] = useState([]);         // 지도에 표시할 전체 매물 리스트
@@ -228,7 +228,7 @@ const MapPage = () => {
                                     boxShadow: "0 0 10px rgba(0,0,0,0.1)",
                                 }}
                             >
-                                <HouseDetailPanel house={selectedHouse} onClose={() => setSelectedHouse(null)} />
+                                <OneRoomDetailPanel house={selectedHouse} onClose={() => setSelectedHouse(null)} />
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -238,4 +238,4 @@ const MapPage = () => {
     );
 };
 
-export default MapPage;
+export default OneRoomMapPage;

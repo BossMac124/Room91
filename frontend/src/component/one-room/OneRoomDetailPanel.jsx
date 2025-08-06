@@ -1,6 +1,6 @@
 import React from "react";
 
-const HouseDetailPanel = ({ house, onClose }) => {
+const OneRoomDetailPanel = ({ house, onClose }) => {
     if (!house) return null;
 
     const fields = [
@@ -84,4 +84,4 @@ const HouseDetailPanel = ({ house, onClose }) => {
     );
 };
 
-export default HouseDetailPanel;
+export default OneRoomDetailPanel;

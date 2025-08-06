@@ -11,7 +11,7 @@ import Redevelopment from "./component/Redevelopment/Redevelopment.jsx";
 import NoticePage from "./component/Notice/NoticePage.jsx";
 import FaqCreate from './component/Faq/FaqCreate.jsx';
 import FaqPage from "./component/Faq/FaqPage.jsx";
-import MapPage from "./component/Oneroom/MapPage.jsx";
+import OneRoomMapPage from "./component/one-room/OneRoomMapPage.jsx";
 import News from "./component/News/News.jsx";
 import NewsList from "./component/News/NewsList.jsx";
 import Register from "./component/Sign/Register.jsx";
@@ -31,7 +31,7 @@ function App() {
                     <Route path="/notice/create" element={<NoticeCreate />} />
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/Redevelopment" element={<Redevelopment />} />
-                    <Route path="/one" element={<MapPage />} />
+                    <Route path="/one" element={<OneRoomMapPage />} />
                     <Route path="/two" element={<TwoRoomMapPage />} />
                     <Route path="/news" element={<NewsList />} />
                     <Route path="/faq/create" element={<FaqCreate />} />
