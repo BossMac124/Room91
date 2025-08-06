@@ -25,6 +25,11 @@ const HouseMapPage = ({ roomType = "one" }) => {
     const currentConfig = config[roomType];
 
     useEffect(() => {
+        // roomType이 변경될 때 상태 초기화
+        setSelectedHouse(null);
+        setHouseList([]);
+        setSearchText("");
+
         const loadKakaoMapScript = () => {
             const script = document.createElement("script");
             script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JS_API_KEY}&autoload=false&libraries=services,clusterer`;
@@ -80,15 +85,18 @@ const HouseMapPage = ({ roomType = "one" }) => {
                 return;
             }
 
-            if (!clustererRef.current) {
-                clustererRef.current = new window.kakao.maps.MarkerClusterer({
-                    map,
-                    averageCenter: true,
-                    minLevel: 5,
-                });
-            } else {
+            // 기존 클러스터러가 있으면 완전히 제거
+            if (clustererRef.current) {
                 clustererRef.current.clear();
+                clustererRef.current = null;
             }
+
+            // 새로운 클러스터러 생성
+            clustererRef.current = new window.kakao.maps.MarkerClusterer({
+                map,
+                averageCenter: true,
+                minLevel: 5,
+            });
 
             const markers = houses
                 .filter((h) => h.latitude && h.longitude)
@@ -113,7 +121,7 @@ const HouseMapPage = ({ roomType = "one" }) => {
         } else {
             initMap();
         }
-    }, [baseUrl, currentConfig.apiEndpoint]);
+    }, [baseUrl, roomType]); // roomType을 의존성 배열에 추가
 
     const filteredHouses = houseList.filter((house) => {
         const target = `${house.region} ${house.buildingName} ${house.articleName}`.toLowerCase();
