@@ -1,9 +1,5 @@
-// App.jsx
-
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import './css/App.css'
-import { useEffect, useState } from "react";
-import { parseJwt } from "./component/utils/jwt.js";
 
 import NoticeCreate from "./component/Notice/NoticeCreate.jsx";
 import Header from "./component/Header.jsx";

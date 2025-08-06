@@ -7,25 +7,34 @@ const HouseMapPage = ({ roomType = "one" }) => {
     const [selectedHouse, setSelectedHouse] = useState(null);
     const [houseList, setHouseList] = useState([]);
     const [searchText, setSearchText] = useState("");
+    const [filters, setFilters] = useState({
+        jeonse: true,
+        monthly: true,
+        short: true,
+        minRent: '',
+        maxRent: '',
+        minDeposit: '',
+        maxDeposit: ''
+    });
+    const [start, setStart] = useState("");
+    const [end, setEnd] = useState("");
+
     const mapRef = useRef(null);
     const clustererRef = useRef(null);
 
-    // roomType에 따른 설정
     const config = {
         one: {
             apiEndpoint: "/api/house",
             title: "원룸"
         },
         two: {
-            apiEndpoint: "/api/house/two", 
+            apiEndpoint: "/api/house/two",
             title: "투룸"
         }
     };
-
     const currentConfig = config[roomType];
 
     useEffect(() => {
-        // roomType이 변경될 때 상태 초기화
         setSelectedHouse(null);
         setHouseList([]);
         setSearchText("");
@@ -36,7 +45,6 @@ const HouseMapPage = ({ roomType = "one" }) => {
             script.async = true;
             script.onload = () => {
                 window.kakao.maps.load(() => {
-                    console.log(`✅ Kakao Maps SDK 완전 로드됨 (${currentConfig.title})`);
                     initMap();
                 });
             };
@@ -51,7 +59,6 @@ const HouseMapPage = ({ roomType = "one" }) => {
             };
             const map = new window.kakao.maps.Map(mapContainer, mapOption);
             mapRef.current = map;
-
             fetchHouseData(map.getCenter());
 
             window.kakao.maps.event.addListener(map, "dragend", () => {
@@ -62,79 +69,65 @@ const HouseMapPage = ({ roomType = "one" }) => {
         const fetchHouseData = (center) => {
             const lat = center.getLat();
             const lng = center.getLng();
-            console.log(`[요청] ${currentConfig.title} 매물 데이터 → lat: ${lat}, lng: ${lng}`);
-
             fetch(`${baseUrl}${currentConfig.apiEndpoint}?lat=${lat}&lng=${lng}`, {
                 method: "GET",
                 credentials: "include",
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log(`[결과] 받은 ${currentConfig.title} 매물 수: ${data.length}`);
+                .then(res => res.json())
+                .then(data => {
                     setHouseList(data);
                     setupMarkers(data, mapRef.current);
                 })
-                .catch((err) => {
-                    console.error(`❌ ${currentConfig.title} 매물 불러오기 실패`, err);
-                });
+                .catch(err => console.error(err));
         };
 
         const setupMarkers = (houses, map) => {
-            if (!window.kakao?.maps?.MarkerClusterer) {
-                console.warn("⚠️ MarkerClusterer가 준비되지 않았습니다.");
-                return;
-            }
-
-            // 기존 클러스터러가 있으면 완전히 제거
+            if (!window.kakao?.maps?.MarkerClusterer) return;
             if (clustererRef.current) {
                 clustererRef.current.clear();
                 clustererRef.current = null;
             }
-
-            // 새로운 클러스터러 생성
             clustererRef.current = new window.kakao.maps.MarkerClusterer({
                 map,
                 averageCenter: true,
                 minLevel: 5,
             });
-
-            const markers = houses
-                .filter((h) => h.latitude && h.longitude)
-                .map((house) => {
-                    const marker = new window.kakao.maps.Marker({
-                        position: new window.kakao.maps.LatLng(house.latitude, house.longitude),
-                        title: house.name,
-                    });
-
-                    window.kakao.maps.event.addListener(marker, "click", () => {
-                        setSelectedHouse(house);
-                    });
-
-                    return marker;
+            const markers = houses.filter(h => h.latitude && h.longitude).map(house => {
+                const marker = new window.kakao.maps.Marker({
+                    position: new window.kakao.maps.LatLng(house.latitude, house.longitude),
+                    title: house.name,
                 });
-
+                window.kakao.maps.event.addListener(marker, "click", () => setSelectedHouse(house));
+                return marker;
+            });
             clustererRef.current.addMarkers(markers);
         };
 
-        if (!window.kakao?.maps) {
-            loadKakaoMapScript();
-        } else {
-            initMap();
-        }
-    }, [baseUrl, roomType]); // roomType을 의존성 배열에 추가
+        if (!window.kakao?.maps) loadKakaoMapScript();
+        else initMap();
+    }, [baseUrl, roomType]);
 
-    const filteredHouses = houseList.filter((house) => {
-        const target = `${house.region} ${house.buildingName} ${house.articleName}`.toLowerCase();
-        return target.includes(searchText.toLowerCase());
-    });
+    const toggleFilter = (type) => setFilters(prev => ({ ...prev, [type]: !prev[type] }));
+
+    const applyFilter = () => {
+        const filtered = houseList.filter(h => {
+            const isType = (
+                (filters.jeonse && h.rentType === '전세') ||
+                (filters.monthly && h.rentType === '월세') ||
+                (filters.short && h.rentType === '단기임대')
+            );
+            const rent = parseInt(h.rentPrc || 0);
+            const deposit = parseInt(h.dealOrWarrantPrc || 0);
+            const inRent = (!filters.minRent || rent >= filters.minRent) && (!filters.maxRent || rent <= filters.maxRent);
+            const inDeposit = (!filters.minDeposit || deposit >= filters.minDeposit) && (!filters.maxDeposit || deposit <= filters.maxDeposit);
+            return isType && inRent && inDeposit;
+        });
+        setHouseList(filtered);
+    };
 
     const handleResultClick = (house) => {
-        if (selectedHouse?.id === house.id) {
-            setSelectedHouse(null);
-        } else {
-            setSelectedHouse(house);
-            setMapCenter(house);
-        }
+        setSelectedHouse(selectedHouse?.id === house.id ? null : house);
+        setMapCenter(house);
     };
 
     const setMapCenter = (house) => {
@@ -144,108 +137,107 @@ const HouseMapPage = ({ roomType = "one" }) => {
         }
     };
 
+    const handleRouteSearch = async () => {
+        if (!start || !end) return alert("출발지와 도착지를 입력하세요");
+        const geocoder = new window.kakao.maps.services.Geocoder();
+
+        const geocode = (addr) => new Promise((resolve, reject) => {
+            geocoder.addressSearch(addr, (res, status) => {
+                if (status === window.kakao.maps.services.Status.OK) {
+                    resolve(new window.kakao.maps.LatLng(res[0].y, res[0].x));
+                } else reject("주소를 찾을 수 없습니다.");
+            });
+        });
+
+        try {
+            const [startLatLng, endLatLng] = await Promise.all([geocode(start), geocode(end)]);
+            const polyline = new window.kakao.maps.Polyline({
+                path: [startLatLng, endLatLng],
+                strokeWeight: 4,
+                strokeColor: '#FF6B3D',
+                strokeOpacity: 0.8,
+                strokeStyle: 'solid',
+            });
+            polyline.setMap(mapRef.current);
+            mapRef.current.setBounds(new window.kakao.maps.LatLngBounds(startLatLng, endLatLng));
+        } catch (err) {
+            alert(err);
+        }
+    };
+
+    const filteredHouses = houseList.filter(h => {
+        const target = `${h.region} ${h.buildingName} ${h.articleName}`.toLowerCase();
+        return target.includes(searchText.toLowerCase());
+    });
+
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <div style={{ display: "flex", flex: 1 }}>
-                {/* 왼쪽: 검색창 + 매물 리스트 */}
-                <div style={{
-                    width: 320,
-                    borderRight: "1px solid #eee",
-                    padding: 15,
-                    background: "#fff",
-                    zIndex: 20,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "90vh",
-                }}>
-                    <div style={{ fontWeight: "bold", fontSize: 20, marginBottom: 10 }}>
-                        {currentConfig.title} 매물 지도
-                    </div>
-                    <input
-                        type="text"
-                        placeholder="지역, 건물명 등 검색"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        className="w-full border px-2 py-1 mb-2"
-                    />
-                    <button
-                        style={{
-                            width: "100%",
-                            marginBottom: 12,
-                            background: "#FF6B3D",
-                            color: "white",
-                            padding: "10px",
-                            border: "none",
-                            borderRadius: 4,
-                        }}
-                    >
-                        검색
-                    </button>
+        <div style={{ display: "flex", flexDirection: "row", height: "100vh" }}>
+            <div style={{ width: 320, borderRight: "1px solid #eee", padding: 15, background: "#fff", zIndex: 20, display: "flex", flexDirection: "column", height: "100vh" }}>
+                <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "12px" }}>{currentConfig.title} 매물 지도</div>
 
-                    {/* 매물 리스트 스크롤 영역 */}
-                    <div style={{
-                        height: "80vh",
-                        overflowY: "auto",
-                        paddingRight: 5,
-                        boxSizing: "border-box",
-                    }}>
-                        <ul className="space-y-2">
-                            {filteredHouses.map((house, idx) => (
-                                <li
-                                    key={idx}
-                                    onClick={() => handleResultClick(house)}
-                                    className={`border p-3 rounded shadow cursor-pointer ${
-                                        selectedHouse?.articleName === house.articleName
-                                            ? 'border-orange-400 bg-orange-50'
-                                            : 'hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <div className="text-base font-bold text-orange-500">
-                                        {house.articleName || '-'}
-                                    </div>
-                                    <div className="text-sm text-gray-700">월세: {house.rentPrc || '-'}</div>
-                                    <div className="text-sm text-gray-700">보증금: {house.dealOrWarrantPrc || '-'}</div>
-                                </li>
-                            ))}
-                        </ul>
+                <input value={start} onChange={(e) => setStart(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", padding: "6px", marginBottom: "6px" }} placeholder="출발지" />
+                <input value={end} onChange={(e) => setEnd(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", padding: "6px", marginBottom: "10px" }} placeholder="도착지" />
+                <button onClick={handleRouteSearch} style={{ width: "100%", marginBottom: "16px", background: "#FF6B3D", color: "white", padding: "10px", border: "none", borderRadius: "4px", fontWeight: 600 }}>길찾기</button>
+
+                <div style={{ padding: "12px", background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.1)", borderRadius: "8px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "20px", fontWeight: 700, marginBottom: "10px" }}>거래 유형</div>
+                    <div style={{ marginBottom: "10px" }}>
+                        <label><input type="checkbox" checked={filters.jeonse} onChange={() => toggleFilter('jeonse')} /> 전세</label>
+                        <label style={{ marginLeft: "8px" }}><input type="checkbox" checked={filters.monthly} onChange={() => toggleFilter('monthly')} /> 월세</label>
+                        <label style={{ marginLeft: "8px" }}><input type="checkbox" checked={filters.short} onChange={() => toggleFilter('short')} /> 단기임대</label>
                     </div>
+
+                    <div style={{ marginBottom: "10px" }}>
+                        <div style={{ marginBottom: "4px" }}>월세 범위 (만원)</div>
+                        <input type="number" placeholder="최소" value={filters.minRent} onChange={e => setFilters({ ...filters, minRent: e.target.value })} style={{ width: "100%", marginBottom: "6px" }} />
+                        <input type="number" placeholder="최대" value={filters.maxRent} onChange={e => setFilters({ ...filters, maxRent: e.target.value })} style={{ width: "100%" }} />
+                    </div>
+
+                    <div style={{ marginBottom: "10px" }}>
+                        <div style={{ marginBottom: "4px" }}>보증금 범위 (만원)</div>
+                        <input type="number" placeholder="최소" value={filters.minDeposit} onChange={e => setFilters({ ...filters, minDeposit: e.target.value })} style={{ width: "100%", marginBottom: "6px" }} />
+                        <input type="number" placeholder="최대" value={filters.maxDeposit} onChange={e => setFilters({ ...filters, maxDeposit: e.target.value })} style={{ width: "100%" }} />
+                    </div>
+
+                    <input type="text" placeholder="주소 및 키워드를 입력하세요" value={searchText} onChange={(e) => setSearchText(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", padding: "6px", marginTop: "10px", marginBottom: "10px" }} />
+                    <button onClick={applyFilter} style={{ width: "100%", background: "#FF6B3D", color: "white", padding: "10px", border: "none", borderRadius: "4px", fontWeight: 600 }}>검색</button>
                 </div>
 
-                {/* 오른쪽: 지도 영역 */}
-                <div style={{ flex: 1, position: "relative" }}>
-                    <div id="map" style={{ width: "100%", height: "90vh" }}></div>
-
-                    {/* 상세 패널 애니메이션 */}
-                    <AnimatePresence>
-                        {selectedHouse && (
-                            <motion.div
-                                initial={{ x: -100, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: -100, opacity: 0 }}
-                                transition={{ duration: 0.3 }}
-                                style={{
-                                    position: "absolute",
-                                    top: 0,
-                                    left: 0,
-                                    height: "100%",
-                                    width: 400,
-                                    backgroundColor: "#fff",
-                                    zIndex: 10,
-                                    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                                }}
+                <div style={{ flex: 1, overflowY: "auto" }}>
+                    <ul style={{ listStyle: "none", padding: 0 }}>
+                        {filteredHouses.map((house, idx) => (
+                            <li
+                                key={idx}
+                                onClick={() => handleResultClick(house)}
+                                style={{ border: "1px solid #ccc", padding: "12px", marginBottom: "8px", borderRadius: "6px", background: selectedHouse?.id === house.id ? "#FFF7ED" : "#fff", cursor: "pointer", fontWeight: 500 }}
                             >
-                                <HouseDetailPanel 
-                                    house={selectedHouse} 
-                                    onClose={() => setSelectedHouse(null)}
-                                    roomType={roomType}
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                <div style={{ color: "#FF6B3D", fontWeight: 600 }}>{house.articleName || '-'}</div>
+                                <div style={{ fontSize: "14px", color: "#444" }}>월세: {house.rentPrc || '-'}</div>
+                                <div style={{ fontSize: "14px", color: "#444" }}>보증금: {house.dealOrWarrantPrc || '-'}</div>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
+            </div>
+
+            <div style={{ flex: 1, position: "relative" }}>
+                <div id="map" style={{ width: "100%", height: "100vh" }}></div>
+                <AnimatePresence>
+                    {selectedHouse && (
+                        <motion.div
+                            initial={{ x: -100, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -100, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            style={{ position: "absolute", top: 0, left: 0, height: "100%", width: 400, backgroundColor: "#fff", zIndex: 10, boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}
+                        >
+                            <HouseDetailPanel house={selectedHouse} onClose={() => setSelectedHouse(null)} roomType={roomType} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
 };
 
-export default HouseMapPage; 
+export default HouseMapPage;

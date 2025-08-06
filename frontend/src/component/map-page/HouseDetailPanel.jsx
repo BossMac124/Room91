@@ -3,7 +3,6 @@ import React from "react";
 const HouseDetailPanel = ({ house, onClose, roomType = "one" }) => {
     if (!house) return null;
 
-    // 원룸과 투룸의 공통 필드
     const commonFields = [
         { label: '지역', value: house.region },
         { label: '방 타입', value: house.articleName },
@@ -29,50 +28,52 @@ const HouseDetailPanel = ({ house, onClose, roomType = "one" }) => {
         { label: 'PC URL', value: house.cpPcArticleUrl },
     ];
 
-    // 원룸 전용 필드
     const oneRoomFields = [
         { label: '동일 주소 최고가', value: house.sameAddrMaxPrc },
         { label: '모바일 URL', value: house.cpMobileArticleUrl }
     ];
 
-    // roomType에 따라 필드 결정
-    const fields = roomType === "one" 
+    const fields = roomType === "one"
         ? [...commonFields, ...oneRoomFields]
         : commonFields;
 
-    // 타이틀 결정
     const title = roomType === "one" ? "원룸 상세 정보" : "투룸 상세 정보";
 
     return (
-        <div className="w-[400px] h-full overflow-y-auto bg-white border-r border-gray-200 shadow-md p-5">
-            {/* 상단 타이틀 + 닫기 버튼 */}
-            <div className="flex justify-between border-b pb-3 mb-4">
-                <h3
-                    style={{
-                        display: "inline-block",
-                        marginLeft: "10px",
-                        marginRight: "10px",
-                    }}
-                >
-                    매물 상세 정보
-                </h3>
+        <div style={{
+            width: "400px",
+            height: "100%",
+            overflowY: "auto",
+            backgroundColor: "white",
+            borderRight: "1px solid #e5e7eb",
+            boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+            padding: "20px"
+        }}>
+            <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                paddingBottom: "12px",
+                marginBottom: "16px",
+                borderBottom: "1px solid #ddd"
+            }}>
+                <h3 style={{
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                    color: "#111827",
+                    margin: 0
+                }}>{title}</h3>
                 <button
                     onClick={onClose}
                     style={{
                         fontSize: "2rem",
-                        padding: 0,
-                        margin: 0,
-                        marginLeft: "240px",
                         fontWeight: "bold",
                         color: "#6B7280",
                         backgroundColor: "transparent",
                         border: "none",
-                        outline: "none",
-                        flexShrink: 0,
-                        cursor: "pointer",           // 기본 버튼처럼 마우스 커서
-                        transition: "color 0.2s",    // hover 효과 부드럽게
+                        cursor: "pointer",
+                        transition: "color 0.2s",
                     }}
-                    onMouseEnter={(e) => (e.target.style.color = "#f97316")} // hover:text-orange-500
+                    onMouseEnter={(e) => (e.target.style.color = "#f97316")}
                     onMouseLeave={(e) => (e.target.style.color = "#6B7280")}
                     aria-label="닫기"
                 >
@@ -80,12 +81,20 @@ const HouseDetailPanel = ({ house, onClose, roomType = "one" }) => {
                 </button>
             </div>
 
-            {/* 상세 정보 필드 출력 */}
-            <div className="space-y-3">
+            <div>
                 {fields.map(({ label, value }, index) => (
-                    <div key={index} className="border-b pb-2">
-                        <span className="font-medium text-gray-800">{label}:</span>{" "}
-                        <span className="text-gray-600">
+                    <div key={index} style={{
+                        borderBottom: "1px solid #ddd",
+                        paddingBottom: "8px",
+                        marginBottom: "12px"
+                    }}>
+                        <span style={{
+                            fontWeight: 500,
+                            color: "#1f2937"
+                        }}>{label}:</span>{" "}
+                        <span style={{
+                            color: "#4b5563"
+                        }}>
                             {value !== null && value !== undefined && value !== ""
                                 ? value
                                 : "-"}
@@ -97,4 +106,4 @@ const HouseDetailPanel = ({ house, onClose, roomType = "one" }) => {
     );
 };
 
-export default HouseDetailPanel; 
+export default HouseDetailPanel;
