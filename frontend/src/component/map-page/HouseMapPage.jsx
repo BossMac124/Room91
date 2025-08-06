@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HouseDetailPanel from "./HouseDetailPanel.jsx";
 import MapSidebar from "./MapSidebar.jsx";
+import MapFilterBar from "./MapFilterBar.jsx";
+import MapTradeTypeFilter from "./MapTradeTypeFilter.jsx";
 
 const HouseMapPage = ({ roomType = "one" }) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -191,6 +193,7 @@ const HouseMapPage = ({ roomType = "one" }) => {
                 handleResultClick={handleResultClick}
             />
             <div style={{ flex: 1, position: "relative" }}>
+                <MapFilterBar filters={filters} toggleFilter={toggleFilter} setFilters={setFilters} applyFilter={applyFilter} />
                 <div id="map" style={{ width: "100%", height: "100vh" }}></div>
                 <AnimatePresence>
                     {selectedHouse && (
