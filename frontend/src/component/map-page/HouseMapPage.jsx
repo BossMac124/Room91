@@ -1,80 +1,85 @@
 import React, { useEffect, useRef, useState } from "react";
-import OneRoomDetailPanel from "./OneRoomDetailPanel.jsx";
 import { AnimatePresence, motion } from "framer-motion";
+import HouseDetailPanel from "./HouseDetailPanel.jsx";
 
-// 메인 지도 페이지 컴포넌트
-const OneRoomMapPage = () => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;                       // 백엔드 API 주소 (환경변수에서 불러옴)
-    const [selectedHouse, setSelectedHouse] = useState(null);      // 선택된 매물 정보
-    const [houseList, setHouseList] = useState([]);         // 지도에 표시할 전체 매물 리스트
-    const [searchText, setSearchText] = useState("");       // 검색창 입력값
-    const mapRef = useRef(null);                    // 카카오맵 객체 참조
-    const clustererRef = useRef(null);              // 클러스터러 객체 참조 (여러 마커를 묶어서 군집 처리)
+const HouseMapPage = ({ roomType = "one" }) => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const [selectedHouse, setSelectedHouse] = useState(null);
+    const [houseList, setHouseList] = useState([]);
+    const [searchText, setSearchText] = useState("");
+    const mapRef = useRef(null);
+    const clustererRef = useRef(null);
 
-    // 페이지가 처음 로드될 때 실행되는 로직
+    // roomType에 따른 설정
+    const config = {
+        one: {
+            apiEndpoint: "/api/house",
+            title: "원룸"
+        },
+        two: {
+            apiEndpoint: "/api/house/two", 
+            title: "투룸"
+        }
+    };
+
+    const currentConfig = config[roomType];
+
     useEffect(() => {
-        // 카카오맵 SDK 로드 함수
         const loadKakaoMapScript = () => {
             const script = document.createElement("script");
             script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JS_API_KEY}&autoload=false&libraries=services,clusterer`;
             script.async = true;
             script.onload = () => {
                 window.kakao.maps.load(() => {
-                    console.log("✅ Kakao Maps SDK 완전 로드됨");
-                    initMap(); // 지도 초기화
+                    console.log(`✅ Kakao Maps SDK 완전 로드됨 (${currentConfig.title})`);
+                    initMap();
                 });
             };
             document.head.appendChild(script);
         };
 
-        // 지도 초기화 및 이벤트 등록
         const initMap = () => {
             const mapContainer = document.getElementById("map");
             const mapOption = {
-                center: new window.kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심 좌표
-                level: 5, // 확대 수준
+                center: new window.kakao.maps.LatLng(37.5665, 126.9780),
+                level: 5,
             };
             const map = new window.kakao.maps.Map(mapContainer, mapOption);
             mapRef.current = map;
 
-            // 처음 로드된 중심 좌표로 매물 데이터 요청
             fetchHouseData(map.getCenter());
 
-            // 사용자가 지도를 움직였을 때 → 중심 좌표로 다시 요청
             window.kakao.maps.event.addListener(map, "dragend", () => {
                 fetchHouseData(map.getCenter());
             });
         };
 
-        // 중심 좌표 기반 매물 데이터 요청
         const fetchHouseData = (center) => {
             const lat = center.getLat();
             const lng = center.getLng();
-            console.log(`[요청] 매물 데이터 → lat: ${lat}, lng: ${lng}`);
+            console.log(`[요청] ${currentConfig.title} 매물 데이터 → lat: ${lat}, lng: ${lng}`);
 
-            fetch(`${baseUrl}/api/house?lat=${lat}&lng=${lng}`, {
+            fetch(`${baseUrl}${currentConfig.apiEndpoint}?lat=${lat}&lng=${lng}`, {
                 method: "GET",
-                credentials: "include", // 쿠키 포함 여부
+                credentials: "include",
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(`[결과] 받은 매물 수: ${data.length}`);
-                    setHouseList(data); // 매물 리스트 상태 저장
-                    setupMarkers(data, mapRef.current); // 마커 생성
+                    console.log(`[결과] 받은 ${currentConfig.title} 매물 수: ${data.length}`);
+                    setHouseList(data);
+                    setupMarkers(data, mapRef.current);
                 })
                 .catch((err) => {
-                    console.error("❌ 매물 불러오기 실패", err);
+                    console.error(`❌ ${currentConfig.title} 매물 불러오기 실패`, err);
                 });
         };
 
-        // 마커 및 클러스터러 설정
         const setupMarkers = (houses, map) => {
-            if (!window.kakao || !window.kakao.maps || !window.kakao.maps.MarkerClusterer) {
+            if (!window.kakao?.maps?.MarkerClusterer) {
                 console.warn("⚠️ MarkerClusterer가 준비되지 않았습니다.");
                 return;
             }
 
-            // 클러스터러가 없으면 새로 만들고, 있으면 초기화
             if (!clustererRef.current) {
                 clustererRef.current = new window.kakao.maps.MarkerClusterer({
                     map,
@@ -85,7 +90,6 @@ const OneRoomMapPage = () => {
                 clustererRef.current.clear();
             }
 
-            // 매물 리스트 → 마커 객체 리스트로 변환
             const markers = houses
                 .filter((h) => h.latitude && h.longitude)
                 .map((house) => {
@@ -94,7 +98,6 @@ const OneRoomMapPage = () => {
                         title: house.name,
                     });
 
-                    // 마커 클릭 시 상세 정보 패널 열기
                     window.kakao.maps.event.addListener(marker, "click", () => {
                         setSelectedHouse(house);
                     });
@@ -102,36 +105,30 @@ const OneRoomMapPage = () => {
                     return marker;
                 });
 
-            // 마커를 클러스터러에 추가
             clustererRef.current.addMarkers(markers);
         };
 
-        // SDK가 로드되지 않았으면 스크립트 삽입
-        if (!window.kakao || !window.kakao.maps) {
+        if (!window.kakao?.maps) {
             loadKakaoMapScript();
         } else {
             initMap();
         }
-    }, [baseUrl]); // baseUrl 변경 시 다시 실행됨
+    }, [baseUrl, currentConfig.apiEndpoint]);
 
-    // 검색 필터링된 매물 리스트
     const filteredHouses = houseList.filter((house) => {
         const target = `${house.region} ${house.buildingName} ${house.articleName}`.toLowerCase();
         return target.includes(searchText.toLowerCase());
     });
 
-    // 검색 결과 클릭 시 지도 이동 + 상세 보기
     const handleResultClick = (house) => {
         if (selectedHouse?.id === house.id) {
-            // 이미 선택된 매물 → 다시 클릭 시 닫기
             setSelectedHouse(null);
         } else {
-            // 새 매물 선택 → 열기 + 지도 이동
             setSelectedHouse(house);
             setMapCenter(house);
         }
     };
-    // 지도 중심 좌표를 해당 매물 위치로 이동
+
     const setMapCenter = (house) => {
         if (window.kakao && window.kakao.maps && house.latitude && house.longitude) {
             const latlng = new window.kakao.maps.LatLng(house.latitude, house.longitude);
@@ -139,7 +136,6 @@ const OneRoomMapPage = () => {
         }
     };
 
-    // 화면 구성
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <div style={{ display: "flex", flex: 1 }}>
@@ -154,7 +150,9 @@ const OneRoomMapPage = () => {
                     flexDirection: "column",
                     height: "90vh",
                 }}>
-                    <div style={{ fontWeight: "bold", fontSize: 20, marginBottom: 10 }}>부동산 매물 지도</div>
+                    <div style={{ fontWeight: "bold", fontSize: 20, marginBottom: 10 }}>
+                        {currentConfig.title} 매물 지도
+                    </div>
                     <input
                         type="text"
                         placeholder="지역, 건물명 등 검색"
@@ -228,7 +226,11 @@ const OneRoomMapPage = () => {
                                     boxShadow: "0 0 10px rgba(0,0,0,0.1)",
                                 }}
                             >
-                                <OneRoomDetailPanel house={selectedHouse} onClose={() => setSelectedHouse(null)} />
+                                <HouseDetailPanel 
+                                    house={selectedHouse} 
+                                    onClose={() => setSelectedHouse(null)}
+                                    roomType={roomType}
+                                />
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -238,4 +240,4 @@ const OneRoomMapPage = () => {
     );
 };
 
-export default OneRoomMapPage;
+export default HouseMapPage; 

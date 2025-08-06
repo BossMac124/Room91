@@ -11,13 +11,12 @@ import Redevelopment from "./component/Redevelopment/Redevelopment.jsx";
 import NoticePage from "./component/Notice/NoticePage.jsx";
 import FaqCreate from './component/Faq/FaqCreate.jsx';
 import FaqPage from "./component/Faq/FaqPage.jsx";
-import OneRoomMapPage from "./component/one-room/OneRoomMapPage.jsx";
+import HouseMapPage from "./component/map-page/HouseMapPage.jsx";
 import News from "./component/News/News.jsx";
 import NewsList from "./component/News/NewsList.jsx";
 import Register from "./component/Sign/Register.jsx";
 import Login from "./component/Sign/Login.jsx";
 import {AuthProvider} from "./component/context/AuthContext.jsx";
-import TwoRoomMapPage from "./component/two-room/TwoRoomMapPage.jsx";
 
 function App() {
     return (
@@ -31,8 +30,8 @@ function App() {
                     <Route path="/notice/create" element={<NoticeCreate />} />
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/Redevelopment" element={<Redevelopment />} />
-                    <Route path="/one" element={<OneRoomMapPage />} />
-                    <Route path="/two" element={<TwoRoomMapPage />} />
+                    <Route path="/one" element={<HouseMapPage roomType="one" />} />
+                    <Route path="/two" element={<HouseMapPage roomType="two" />} />
                     <Route path="/news" element={<NewsList />} />
                     <Route path="/faq/create" element={<FaqCreate />} />
                     <Route path="/news/:newsId" element={<News />} />
