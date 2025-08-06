@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import {Link, useNavigate} from 'react-router-dom';
 import LogoutButton from "./Sign/LogoutButton.jsx";
 import {useAuth} from "./context/AuthContext.jsx";
 
 const Header = () => {
     const [roomOpen, setRoomOpen] = useState(false);
     const [noticeOpen, setNoticeOpen] = useState(false);
+    const navigate = useNavigate();
     const { isLoggedIn, nickname } = useAuth();
 
     const styles = {
