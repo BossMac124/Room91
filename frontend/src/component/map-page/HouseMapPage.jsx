@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HouseDetailPanel from "./HouseDetailPanel.jsx";
+import MapSidebar from "./MapSidebar.jsx";
 
 const HouseMapPage = ({ roomType = "one" }) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -172,54 +173,23 @@ const HouseMapPage = ({ roomType = "one" }) => {
 
     return (
         <div style={{ display: "flex", flexDirection: "row", height: "100vh" }}>
-            <div style={{ width: 320, borderRight: "1px solid #eee", padding: 15, background: "#fff", zIndex: 20, display: "flex", flexDirection: "column", height: "100vh" }}>
-                <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "12px" }}>{currentConfig.title} 매물 지도</div>
-
-                <input value={start} onChange={(e) => setStart(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", padding: "6px", marginBottom: "6px" }} placeholder="출발지" />
-                <input value={end} onChange={(e) => setEnd(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", padding: "6px", marginBottom: "10px" }} placeholder="도착지" />
-                <button onClick={handleRouteSearch} style={{ width: "100%", marginBottom: "16px", background: "#FF6B3D", color: "white", padding: "10px", border: "none", borderRadius: "4px", fontWeight: 600 }}>길찾기</button>
-
-                <div style={{ padding: "12px", background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.1)", borderRadius: "8px", marginBottom: "16px" }}>
-                    <div style={{ fontSize: "20px", fontWeight: 700, marginBottom: "10px" }}>거래 유형</div>
-                    <div style={{ marginBottom: "10px" }}>
-                        <label><input type="checkbox" checked={filters.jeonse} onChange={() => toggleFilter('jeonse')} /> 전세</label>
-                        <label style={{ marginLeft: "8px" }}><input type="checkbox" checked={filters.monthly} onChange={() => toggleFilter('monthly')} /> 월세</label>
-                        <label style={{ marginLeft: "8px" }}><input type="checkbox" checked={filters.short} onChange={() => toggleFilter('short')} /> 단기임대</label>
-                    </div>
-
-                    <div style={{ marginBottom: "10px" }}>
-                        <div style={{ marginBottom: "4px" }}>월세 범위 (만원)</div>
-                        <input type="number" placeholder="최소" value={filters.minRent} onChange={e => setFilters({ ...filters, minRent: e.target.value })} style={{ width: "100%", marginBottom: "6px" }} />
-                        <input type="number" placeholder="최대" value={filters.maxRent} onChange={e => setFilters({ ...filters, maxRent: e.target.value })} style={{ width: "100%" }} />
-                    </div>
-
-                    <div style={{ marginBottom: "10px" }}>
-                        <div style={{ marginBottom: "4px" }}>보증금 범위 (만원)</div>
-                        <input type="number" placeholder="최소" value={filters.minDeposit} onChange={e => setFilters({ ...filters, minDeposit: e.target.value })} style={{ width: "100%", marginBottom: "6px" }} />
-                        <input type="number" placeholder="최대" value={filters.maxDeposit} onChange={e => setFilters({ ...filters, maxDeposit: e.target.value })} style={{ width: "100%" }} />
-                    </div>
-
-                    <input type="text" placeholder="주소 및 키워드를 입력하세요" value={searchText} onChange={(e) => setSearchText(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", padding: "6px", marginTop: "10px", marginBottom: "10px" }} />
-                    <button onClick={applyFilter} style={{ width: "100%", background: "#FF6B3D", color: "white", padding: "10px", border: "none", borderRadius: "4px", fontWeight: 600 }}>검색</button>
-                </div>
-
-                <div style={{ flex: 1, overflowY: "auto" }}>
-                    <ul style={{ listStyle: "none", padding: 0 }}>
-                        {filteredHouses.map((house, idx) => (
-                            <li
-                                key={idx}
-                                onClick={() => handleResultClick(house)}
-                                style={{ border: "1px solid #ccc", padding: "12px", marginBottom: "8px", borderRadius: "6px", background: selectedHouse?.id === house.id ? "#FFF7ED" : "#fff", cursor: "pointer", fontWeight: 500 }}
-                            >
-                                <div style={{ color: "#FF6B3D", fontWeight: 600 }}>{house.articleName || '-'}</div>
-                                <div style={{ fontSize: "14px", color: "#444" }}>월세: {house.rentPrc || '-'}</div>
-                                <div style={{ fontSize: "14px", color: "#444" }}>보증금: {house.dealOrWarrantPrc || '-'}</div>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-
+            <MapSidebar
+                currentConfig={currentConfig}
+                start={start}
+                end={end}
+                setStart={setStart}
+                setEnd={setEnd}
+                handleRouteSearch={handleRouteSearch}
+                filters={filters}
+                setFilters={setFilters}
+                searchText={searchText}
+                setSearchText={setSearchText}
+                applyFilter={applyFilter}
+                toggleFilter={toggleFilter}
+                filteredHouses={filteredHouses}
+                selectedHouse={selectedHouse}
+                handleResultClick={handleResultClick}
+            />
             <div style={{ flex: 1, position: "relative" }}>
                 <div id="map" style={{ width: "100%", height: "100vh" }}></div>
                 <AnimatePresence>
