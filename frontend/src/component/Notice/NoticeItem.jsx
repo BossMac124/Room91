@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useState} from "react";
 import NoticeEditor from "./NoticeEditor.jsx";
-import {parseJwt} from "../utils/jwt.js";
+import { useAuth } from "../context/AuthContext";
 
 // 개별 공지 항목을 보여주는 컴포넌트
-function NoticeItem({ notice, getNotice, currentPage, userRole }) {
+function NoticeItem({ notice, getNotice, currentPage }) {
     const [open, setOpen] = useState(false);      // 공지 내용 펼치기 여부 상태
     const [editing, setEditing] = useState(false); // 수정 모드 여부 상태
+    const { userRole } = useAuth();
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     const isAdmin = userRole === "ROLE_ADMIN";

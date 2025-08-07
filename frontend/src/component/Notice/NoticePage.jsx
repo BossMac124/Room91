@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import NoticeSearch from "./NoticeSearch.jsx";
 import NoticeList from "./NoticeList.jsx";
+import {useAuth} from "../context/AuthContext.jsx";
 
-function NoticePage({ userRole }) {
+function NoticePage() {
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageInfo, setPageInfo] = useState({
@@ -13,6 +14,7 @@ function NoticePage({ userRole }) {
     });
 
     const isMounted = useRef(true);
+    const { userRole } = useAuth();
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     const getNotice = async (page = 0) => {

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import "../../css/FaqPage.css";
+import { useAuth } from "../context/AuthContext";
 
-export default function FaqPage( { userRole } ) {
+export default function FaqPage() {
     const [faqs, setFaqs] = useState([]);
     const [openSet, setOpenSet] = useState(new Set());
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const isAdmin = userRole === "ROLE_ADMIN";
+    const { userRole } = useAuth();
     const token = localStorage.getItem("jwt");
+    const isAdmin = userRole === "ROLE_ADMIN";
 
     useEffect(() => {
         fetch(`${baseUrl}/api/faq?page=0&size=10`)
