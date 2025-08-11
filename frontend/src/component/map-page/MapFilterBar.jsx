@@ -6,6 +6,7 @@ import React from "react";
  * - center: {lat, lng} | null  // 지도 준비 여부 판단용
  */
 const MapFilterBar = ({ filters, toggleFilter, setFilters, applyFilter, center }) => {
+    const isJeonseOnly = filters.jeonse && !filters.monthly && !filters.short;
     const handleApply = () => {
         if (!center) return;     // 준비 전엔 조용히 무시
         applyFilter();
@@ -55,6 +56,7 @@ const MapFilterBar = ({ filters, toggleFilter, setFilters, applyFilter, center }
                         value={filters.minRent ?? ""}
                         onChange={(e) => setFilters((f) => ({ ...f, minRent: e.target.value }))}
                         style={{ width: 72 }}
+                        disabled={isJeonseOnly}   // ✅ 전세만 선택 시 비활성화
                     />
                     <span>~</span>
                     <input
@@ -63,6 +65,7 @@ const MapFilterBar = ({ filters, toggleFilter, setFilters, applyFilter, center }
                         value={filters.maxRent ?? ""}
                         onChange={(e) => setFilters((f) => ({ ...f, maxRent: e.target.value }))}
                         style={{ width: 72 }}
+                        disabled={isJeonseOnly}   // ✅ 전세만 선택 시 비활성화
                     />
                 </div>
 

@@ -126,7 +126,15 @@ const HouseMapPage = ({ roomType = "one" }) => {
         clustererRef.current.addMarkers(markers);
     };
 
-    const toggleFilter = (type) => setFilters((prev) => ({ ...prev, [type]: !prev[type] }));
+    const toggleFilter = (key) => setFilters(prev => {
+        const next = { ...prev, [key]: !prev[key] };
+        const isJeonseOnly = next.jeonse && !next.monthly && !next.short;
+        if (isJeonseOnly) {
+            next.minRent = "";
+            next.maxRent = "";
+        }
+        return next;
+    });
 
     // "검색" 버튼 → 서버 재조회
     const applyFilter = () => {
