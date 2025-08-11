@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -28,6 +30,7 @@ public class House {
     //방타입코드(B1 원룸, B2 투룸)
     private String tradeTypeCode;
     //지불 유형
+    @Indexed(name = "idx_tradeTypeName")
     private String tradeTypeName;
     //건물 이름(아파트는 몇동인지, 원룸은 원룸이라고 표시)
     private String buildingName;
@@ -42,7 +45,7 @@ public class House {
     //위도
     private Double longitude;
     //GeoJSON 포맷의 좌표 정보
-    @GeoSpatialIndexed(type = org.springframework.data.mongodb.core.index.GeoSpatialIndexType.GEO_2DSPHERE)
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint location;
     //방향
     private String direction;

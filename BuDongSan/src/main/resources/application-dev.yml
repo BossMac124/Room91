@@ -34,6 +34,10 @@ kakao:
   js-api-key: ${KAKAO_JS_API_KEY}
   rest-api-key: ${KAKAO_REST_API_KEY}
 
+google:
+  api:
+    key: ${GOOGLE_API_KEY}
+
 file:
   upload-dir: ${FILE_UPLOAD_DIR}
 
