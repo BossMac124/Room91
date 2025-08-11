@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
@@ -42,47 +43,78 @@ public class HouseService {
     private final MongoTemplate mongoTemplate;
     private final RedisTemplate<String, String> redisTemplate;
 
-    private static final String GOOGLE_API_KEY = "AIzaSyBf2v6wfnEQfY5LRRrOJX_3nL0D3K2gWn4";
+    @Value("${google.api.key}")
+    private String googleApiKey;
 
     // 원룸 매물 필터 조회, reids 저장및 조회
-    public List<House> findByLocationWithFilters(Point point,
-                                                 Distance distance,
-                                                 List<String> tradeTypeCodes,
-                                                 Integer rentPrcMin,
-                                                 Integer rentPrcMax,
-                                                 Integer dealPrcMin,
-                                                 Integer dealPrcMax) throws JsonProcessingException {
+    public List<House> findByLocationWithFilters(
+            Point point,
+            Distance distance,
+            List<String> tradeTypeCodes, // 프론트에서 전세/월세/단기 문자열이 온다고 가정 (예: "전세","월세","단기임대")
+            Integer rentPrcMin,
+            Integer rentPrcMax,
+            Integer dealPrcMin,
+            Integer dealPrcMax) throws JsonProcessingException {
 
-        // 캐시 키를 조건별로 생성
-        String cacheKey = buildCacheKey(point, distance, tradeTypeCodes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
+        // ✅ 거래유형 컬럼은 tradeTypeName 사용
+        List<String> types = (tradeTypeCodes == null || tradeTypeCodes.isEmpty())
+                ? null : tradeTypeCodes;
 
-        // 1. Redis 캐시 확인
-        String cached = redisTemplate.opsForValue().get(cacheKey);
-        if (cached != null) {
-            System.out.println("[CACHE HIT]");
-            House[] cachedArr = objectMapper.readValue(cached, House[].class);
+        // 기본값
+        int depMin  = dealPrcMin != null ? dealPrcMin : 0;
+        int depMax  = dealPrcMax != null ? dealPrcMax : Integer.MAX_VALUE;
+        int rentMin = rentPrcMin != null ? rentPrcMin : 0;
+        int rentMax = rentPrcMax != null ? rentPrcMax : Integer.MAX_VALUE;
 
-            // 캐시 결과에서도 필터 적용
-            return Arrays.stream(cachedArr)
-                    .filter(h -> isTradeTypeMatched(h, tradeTypeCodes))         // 임대유형 필터
-                    .filter(h -> isRentInRange(h, rentPrcMin, rentPrcMax))     // 월세 필터
-                    .filter(h -> isDepositInRange(h, dealPrcMin, dealPrcMax))  // 보증금 필터
-                    .collect(Collectors.toList());
+        // 🔎 위치 + 반경 (라디안으로 자동 변환되는 getNormalizedValue 사용)
+        Criteria geo = Criteria.where("location")
+                .nearSphere(point)
+                .maxDistance(distance.getNormalizedValue());
+
+        // 🔎 보증금(dealOrWarrantPrc)은 문자열이므로 Mongo에서 직접 비교가 어려워
+        //  → 우선 거래유형/월세는 Mongo에서 1차 필터, 보증금은 기존 파서로 2차 필터(스트림) 유지
+        List<Criteria> ands = new ArrayList<>();
+        ands.add(geo);
+
+        if (types != null) {
+            ands.add(Criteria.where("tradeTypeName").in(types)); // "전세","월세","단기임대" 등
         }
 
-        // 2. MongoDB에서 위치 기반으로만 먼저 조회
-        Query query = new Query();
-        query.addCriteria(Criteria.where("location").nearSphere(point).maxDistance(distance.getNormalizedValue()));
+        // 월세 범위는 tradeTypeName == "월세" 에만 적용되도록 OR 구성
+        Criteria monthlyRange = new Criteria().andOperator(
+                Criteria.where("tradeTypeName").is("월세"),
+                // rentPrc 가 문자열이라 Mongo에서 범위비교가 애매 → 숫자필드가 없다면 여기까진 타입 제한만
+                new Criteria() // 자리 채우기: 실제 rent 범위는 아래 스트림 필터에서 수행
+        );
+
+        Criteria nonMonthly = Criteria.where("tradeTypeName").ne("월세");
+
+        Query query = new Query(new Criteria().andOperator(
+                new Criteria().andOperator(ands.toArray(new Criteria[0])),
+                new Criteria().orOperator(monthlyRange, nonMonthly)
+        ));
+
         List<House> mongoResults = mongoTemplate.find(query, House.class, "OneRoom");
 
-        // 3. 나머지 필터 조건은 Java Stream에서 적용
+        // 2차 필터: 보증금(문자열 → 만원) + 월세 범위(월세에만 적용)
         List<House> filtered = mongoResults.stream()
-                .filter(h -> isTradeTypeMatched(h, tradeTypeCodes))
-                .filter(h -> isRentInRange(h, rentPrcMin, rentPrcMax))
-                .filter(h -> isDepositInRange(h, dealPrcMin, dealPrcMax))
+                .filter(h -> isDepositInRange(h, depMin, depMax))
+                .filter(h -> {
+                    String t = h.getTradeTypeName();
+                    if ("월세".equals(t)) {
+                        return isRentInRange(h, rentMin, rentMax);
+                    }
+                    return true; // 전세/단기는 월세 범위 미적용
+                })
                 .collect(Collectors.toList());
 
-        // 4. 캐시에 저장(MongoDB 안거치고 Redis에서 바로 꺼냄)
+        // 캐시 키 (거래유형은 이름으로 정렬해 안정화)
+        String cacheKey = String.format("house:%f:%f:%f:%s:%d:%d:%d:%d",
+                point.getX(), point.getY(), distance.getValue(),
+                (types == null ? "ALL" : types.stream().sorted().collect(Collectors.joining(","))),
+                rentMin, rentMax, depMin, depMax
+        );
+
         if (!filtered.isEmpty()) {
             redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(filtered), Duration.ofHours(12));
         }
@@ -111,7 +143,7 @@ public class HouseService {
     public JsonNode getDirections(double originLat, double originLng, double destLat, double destLng) throws IOException {
         String url = String.format(
                 "https://maps.googleapis.com/maps/api/directions/json?origin=%f,%f&destination=%f,%f&mode=transit&key=%s",
-                originLat, originLng, destLat, destLng, GOOGLE_API_KEY
+                originLat, originLng, destLat, destLng, googleApiKey
         );
         System.out.println("[DirectionsService] 요청 URL: " + url);
 
@@ -261,7 +293,7 @@ public class HouseService {
 
     // 임대유형이 일치하는지 확인 (null이면 전체 허용)
     private boolean isTradeTypeMatched(House h, List<String> tradeTypes) {
-        return tradeTypes == null || tradeTypes.isEmpty() || tradeTypes.contains(h.getTradeTypeCode());
+        return tradeTypes == null || tradeTypes.isEmpty() || tradeTypes.contains(h.getTradeTypeName());
     }
 
     // 월세 필터 적용 (null 허용)

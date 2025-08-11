@@ -29,16 +29,19 @@ public class HouseController {
             @RequestParam double lng,
             @RequestParam double lat,
             @RequestParam(defaultValue = "3") double radius,
-            @RequestParam(required = false) List<String> tradeTypeCodes,
+            @RequestParam(required = false, name="tradeTypeCodes") List<String> tradeTypeCodes, // 호환
+            @RequestParam(required = false, name="tradeTypes") List<String> tradeTypes,         // 새 이름(권장)
             @RequestParam(required = false) Integer rentPrcMin,
             @RequestParam(required = false) Integer rentPrcMax,
             @RequestParam(required = false) Integer dealPrcMin,
             @RequestParam(required = false) Integer dealPrcMax
     ) throws JsonProcessingException {
+        List<String> mergedTypes = (tradeTypes != null && !tradeTypes.isEmpty())
+                ? tradeTypes : tradeTypeCodes;
         return houseService.findByLocationWithFilters(
                 new Point(lng, lat),
                 new Distance(radius, Metrics.KILOMETERS),
-                tradeTypeCodes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax
+                mergedTypes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax
         );
     }
 
