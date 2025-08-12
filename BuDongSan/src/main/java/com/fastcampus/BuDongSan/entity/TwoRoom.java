@@ -74,26 +74,4 @@ public class TwoRoom {
     private String cpName;
     //매물등록사이트 url
     private String cpPcArticleUrl;
-
-    public Double getDepositAmount() {
-        if (this.dealOrWarrantPrc != null) {
-            // 문자열을 숫자 (예: "3억 4,000")로 변환하는 로직을 추가해야 함
-            // 여기서는 예시로 직접 변환하는 방법을 보여줌
-            return parseCurrencyToDouble(this.dealOrWarrantPrc);
-        }
-        return null;
-    }
-
-    public Double getRentAmount() {
-        if (this.rentPrc != null) {
-            return parseCurrencyToDouble(this.rentPrc);
-        }
-        return null;
-    }
-
-    private Double parseCurrencyToDouble(String currency) {
-        // 예시: "3억 4,000" -> 34000000 으로 변환하는 로직 추가
-        // 실제로는 더 복잡한 로직이 필요함 (예: "억", "만원" 등)
-        return Double.parseDouble(currency.replace("억", "").replace(",", "").replace("만원", ""));
-    }
 }

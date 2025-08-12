@@ -28,9 +28,9 @@ public class HouseController {
     public List<House> getNearbyOneRoom(
             @RequestParam double lng,
             @RequestParam double lat,
-            @RequestParam(defaultValue = "3") double radius,
+            @RequestParam(defaultValue = "5") double radius,
             @RequestParam(required = false, name="tradeTypeCodes") List<String> tradeTypeCodes, // 호환
-            @RequestParam(required = false, name="tradeTypes") List<String> tradeTypes,         // 새 이름(권장)
+            @RequestParam(required = false, name="tradeTypes") List<String> tradeTypes,
             @RequestParam(required = false) Integer rentPrcMin,
             @RequestParam(required = false) Integer rentPrcMax,
             @RequestParam(required = false) Integer dealPrcMin,
@@ -49,17 +49,20 @@ public class HouseController {
     public List<TwoRoom> getNearbyTwoRoom(
             @RequestParam double lng,
             @RequestParam double lat,
-            @RequestParam(defaultValue = "3") double radius,
-            @RequestParam(required = false) List<String> tradeTypeCodes,
+            @RequestParam(defaultValue = "5") double radius,
+            @RequestParam(required = false, name="tradeTypeCodes") List<String> tradeTypeCodes, // 호환
+            @RequestParam(required = false, name="tradeTypes") List<String> tradeTypes,
             @RequestParam(required = false) Integer rentPrcMin,
             @RequestParam(required = false) Integer rentPrcMax,
             @RequestParam(required = false) Integer dealPrcMin,
             @RequestParam(required = false) Integer dealPrcMax
     ) throws JsonProcessingException {
+        List<String> mergedTypes = (tradeTypes != null && !tradeTypes.isEmpty())
+                ? tradeTypes : tradeTypeCodes;
         return twoRoomService.findTwoRoomWithFilters(
                 new Point(lng, lat),
                 new Distance(radius, Metrics.KILOMETERS),
-                tradeTypeCodes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax
+                mergedTypes, rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax
         );
     }
 

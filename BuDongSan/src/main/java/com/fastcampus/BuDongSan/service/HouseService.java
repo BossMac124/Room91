@@ -5,7 +5,6 @@ import com.fastcampus.BuDongSan.entity.House;
 import com.fastcampus.BuDongSan.dto.DirectionResponseDto;
 import com.fastcampus.BuDongSan.dto.LatLngDto;
 import com.fastcampus.BuDongSan.repository.mongo.MongoDirectionRepository;
-import com.fastcampus.BuDongSan.repository.mongo.MongoOneRoomRepository;
 import com.fastcampus.BuDongSan.util.PolylineUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,7 +36,6 @@ import java.util.stream.Collectors;
 public class HouseService {
 
     private final MongoDirectionRepository mongoDirectionRepository;
-    private final MongoOneRoomRepository mongoOneRoomRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final MongoTemplate mongoTemplate;
@@ -122,23 +120,6 @@ public class HouseService {
         return filtered;
     }
 
-    // Redis 캐시 키 만드는 곳
-    private String buildCacheKey(Point point, Distance distance,
-                                 List<String> tradeTypeCodes,
-                                 Integer rentPrcMin, Integer rentPrcMax,
-                                 Integer dealPrcMin, Integer dealPrcMax) {
-        return String.format("house:%f:%f:%f:%s:%s:%s:%s:%s",
-                point.getX(), point.getY(), distance.getValue(),
-                tradeTypeCodes != null ? String.join("-", tradeTypeCodes) : "ALL",
-                rentPrcMin != null ? rentPrcMin : "N",
-                rentPrcMax != null ? rentPrcMax : "N",
-                dealPrcMin != null ? dealPrcMin : "N",
-                dealPrcMax != null ? dealPrcMax : "N");
-    }
-
-
-
-
     // 구글 길찾기 API 호출
     public JsonNode getDirections(double originLat, double originLng, double destLat, double destLng) throws IOException {
         String url = String.format(
@@ -183,7 +164,7 @@ public class HouseService {
                     double distance = distanceInMeters(destLat, destLng, storedLat, storedLng);
                     return distance <= MAX_DISTANCE_METERS;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // 3. 필터링 결과가 있으면 최신 순 정렬되어 있으므로 첫 번째 요소를 반환합니다.
         if (filtered.isEmpty()) {
@@ -247,11 +228,11 @@ public class HouseService {
 
         // routes 배열의 첫 번째 경로를 사용
         JsonNode routes = json.path("routes");
-        if (routes.isArray() && routes.size() > 0) {
+        if (routes.isArray() && !routes.isEmpty()) {
             JsonNode firstRoute = routes.get(0);
             // legs 배열의 첫 번째 요소에서 거리와 소요시간 추출
             JsonNode legs = firstRoute.path("legs");
-            if (legs.isArray() && legs.size() > 0) {
+            if (legs.isArray() && !legs.isEmpty()) {
                 JsonNode firstLeg = legs.get(0);
                 direction.setDistance(firstLeg.path("distance").path("text").asText());
                 direction.setDuration(firstLeg.path("duration").path("text").asText());
