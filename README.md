@@ -23,6 +23,8 @@
 | **Build Tool** | Gradle                                 |
 | **기타**         | Swagger, Spring Profiles, GitHub       |
 
+## 🌐 아키텍처
+![room91-arch.png](uploads/room91-arch.png)
 
 ## ▶️ 주요 기능
 1. 재개발 지역 목록 필터링 및 상세 실거래가 정보 조회
