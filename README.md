@@ -27,7 +27,7 @@
 ## ▶️ 주요 기능
 1. 재개발 지역 목록 필터링 및 상세 실거래가 정보 조회
 2. 원룸/투룸 매물 목록 필터링 및 상세정보 확인
-3. 통근 소요 시간 자동 계산 및 KakaoMap 기반 길찾기 기능 제공 - 개발중
+3. 통근 소요 시간 자동 계산 및 KakaoMap 기반 길찾기 기능 제공 - API이슈로 대기중
 4. Python 기반 실거래가 데이터 크롤링 및 DB 저장
 5. OpenAI + Google Cloud TTS 기반 AI 뉴스 요약 및 음성 영상 자동 생성 
 6. 생성된 뉴스 영상 및 텍스트, 관련 지역 정보 PostgreSQL 저장 및 API 제공 
@@ -39,7 +39,8 @@
 ## 📡 주요 API
 
 - Swagger 기반 API 문서 제공
-  → http://localhost:8080/swagger-ui/index.html
+  ![api-spec-2.png](uploads/api-spec-2.png)
+  ![api-spec-1.png](uploads/api-spec-1.png)
 
 ## 🚀 배포 주소
 
