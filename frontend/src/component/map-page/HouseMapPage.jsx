@@ -6,7 +6,6 @@ import HouseDetailPanel from "./HouseDetailPanel.jsx";
 
 import { useKakaoMap } from "../hooks/useKakaoMap.js";
 import { useHouses } from "../hooks/useHouses.js";
-import RouteSearchPanel from "./RouteSearchPanel.jsx";
 import HouseMarkers from "./HouseMarkers.jsx";
 
 const HouseMapPage = ({ roomType = "one" }) => {
@@ -69,7 +68,6 @@ const HouseMapPage = ({ roomType = "one" }) => {
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
-            {/* 사이드바: 기존 MapSidebar를 쓴다면 아래에 RouteSearchPanel만 위에 추가해도 됨 */}
             <div style={{ width: 360, borderRight: "1px solid #eee", padding: 12, overflowY: "auto" }}>
                 {/* ✅ 제목을 가장 위로 이동 */}
                 <div
@@ -87,9 +85,6 @@ const HouseMapPage = ({ roomType = "one" }) => {
                 >
                     {currentConfig.title} 매물 지도
                 </div>
-
-                <RouteSearchPanel mapRef={mapRef} baseUrl={baseUrl} />
-
                 <MapSidebar
                     currentConfig={currentConfig}
                     searchText={searchText}
