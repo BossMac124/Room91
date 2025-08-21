@@ -51,7 +51,7 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://root:1234@Housing-mongo-stg:27017/housing_stg?authSource=admin
       SPRING_PROFILES_ACTIVE: staging
     env_file:
-      - .env.staging                          # GitHub Actions가 업로드하는 ENV_STAGING 내용
+      - .env.staging                  # GitHub Actions가 업로드하는 ENV_STAGING 내용
     ports:
       - "8081:8080"                   # prod(8088)과 분리 → 외부 접속은 8081
     volumes:

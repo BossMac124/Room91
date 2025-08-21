@@ -2,7 +2,7 @@ name: CI (PR validation)
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   backend:
