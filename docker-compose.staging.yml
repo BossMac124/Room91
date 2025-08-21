@@ -1,0 +1,90 @@
+# docker-compose.staging.yml (동일 EC2에 prod와 병렬 기동)
+services:
+  redis:
+    image: redis:latest
+    container_name: Housing-redis-stg
+    ports:
+      - "6385:6379"                 # prod(6384)와 포트 분리
+    volumes:
+      - redis_data_stg:/data
+    networks:
+      - Housing-network-stg
+
+  mongo:
+    image: mongo:latest
+    container_name: Housing-mongo-stg
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGO_INITDB_DATABASE: housing_stg   # DB도 분리 권장
+    ports:
+      - "27019:27017"               # prod(27018)와 분리
+    volumes:
+      - mongo_data_stg:/data/db
+    networks:
+      - Housing-network-stg
+
+  postgres:
+    image: postgres:latest
+    container_name: Housing-postgres-stg
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: housing_stg       # DB 이름 분리
+    ports:
+      - "5433:5432"                  # prod(5432)와 분리
+    volumes:
+      - postgres_data_stg:/var/lib/postgresql/data
+    networks:
+      - Housing-network-stg
+
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: Housing-app-stg
+    environment:
+      # 스테이징 컨테이너 호스트명으로 연결
+      SPRING_DATASOURCE_URL: jdbc:postgresql://Housing-postgres-stg:5432/housing_stg
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATA_MONGODB_URI: mongodb://root:1234@Housing-mongo-stg:27017/housing_stg?authSource=admin
+      SPRING_PROFILES_ACTIVE: staging
+    env_file:
+      - .env.staging                  # GitHub Actions가 업로드하는 ENV_STAGING 내용
+    ports:
+      - "8081:8080"                   # prod(8088)과 분리 → 외부 접속은 8081
+    volumes:
+      # 컨테이너 내부 경로를 스테이징 값과 일치시켜줘 (ENV_STAGING의 FILE_UPLOAD_DIR 등)
+      - ./images:/home/ubuntu/Room91-staging/images
+      - ./news_videos:/home/ubuntu/Room91-staging/news_videos
+    depends_on:
+      - postgres
+      - redis
+      - mongo
+    networks:
+      - Housing-network-stg
+
+  nginx:
+    image: nginx:latest
+    container_name: Housing-nginx-stg
+    ports:
+      - "8082:80"                     # prod가 80/443을 쓰고 있으니, stg는 8082/4443로
+      - "4443:443"
+    volumes:
+      - ./nginx/server-staging.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend:/var/www/html
+      - /etc/letsencrypt:/etc/letsencrypt:ro   # (선택) 스테이징에 인증서가 있으면 사용
+    depends_on:
+      - spring-app
+    networks:
+      - Housing-network-stg
+
+networks:
+  Housing-network-stg:
+    name: Housing-network-stg
+
+volumes:
+  postgres_data_stg:
+  redis_data_stg:
+  mongo_data_stg:
