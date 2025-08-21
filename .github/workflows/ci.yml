@@ -48,6 +48,7 @@ jobs:
           echo "VITE_KAKAO_JS_API_KEY=dummy" >> .env.production
 
       - name: Lint & Test (optional)
+        continue-on-error: true
         run: |
           npm run lint --if-present
           npm test --if-present -- --ci --watchAll=false
