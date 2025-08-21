@@ -55,16 +55,27 @@ jobs:
       - name: Check frontend output content
         run: ls -al frontend_output
 
+          # 0) 디버그: 정말 파일이 체크아웃됐는지 확인
+      - name: Verify staging files exist
+        run: |
+          echo "HEAD: $(git rev-parse --short HEAD)"
+          ls -al
+          ls -al nginx || true
+          test -f docker-compose.staging.yml || (echo "missing docker-compose.staging.yml" && exit 1)
+          test -f nginx/server-staging.conf || (echo "missing nginx/server-staging.conf" && exit 1)
+
+        # 1) 존재할 때만 업로드하도록 가드
       - name: Send staging compose & nginx conf
+        if: ${{ hashFiles('docker-compose.staging.yml','nginx/server-staging.conf') != '' }}
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.STG_EC2_HOST }}
           username: ${{ secrets.STG_EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ secrets.EC2_KEY }}   # ← 키 이름 통일
           port: 2222
           source: |
-            docker-compose.staging.yml
-            nginx/server-staging.conf
+            ./docker-compose.staging.yml
+            ./nginx/server-staging.conf
           target: /home/ubuntu/Room91-staging
 
       - name: Prepare dirs on EC2
