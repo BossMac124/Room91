@@ -1,6 +1,7 @@
-FROM openjdk:17
+# Dockerfile (backend, staging/prod 공용)
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-COPY BuDongSan/build/libs/BuDongSan-0.0.1-SNAPSHOT.jar /housing.jar
+COPY ./*SNAPSHOT.jar /app/app.jar
 
-ENTRYPOINT ["java", "-jar", "/housing.jar"]
+ENTRYPOINT ["java","-jar","/app/app.jar"]
