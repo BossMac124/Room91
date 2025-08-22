@@ -11,7 +11,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Configuration
-@EnableMongoRepositories
+@EnableMongoRepositories(
+        basePackages = "com.fastcampus.BuDongSan.domain",   // ✅ 도메인 전체에서 @Document 기반만 자동 배정
+        mongoTemplateRef = "mongoTemplate"
+)
 public class MongoConfig {
     @Bean
     public MongoCustomConversions customConversions() {
