@@ -1,5 +1,6 @@
 package com.fastcampus.BuDongSan.domain.faq.entity;
 
+import com.fastcampus.BuDongSan.global.common.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Faq {
+public class Faq extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    private Long id;
     private String question;
 
     @Column(columnDefinition = "TEXT")  // CKEditor를 적용하기 위해
@@ -23,16 +21,4 @@ public class Faq {
 
     private String category;    // FAQ 카테고리
     private Boolean active = true; // 활성여부
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

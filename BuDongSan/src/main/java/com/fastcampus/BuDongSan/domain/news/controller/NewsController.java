@@ -1,5 +1,6 @@
 package com.fastcampus.BuDongSan.domain.news.controller;
 
+import com.fastcampus.BuDongSan.domain.news.dto.NewsResponse;
 import com.fastcampus.BuDongSan.domain.news.entity.News;
 import com.fastcampus.BuDongSan.domain.news.repository.NewsRepository;
 import jakarta.annotation.PostConstruct;
@@ -45,10 +46,10 @@ public class NewsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<News> getNewsById(@PathVariable Long id) {
+    public ResponseEntity<NewsResponse> getNewsById(@PathVariable Long id) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 뉴스가 존재하지 않습니다."));
-        return ResponseEntity.ok(news);
+        return ResponseEntity.ok(NewsResponse.from(news));
     }
 
 //    @GetMapping("/test")

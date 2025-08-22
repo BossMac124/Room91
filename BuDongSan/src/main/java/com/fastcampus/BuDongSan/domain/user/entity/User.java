@@ -1,5 +1,6 @@
 package com.fastcampus.BuDongSan.domain.user.entity;
 
+import com.fastcampus.BuDongSan.global.common.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,11 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String username; // 아이디
