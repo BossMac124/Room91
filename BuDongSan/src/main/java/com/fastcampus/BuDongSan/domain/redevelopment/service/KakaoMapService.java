@@ -47,7 +47,7 @@ public class KakaoMapService {
             JsonNode documents = root.path("documents");
 
             // 좌표 찍기
-            if (documents.isArray() && documents.size() > 0) {
+            if (documents.isArray() && !documents.isEmpty()) {
                 JsonNode location = documents.get(0);
                 double lat = location.path("y").asDouble();
                 double lng = location.path("x").asDouble();
@@ -55,7 +55,7 @@ public class KakaoMapService {
                 // 좌표 결과 로그
                 System.out.println("✅ 좌표 찾음! 위도: " + lat + ", 경도: " + lng);
 
-                return new GeoLocation(lat, lng);
+                return new GeoLocation(lat, lng, false); // ✅ 정확 좌표
             } else {
                 System.out.println("⚠️ Kakao 응답에 주소 결과가 없습니다.");
             }
