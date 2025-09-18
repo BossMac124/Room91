@@ -13,7 +13,7 @@ const groupDealsByMonth = (deals) => {
     }, {});
 };
 
-const DealList = ({ deals, selectedNeighborhood }) => {
+const DealList = ({ deals, selectedNeighborhood, onSelectDeal }) => {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [groupedDeals, setGroupedDeals] = useState({});
     const [monthList, setMonthList] = useState([]);
@@ -54,7 +54,12 @@ const DealList = ({ deals, selectedNeighborhood }) => {
                 <div key={selectedMonth}>
                     <h3>📅 {selectedMonth.replace('-', '년 ')}월 거래</h3>
                     {groupedDeals[selectedMonth]?.map((deal, idx) => (
-                        <div key={idx} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+                        <div
+                                  key={idx}
+                                  style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px', cursor: 'pointer' }}
+                                  onClick={() => onSelectDeal?.(deal)}
+                                  title="지도로 이동"
+                        >
                             <strong>{deal.dataType === '단독' || deal.dataType === '연립' ? deal.houseType : deal.dataType}</strong><br />
                             날짜: {deal.dealYear}-{deal.dealMonth}-{deal.dealDay}<br />
                             거래금액: {formatDealAmount(deal.dealAmount)}<br />

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Builder
 public class RealEstateDealResponse {
 
+    private Long id;
     private int dealYear;               // 연도
     private int dealMonth;              // 월
     private int dealDay;                // 일
@@ -38,6 +39,7 @@ public class RealEstateDealResponse {
     // 변환 메서드 추가 (RealEstateDeal -> RealEstateDealResponse)
     public static RealEstateDealResponse convertToDto(RealEstateDeal deal) {
         return RealEstateDealResponse.builder()
+                .id(deal.getId())
                 .dealYear(deal.getDealYear())
                 .dealMonth(deal.getDealMonth())
                 .dealDay(deal.getDealDay())
