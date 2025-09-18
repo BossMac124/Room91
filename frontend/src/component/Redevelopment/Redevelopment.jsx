@@ -133,8 +133,14 @@ const Redevelopment = () => {
 
             kakao.maps.event.addListener(marker, 'click', () => {
                 openInfo(marker, deal, addr);
-                map.setCenter(pos);
-                map.setLevel(4);
+                // 1) 부드럽게 이동
+                map.panTo(pos);
+
+                // 2) 이동이 끝나면 줌 조정(선택)
+                const once = kakao.maps.event.addListener(map, 'idle', function () {
+                    kakao.maps.event.removeListener(map, 'idle', once);
+                    if (map.getLevel() > 4) map.setLevel(4); // 너무 멀면 적당히 당겨주기
+                });
             });
 
             markers.push(marker);
@@ -175,8 +181,13 @@ const Redevelopment = () => {
         if (!geo) return;
         const kakao = window.kakao;
         const pos = new kakao.maps.LatLng(geo.latitude, geo.longitude);
-        map.setCenter(pos);
-        map.setLevel(4);
+        // 부드럽게 이동
+        map.panTo(pos);
+        // 2) 이동이 끝나면 줌 조정(선택)
+        const once = kakao.maps.event.addListener(map, 'idle', function () {
+            kakao.maps.event.removeListener(map, 'idle', once);
+            if (map.getLevel() > 4) map.setLevel(4); // 너무 멀면 적당히 당겨주기
+        });
         // 해당 마커 찾아서 인포윈도우 오픈
         const target = dealMarkers.find(m => m.__deal === deal);
         if (target) openInfo(target, deal, addr);
