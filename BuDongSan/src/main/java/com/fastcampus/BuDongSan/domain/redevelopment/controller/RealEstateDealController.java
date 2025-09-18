@@ -3,6 +3,7 @@ package com.fastcampus.BuDongSan.domain.redevelopment.controller;
 import com.fastcampus.BuDongSan.domain.redevelopment.dto.GeoLocation;
 import com.fastcampus.BuDongSan.domain.redevelopment.dto.PriceStatsDto;
 import com.fastcampus.BuDongSan.domain.redevelopment.dto.RealEstateDealResponse;
+import com.fastcampus.BuDongSan.domain.redevelopment.service.GeoLocationService;
 import com.fastcampus.BuDongSan.domain.redevelopment.service.KakaoMapService;
 import com.fastcampus.BuDongSan.domain.redevelopment.service.RealEstateDealService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class RealEstateDealController {
 
     @Autowired
     private RealEstateDealService realEstateDealService;
+
+    @Autowired
+    private GeoLocationService geoLocationService;
 
     @Autowired
     private KakaoMapService kakaoMapService;
@@ -79,5 +83,19 @@ public class RealEstateDealController {
                                                        @PathVariable String neighborhood) {
         PriceStatsDto stats = realEstateDealService.getPriceStatsByNeighborhood(district, neighborhood);
         return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * 거래 ID 기반 좌표 조회
+     * 1) 정확 주소 지오코딩 시도
+     * 2) 실패 시 동 중심 좌표(법정동 코드 캐시)로 폴백
+     */
+    @GetMapping("/{id}/location")
+    public ResponseEntity<?> getDealLocation(@PathVariable Long id) {
+        return realEstateDealService.findById(id)
+                .flatMap(geoLocationService::locateDeal)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"error\":\"해당 거래의 좌표를 찾을 수 없습니다.\"}"));
     }
 }
