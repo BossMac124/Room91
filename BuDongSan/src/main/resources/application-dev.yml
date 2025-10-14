@@ -58,3 +58,8 @@ custom:
 logging:
   level:
     root: INFO
+
+Room91:
+  cache:
+    house:
+      enable: true
