@@ -50,3 +50,8 @@ custom:
 logging:
   level:
     root: warn
+
+Room91:
+  cache:
+    house:
+      enable: true
