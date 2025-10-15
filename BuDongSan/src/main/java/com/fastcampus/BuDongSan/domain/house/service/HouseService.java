@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
@@ -60,6 +61,20 @@ public class HouseService {
             Integer dealPrcMin,
             Integer dealPrcMax) throws JsonProcessingException {
 
+        double radiusKm = distance.getValue();
+        if (radiusKm > 30.0) {
+            log.warn("[RANGE LIMIT] 요청된 반경 {}km → 최대 30km로 제한", radiusKm);
+            radiusKm = 30.0;
+            distance = new Distance(radiusKm, Metrics.KILOMETERS);
+        }
+
+        // ✅ 최소 0.1km (100m) 이하 요청 방어
+        if (radiusKm < 0.1) {
+            log.warn("[RANGE LIMIT] 요청된 반경 {}km → 최소 0.1km로 조정", radiusKm);
+            radiusKm = 0.1;
+            distance = new Distance(radiusKm, Metrics.KILOMETERS);
+        }
+
         // 🔹 1. 캐시 비활성화 시에는 Redis를 완전히 건너뜀
         if (!cacheEnabled) {
             log.info("[CACHE OFF] Redis 비활성화됨 → MongoDB 직접 조회 시작");
@@ -79,36 +94,41 @@ public class HouseService {
         String cacheKey = buildCacheKey(point, distance, tradeTypeCodes,
                 rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
 
-// Redis 캐시 조회
+// ✅ 캐시 조회 시간 측정 시작
+        StopWatch sw = new StopWatch("house-cache");
+        sw.start("read-cache");
+
         String cached = redisTemplate.opsForValue().get(cacheKey);
+
         if (cached != null) {
             List<House> cachedList = Arrays.asList(objectMapper.readValue(cached, House[].class));
-            log.info("[CACHE HIT] Redis 캐시 반환: {}건 (key={}, lat={}, lng={}, dist={}km)",
-                    cachedList.size(), cacheKey, point.getY(), point.getX(), distance.getValue());
+            sw.stop();
+            log.info("[CACHE HIT] Redis 캐시 조회 완료: {}건 (소요시간={}ms, key={}, lat={}, lng={}, dist={}km)",
+                    cachedList.size(), sw.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
             return cachedList;
         }
 
-// 캐시 미스 → MongoDB 조회
-        StopWatch sw = new StopWatch("house-find");
-        sw.start("cacheMiss-db");
+// ✅ 캐시 미스일 경우 DB 조회
+        sw.stop();
+        StopWatch dbWatch = new StopWatch("house-db");
+        dbWatch.start("cacheMiss-db");
 
         List<House> filtered = queryFromMongo(point, distance, tradeTypeCodes,
                 rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
 
-        sw.stop();
+        dbWatch.stop();
 
         if (!filtered.isEmpty()) {
             redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(filtered),
-                    Duration.ofHours(12));
+                    Duration.ofHours(1));
             log.info("[CACHE MISS] MongoDB 조회 후 Redis 저장 완료: {}건 (소요시간={}ms, key={}, lat={}, lng={}, dist={}km)",
-                    filtered.size(), sw.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
+                    filtered.size(), dbWatch.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
         } else {
             log.info("[CACHE MISS] MongoDB 조회 결과 없음 (소요시간={}ms, key={}, lat={}, lng={}, dist={}km)",
-                    sw.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
+                    dbWatch.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
         }
 
         return filtered;
-
     }
 
     // ✅ MongoDB 조회 전용 메서드 (원본 로직 그대로 이동)
@@ -151,8 +171,13 @@ public class HouseService {
                                  List<String> tradeTypeCodes,
                                  Integer rentPrcMin, Integer rentPrcMax,
                                  Integer dealPrcMin, Integer dealPrcMax) {
-        return String.format("house:%f:%f:%f:%s:%d:%d:%d:%d",
-                point.getX(), point.getY(), distance.getValue(),
+        // ✅ 좌표를 구 단위로 라운딩 → 0.01 ≈ 약 1.1km
+        double roundedLng = Math.round(point.getX() * 100.0) / 100.0;
+        double roundedLat = Math.round(point.getY() * 100.0) / 100.0;
+        double roundedDist = Math.round(distance.getValue()); // 반경 km 단위 반올림
+
+        return String.format("house:%.5f:%.5f:%.1f:%s:%d:%d:%d:%d",
+                roundedLng, roundedLat, roundedDist,
                 (tradeTypeCodes == null ? "ALL" :
                         tradeTypeCodes.stream().sorted().collect(Collectors.joining(","))),
                 rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
