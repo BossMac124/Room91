@@ -11,9 +11,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
@@ -22,6 +24,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -33,6 +36,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class HouseService {
 
     private final MongoDirectionRepository mongoDirectionRepository;
@@ -44,80 +48,139 @@ public class HouseService {
     @Value("${google.api.key}")
     private String googleApiKey;
 
-    // 원룸 매물 필터 조회, reids 저장및 조회
+    @Value("${Room91.cache.house.enabled:true}")
+    private boolean cacheEnabled;
+
+    // 원룸 매물 필터 조회 (Redis 캐시 ON/OFF)
     public List<House> findByLocationWithFilters(
             Point point,
             Distance distance,
-            List<String> tradeTypeCodes, // 프론트에서 전세/월세/단기 문자열이 온다고 가정 (예: "전세","월세","단기임대")
+            List<String> tradeTypeCodes,
             Integer rentPrcMin,
             Integer rentPrcMax,
             Integer dealPrcMin,
             Integer dealPrcMax) throws JsonProcessingException {
 
-        // ✅ 거래유형 컬럼은 tradeTypeName 사용
-        List<String> types = (tradeTypeCodes == null || tradeTypeCodes.isEmpty())
-                ? null : tradeTypeCodes;
+        double radiusKm = distance.getValue();
+        if (radiusKm > 30.0) {
+            log.warn("[RANGE LIMIT] 요청된 반경 {}km → 최대 30km로 제한", radiusKm);
+            radiusKm = 30.0;
+            distance = new Distance(radiusKm, Metrics.KILOMETERS);
+        }
 
-        // 기본값
+        // ✅ 최소 0.1km (100m) 이하 요청 방어
+        if (radiusKm < 0.1) {
+            log.warn("[RANGE LIMIT] 요청된 반경 {}km → 최소 0.1km로 조정", radiusKm);
+            radiusKm = 0.1;
+            distance = new Distance(radiusKm, Metrics.KILOMETERS);
+        }
+
+        // 🔹 1. 캐시 비활성화 시에는 Redis를 완전히 건너뜀
+        if (!cacheEnabled) {
+            log.info("[CACHE OFF] Redis 비활성화됨 → MongoDB 직접 조회 시작");
+            StopWatch sw = new StopWatch("house-find");
+            sw.start("dbOnly");
+
+            List<House> result = queryFromMongo(point, distance, tradeTypeCodes,
+                    rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
+
+            sw.stop();
+            log.info("[PERF] MongoDB 조회 완료: {}건, 소요시간 = {} ms (lat={}, lng={}, dist={})",
+                    result.size(), sw.getTotalTimeMillis(), point.getY(), point.getX(), distance.getValue());
+            return result;
+        }
+
+        // 🔹 2. 캐시 활성화 시 기존 로직 수행
+        String cacheKey = buildCacheKey(point, distance, tradeTypeCodes,
+                rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
+
+// ✅ 캐시 조회 시간 측정 시작
+        StopWatch sw = new StopWatch("house-cache");
+        sw.start("read-cache");
+
+        String cached = redisTemplate.opsForValue().get(cacheKey);
+
+        if (cached != null) {
+            List<House> cachedList = Arrays.asList(objectMapper.readValue(cached, House[].class));
+            sw.stop();
+            log.info("[CACHE HIT] Redis 캐시 조회 완료: {}건 (소요시간={}ms, key={}, lat={}, lng={}, dist={}km)",
+                    cachedList.size(), sw.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
+            return cachedList;
+        }
+
+// ✅ 캐시 미스일 경우 DB 조회
+        sw.stop();
+        StopWatch dbWatch = new StopWatch("house-db");
+        dbWatch.start("cacheMiss-db");
+
+        List<House> filtered = queryFromMongo(point, distance, tradeTypeCodes,
+                rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
+
+        dbWatch.stop();
+
+        if (!filtered.isEmpty()) {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(filtered),
+                    Duration.ofHours(1));
+            log.info("[CACHE MISS] MongoDB 조회 후 Redis 저장 완료: {}건 (소요시간={}ms, key={}, lat={}, lng={}, dist={}km)",
+                    filtered.size(), dbWatch.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
+        } else {
+            log.info("[CACHE MISS] MongoDB 조회 결과 없음 (소요시간={}ms, key={}, lat={}, lng={}, dist={}km)",
+                    dbWatch.getTotalTimeMillis(), cacheKey, point.getY(), point.getX(), distance.getValue());
+        }
+
+        return filtered;
+    }
+
+    // ✅ MongoDB 조회 전용 메서드 (원본 로직 그대로 이동)
+    private List<House> queryFromMongo(Point point, Distance distance,
+                                       List<String> tradeTypeCodes,
+                                       Integer rentPrcMin, Integer rentPrcMax,
+                                       Integer dealPrcMin, Integer dealPrcMax) {
+
+        List<String> types = (tradeTypeCodes == null || tradeTypeCodes.isEmpty()) ? null : tradeTypeCodes;
+
         int depMin  = dealPrcMin != null ? dealPrcMin : 0;
         int depMax  = dealPrcMax != null ? dealPrcMax : Integer.MAX_VALUE;
         int rentMin = rentPrcMin != null ? rentPrcMin : 0;
         int rentMax = rentPrcMax != null ? rentPrcMax : Integer.MAX_VALUE;
 
-        // 🔎 위치 + 반경 (라디안으로 자동 변환되는 getNormalizedValue 사용)
         Criteria geo = Criteria.where("location")
                 .nearSphere(point)
                 .maxDistance(distance.getNormalizedValue());
 
-        // 🔎 보증금(dealOrWarrantPrc)은 문자열이므로 Mongo에서 직접 비교가 어려워
-        //  → 우선 거래유형/월세는 Mongo에서 1차 필터, 보증금은 기존 파서로 2차 필터(스트림) 유지
         List<Criteria> ands = new ArrayList<>();
         ands.add(geo);
+        if (types != null) ands.add(Criteria.where("tradeTypeName").in(types));
 
-        if (types != null) {
-            ands.add(Criteria.where("tradeTypeName").in(types)); // "전세","월세","단기임대" 등
-        }
-
-        // 월세 범위는 tradeTypeName == "월세" 에만 적용되도록 OR 구성
-        Criteria monthlyRange = new Criteria().andOperator(
-                Criteria.where("tradeTypeName").is("월세"),
-                // rentPrc 가 문자열이라 Mongo에서 범위비교가 애매 → 숫자필드가 없다면 여기까진 타입 제한만
-                new Criteria() // 자리 채우기: 실제 rent 범위는 아래 스트림 필터에서 수행
-        );
-
-        Criteria nonMonthly = Criteria.where("tradeTypeName").ne("월세");
-
-        Query query = new Query(new Criteria().andOperator(
-                new Criteria().andOperator(ands.toArray(new Criteria[0])),
-                new Criteria().orOperator(monthlyRange, nonMonthly)
-        ));
+        Query query = new Query(new Criteria().andOperator(ands.toArray(new Criteria[0])));
 
         List<House> mongoResults = mongoTemplate.find(query, House.class, "OneRoom");
 
-        // 2차 필터: 보증금(문자열 → 만원) + 월세 범위(월세에만 적용)
-        List<House> filtered = mongoResults.stream()
+        return mongoResults.stream()
                 .filter(h -> isDepositInRange(h, depMin, depMax))
                 .filter(h -> {
-                    String t = h.getTradeTypeName();
-                    if ("월세".equals(t)) {
+                    if ("월세".equals(h.getTradeTypeName()))
                         return isRentInRange(h, rentMin, rentMax);
-                    }
-                    return true; // 전세/단기는 월세 범위 미적용
+                    return true;
                 })
                 .collect(Collectors.toList());
+    }
 
-        // 캐시 키 (거래유형은 이름으로 정렬해 안정화)
-        String cacheKey = String.format("house:%f:%f:%f:%s:%d:%d:%d:%d",
-                point.getX(), point.getY(), distance.getValue(),
-                (types == null ? "ALL" : types.stream().sorted().collect(Collectors.joining(","))),
-                rentMin, rentMax, depMin, depMax
-        );
+    // ✅ 캐시 키 빌더
+    private String buildCacheKey(Point point, Distance distance,
+                                 List<String> tradeTypeCodes,
+                                 Integer rentPrcMin, Integer rentPrcMax,
+                                 Integer dealPrcMin, Integer dealPrcMax) {
+        // ✅ 좌표를 구 단위로 라운딩 → 0.01 ≈ 약 1.1km
+        double roundedLng = Math.round(point.getX() * 100.0) / 100.0;
+        double roundedLat = Math.round(point.getY() * 100.0) / 100.0;
+        double roundedDist = Math.round(distance.getValue()); // 반경 km 단위 반올림
 
-        if (!filtered.isEmpty()) {
-            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(filtered), Duration.ofHours(12));
-        }
-
-        return filtered;
+        return String.format("house:%.5f:%.5f:%.1f:%s:%d:%d:%d:%d",
+                roundedLng, roundedLat, roundedDist,
+                (tradeTypeCodes == null ? "ALL" :
+                        tradeTypeCodes.stream().sorted().collect(Collectors.joining(","))),
+                rentPrcMin, rentPrcMax, dealPrcMin, dealPrcMax);
     }
 
     // 구글 길찾기 API 호출
