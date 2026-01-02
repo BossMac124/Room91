@@ -54,8 +54,8 @@
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOrigins(List.of(
                     "http://localhost:5173",
-                    "https://room91.org",
-                    "http://room91.org"));
+                    "https://room-91.com",
+                    "http://room-91.com"));
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);  // ✅ 꼭 필요
