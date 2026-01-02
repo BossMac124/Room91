@@ -28,6 +28,9 @@
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
+                            // ⭐ CORS preflight 무조건 허용
+                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                             // 🔓 회원가입, 로그인은 누구나 가능
                             .requestMatchers("/api/users/register", "/api/users/login").permitAll()
 
@@ -52,10 +55,10 @@
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(List.of(
+            config.setAllowedOriginPatterns(List.of(
                     "http://localhost:5173",
                     "https://room-91.com",
-                    "http://room-91.com"));
+                    "https://www.room-91.com"));
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);  // ✅ 꼭 필요
