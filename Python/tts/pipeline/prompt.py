@@ -6,11 +6,18 @@ from config import OPENAI_API_KEY
 openai.api_key = OPENAI_API_KEY
 
 def refine_news(script_text):
+    global refined_text
     prompt = f"""
-    다음 텍스트를 뉴스 기사처럼 정제해 주세요. 부동산과 관련 없는 내용은 제거하고, 부동산 관련 정보만 포함해 주세요.
-    문장은 자연스럽고 아나운서가 읽을 수 있도록 완성도 있게 작성하며, "~다" 대신 "~습니다"로 마무리합니다.
-    텍스트 길이는 UTF-8 기준 5000바이트를 넘지 않도록 요약해주세요.
+    다음 텍스트를 뉴스 기사처럼 정제해 주세요.
 
+    주의:
+    1. 원문에 등장한 **행정동(반포동, 신사동, 개포동 등)** 이름은 절대 삭제하지 마세요.
+    2. 행정동 이름이 나오면 반드시 문장에 그대로 포함하세요.
+    3. 부동산과 관련 없는 내용만 제거하세요.
+    4. 문장은 아나운서가 읽을 수 있도록 자연스럽게 구성하고, 문장 끝은 "~습니다"로 마무리합니다.
+    5. 텍스트 길이는 UTF-8 기준 5000바이트를 넘지 않도록 요약해주세요.
+    
+    텍스트:
     {script_text}
     """
 
@@ -42,14 +49,15 @@ def refine_news(script_text):
 
 def extract_dong_list(script_text):
     prompt = f"""
-    아래 뉴스 텍스트에서 서울시 내 재개발 가능성이 높은 **동(동으로 끝나는 지역명)**만 추출해 주세요.
+    아래 뉴스 텍스트에서 서울시 내 '동'으로 끝나는 지역명만 추출해 주세요.
 
-    조건:
-    1. "동"으로 끝나는 이름만 리스트에 포함. (예: 개포동, 신사동)
-    2. "구", "시", "면", "읍" 등으로 끝나는 단어는 절대 포함하지 말 것.
-    3. 뉴스에 직접 언급되지 않아도 맥락상 개발 가능성이 높은 '동'이라면 포함 가능.
-    4. 출력은 반드시 **Python 리스트 형식만** 사용. (예: ["개포동", "신사동"])
-    5. 절대 설명 없이 **리스트만 출력**.
+    규칙:
+    1. 반드시 "동"으로 끝나는 단어만 리스트에 포함하세요. (예: 반포동, 신사동)
+    2. "구", "시", "구역", "지역", "일대" 등은 제외합니다.
+    3. 뉴스에 직접 언급되지 않은 동을 추론해서 포함하지 않습니다.
+    4. 동 이름이 하나도 없으면 빈 리스트([])만 출력하세요.
+    5. 출력은 반드시 **Python 리스트 형태**로만 출력하세요.
+    6. 절대 리스트 외의 설명은 넣지 마세요.
 
     뉴스 텍스트:
     {script_text}
@@ -60,22 +68,29 @@ def extract_dong_list(script_text):
             response = openai.ChatCompletion.create(
                 model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": "너는 서울 동 이름을 추출하는 어시스턴트야."},
+                    {"role": "system", "content": "너는 서울 동 이름만 리스트로 추출하는 어시스턴트야."},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=500,
-                temperature=0.7,
-                timeout=30
+                max_tokens=200,
+                temperature=0.2,
+                timeout=20
             )
-            content = response['choices'][0]['message']['content'].strip()
+            raw = response["choices"][0]["message"]["content"].strip()
 
-            # 문자열을 안전하게 리스트로 파싱
-            dong_list = ast.literal_eval(content)
-            if isinstance(dong_list, list):
-                # ✅ 중복 제거 + '동'으로 끝나는 항목만 필터링 + 정렬
-                dong_list = [dong for dong in dong_list if dong.endswith("동")]
-                dong_list = sorted(set(dong_list))
-                return dong_list
+            # 1) 응답이 리스트 형태인지 강제 검사
+            cleaned = raw.strip()
+            if not (cleaned.startswith("[") and cleaned.endswith("]")):
+                print("⚠️ 비정상 응답 → 재시도:", cleaned)
+                continue
+
+            # 2) 리스트 파싱
+            dong_list = ast.literal_eval(cleaned)
+
+            # 3) 값 정제
+            dong_list = [dong for dong in dong_list if isinstance(dong, str) and dong.endswith("동")]
+            dong_list = sorted(set(dong_list))
+            return dong_list
+
         except Exception as e:
             print(f"❌ 동 리스트 파싱 실패 (Attempt {attempt+1}):", e)
             continue
