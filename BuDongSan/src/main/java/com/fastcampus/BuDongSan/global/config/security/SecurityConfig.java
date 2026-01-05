@@ -25,12 +25,9 @@
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
-                    .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                    .cors(AbstractHttpConfigurer::disable)
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
-                            // ⭐ CORS preflight 무조건 허용
-                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                             // 🔓 회원가입, 로그인은 누구나 가능
                             .requestMatchers("/api/users/register", "/api/users/login").permitAll()
 
@@ -52,26 +49,26 @@
         }
 
         // ✅ CORS 설정
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-            CorsConfiguration config = new CorsConfiguration();
-
-            config.setAllowedOrigins(List.of(
-                    "https://room-91.com",
-                    "https://www.room-91.com",
-                    "http://localhost:5173"
-            ));
-            config.setAllowedMethods(List.of(
-                    "GET", "POST", "PUT", "DELETE", "OPTIONS"
-            ));
-
-            config.setAllowedHeaders(List.of("*"));
-
-            config.setAllowCredentials(false);
-
-            UrlBasedCorsConfigurationSource source =
-                    new UrlBasedCorsConfigurationSource();
-            source.registerCorsConfiguration("/**", config);
-            return source;
-        }
+//        @Bean
+//        public CorsConfigurationSource corsConfigurationSource() {
+//            CorsConfiguration config = new CorsConfiguration();
+//
+//            config.setAllowedOrigins(List.of(
+//                    "https://room-91.com",
+//                    "https://www.room-91.com",
+//                    "http://localhost:5173"
+//            ));
+//            config.setAllowedMethods(List.of(
+//                    "GET", "POST", "PUT", "DELETE", "OPTIONS"
+//            ));
+//
+//            config.setAllowedHeaders(List.of("*"));
+//
+//            config.setAllowCredentials(false);
+//
+//            UrlBasedCorsConfigurationSource source =
+//                    new UrlBasedCorsConfigurationSource();
+//            source.registerCorsConfiguration("/**", config);
+//            return source;
+//        }
     }
