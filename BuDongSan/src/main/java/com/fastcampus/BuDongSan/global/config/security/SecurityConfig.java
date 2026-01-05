@@ -51,20 +51,20 @@
             return http.build();
         }
 
-        // ✅ CORS 설정
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOriginPatterns(List.of(
-                    "http://localhost:5173",
-                    "https://room-91.com",
-                    "https://www.room-91.com"));
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-            config.setAllowedHeaders(List.of("*"));
-            config.setAllowCredentials(false);
-
-            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-            source.registerCorsConfiguration("/**", config);
-            return source;
-        }
+//        // ✅ CORS 설정
+//        @Bean
+//        public CorsConfigurationSource corsConfigurationSource() {
+//            CorsConfiguration config = new CorsConfiguration();
+//            config.setAllowedOriginPatterns(List.of(
+//                    "http://localhost:5173",
+//                    "https://room-91.com",
+//                    "https://www.room-91.com"));
+//            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//            config.setAllowedHeaders(List.of("*"));
+//            config.setAllowCredentials(false);
+//
+//            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//            source.registerCorsConfiguration("/**", config);
+//            return source;
+//        }
     }
