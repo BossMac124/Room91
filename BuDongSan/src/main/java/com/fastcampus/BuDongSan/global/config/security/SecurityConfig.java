@@ -53,27 +53,22 @@
 //      ✅ CORS 설정
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
-            return request -> {
-                String origin = request.getHeader("Origin");
-                String method = request.getMethod();
-                String uri = request.getRequestURI();
+            CorsConfiguration config = new CorsConfiguration();
 
-                System.out.println("===== CORS CHECK =====");
-                System.out.println("Origin: " + origin);
-                System.out.println("Method: " + method);
-                System.out.println("URI: " + uri);
-                System.out.println("======================");
+            config.setAllowedOriginPatterns(List.of(
+                    "https://room-91.com",
+                    "https://www.room-91.com",
+                    "http://localhost:*"
+            ));
 
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOriginPatterns(List.of(
-                        "https://*.room-91.com",
-                        "http://localhost:*"
-                ));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("*"));
-                config.setAllowCredentials(false);
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            config.setAllowedHeaders(List.of("*"));
+            config.setAllowCredentials(false);
 
-                return config;
-            };
+            UrlBasedCorsConfigurationSource source =
+                    new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", config);
+
+            return source;
         }
     }
