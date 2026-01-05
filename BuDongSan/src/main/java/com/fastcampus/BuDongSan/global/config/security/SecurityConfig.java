@@ -25,7 +25,7 @@
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
-                    .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                    .cors(AbstractHttpConfigurer::disable)
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
                             // ⭐ CORS preflight 무조건 허용

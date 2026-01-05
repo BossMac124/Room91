@@ -32,14 +32,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             String username = jwtTokenProvider.getUsername(token);
-            String role = jwtTokenProvider.getRole(token); // 👈 Role 꺼냄
+            String role = jwtTokenProvider.getRole(token);
 
-            List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role)); // 👈 권한 객체화
+            if (!role.startsWith("ROLE_")) {
+                role = "ROLE_" + role;
+            }
 
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(username, null, authorities);
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            List.of(new SimpleGrantedAuthority(role))
+                    );
 
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            authentication.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+            );
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
@@ -57,7 +66,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        System.out.println("요청 URI: " + path);
-        return path.equals("/api/users/register") || path.equals("/api/users/login");
+        String method = request.getMethod();
+
+        return (
+                path.equals("/api/users/login") && method.equals("POST")
+        ) || (
+                path.equals("/api/users/register") && method.equals("POST")
+        );
     }
 }
