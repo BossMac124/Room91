@@ -28,6 +28,8 @@
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
+                            // CORS preflight 허용
+                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             // 🔓 회원가입, 로그인은 누구나 가능
                             .requestMatchers("/api/users/register", "/api/users/login").permitAll()
 
