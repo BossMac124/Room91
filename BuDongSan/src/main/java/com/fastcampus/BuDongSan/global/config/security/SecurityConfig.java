@@ -65,10 +65,9 @@
                 System.out.println("======================");
 
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(List.of(
-                        "https://room-91.com",
-                        "https://www.room-91.com",
-                        "http://localhost:5173"
+                config.setAllowedOriginPatterns(List.of(
+                        "https://*.room-91.com",
+                        "http://localhost:*"
                 ));
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 config.setAllowedHeaders(List.of("*"));
