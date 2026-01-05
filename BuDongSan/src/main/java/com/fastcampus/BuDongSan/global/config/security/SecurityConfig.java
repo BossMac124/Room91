@@ -61,7 +61,7 @@
                     "https://www.room-91.com"));
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
-            config.setAllowCredentials(true);  // ✅ 꼭 필요
+            config.setAllowCredentials(false);
 
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", config);
