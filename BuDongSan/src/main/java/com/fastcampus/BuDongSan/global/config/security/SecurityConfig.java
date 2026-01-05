@@ -55,15 +55,22 @@
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOriginPatterns(List.of(
-                    "http://localhost:5173",
+
+            config.setAllowedOrigins(List.of(
                     "https://room-91.com",
-                    "https://www.room-91.com"));
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    "https://www.room-91.com",
+                    "http://localhost:5173"
+            ));
+            config.setAllowedMethods(List.of(
+                    "GET", "POST", "PUT", "DELETE", "OPTIONS"
+            ));
+
             config.setAllowedHeaders(List.of("*"));
+
             config.setAllowCredentials(false);
 
-            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            UrlBasedCorsConfigurationSource source =
+                    new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", config);
             return source;
         }
