@@ -12,5 +12,4 @@ public class BuDongSanApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BuDongSanApplication.class, args);
 	}
-
 }
