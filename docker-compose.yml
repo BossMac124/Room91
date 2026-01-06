@@ -52,6 +52,7 @@ services:
       - "8088:8080"
     volumes:
       - ./images:/Room91/images/
+      - /home/ubuntu/Room91/news_videos:/home/ubuntu/Room91/news_videos
     depends_on:
       - postgres
       - redis
