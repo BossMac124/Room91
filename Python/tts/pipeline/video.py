@@ -7,7 +7,7 @@ from moviepy.video.VideoClip import ImageClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 
-def create_news_video(audio_path, thumbnails_dir="tts/pipeline/thumbnails", output_base_dir="tts/pipeline/news_videos"):
+def create_news_video(audio_path, thumbnails_dir="thumbnails", output_base_dir="news_videos"):
     # 오디오 로딩
     audio = AudioFileClip(audio_path)
 
