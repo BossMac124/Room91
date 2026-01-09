@@ -52,7 +52,7 @@ const MapHouseList = ({ filteredHouses, selectedHouse, handleResultClick }) => (
                     >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                             <div style={{ color: "#FF6B3D", fontWeight: 700 }}>
-                                {house.articleName || "-"}
+                                {house.buildingName || "-"}
                             </div>
                             <span style={badgeStyle}>{tradeType}</span>
                         </div>
